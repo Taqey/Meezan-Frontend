@@ -62,7 +62,7 @@ import {
             </div>
           </div>
 
-          <div class="detail-price">
+          <div class="detail-price" *ngIf="marketData.hasMarketData !== false">
             <span>سعر الإغلاق الأخير</span>
             <strong>{{ (marketData.closingPrice || 0) | number:'1.2-2' }} <small>{{ currencyLabel }}</small></strong>
             <b *ngIf="supportResistance?.changePct !== null && supportResistance?.changePct !== undefined"
@@ -70,11 +70,15 @@ import {
               {{ (supportResistance?.changePct || 0) > 0 ? '+' : '' }}{{ supportResistance?.changePct | number:'1.2-2' }}%
             </b>
           </div>
+          <div class="detail-price board-only-notice" *ngIf="marketData.hasMarketData === false">
+            <span class="muted">بيانات التداول والسوق</span>
+            <strong>غير متداولة / غير مقيدة في مباشر</strong>
+          </div>
         </div>
       </div>
 
-      <!-- Detail Grid: Support/Resistance + Fair Value -->
-      <div class="detail-grid">
+      <!-- Detail Grid: Support/Resistance + Fair Value (Only if stock has market data) -->
+      <div class="detail-grid" *ngIf="marketData.hasMarketData !== false">
         <!-- Support & Resistance Ladder -->
         <div class="detail-card support-card">
           <div class="card-heading">
@@ -165,7 +169,7 @@ import {
         </div>
       </div>
 
-      <!-- Shariah Opinions Grid: 8 Multi-source evaluators -->
+      <!-- Shariah Opinions Grid: Multi-source evaluators -->
       <section class="detail-card shariah-card">
         <div class="card-heading">
           <div>
@@ -204,8 +208,8 @@ import {
           </div>
         </div>
 
-        <!-- Dedicated Shariah Metrics Section (AAOIFI & S&P Breakdown) -->
-        <div class="shariah-metrics-panel">
+        <!-- Dedicated Shariah Metrics Section (AAOIFI & S&P Breakdown) - Suppressed for NonCompliant stocks or when no metrics exist -->
+        <div class="shariah-metrics-panel" *ngIf="marketData.shariahMetrics && marketData.shariahStatus !== 'NonCompliant'">
           <div class="metrics-header">
             <div>
               <h3>المعايير والنسب المالية الشرعية التفصيلية (AAOIFI & S&P)</h3>
@@ -247,8 +251,8 @@ import {
         </div>
       </section>
 
-      <!-- Market Data Fundamentals -->
-      <section class="detail-card market-card">
+      <!-- Market Data Fundamentals (Only if stock has market data) -->
+      <section class="detail-card market-card" *ngIf="marketData.hasMarketData !== false">
         <div class="card-heading">
           <div>
             <span class="eyebrow">بيانات التداول والقوائم</span>

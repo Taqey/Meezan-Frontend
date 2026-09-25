@@ -109,6 +109,7 @@ export interface MarketDataDto {
   shariahStatus?: string | null;
   shariahPct?: number | null;
   shariahOpinions: ShariahSourceOpinionDto[];
+  hasMarketData?: boolean;
   nominalValue?: number | null;
   marketValue?: number | null;
   bookValue?: number | null;

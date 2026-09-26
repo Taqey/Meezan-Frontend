@@ -17,7 +17,10 @@ import {
   UploadIndexFileResultDto,
   ManualMarketDataUpdateRequest,
   ManualMarketDataUpdateResponse,
-  AdminStockLookupItem
+  AdminStockLookupItem,
+  RemovalCandidateDto,
+  RemovalCandidatesActionResult,
+  RefreshSelectedStocksResult
 } from '../models/api.models';
 
 @Injectable({
@@ -116,6 +119,32 @@ export class ApiService {
 
   getScrapingStatus(): Observable<ScrapeStatusResponse> {
     return this.http.get<ScrapeStatusResponse>(`${this.baseUrl}/api/scraping/status`);
+  }
+
+  // ── Removal / stale-stock review checklist ────────────────────────
+  getRemovalCandidates(): Observable<RemovalCandidateDto[]> {
+    return this.http.get<RemovalCandidateDto[]>(`${this.baseUrl}/api/scraping/removal-candidates`);
+  }
+
+  confirmRemovals(tickers: string[], reason?: string): Observable<RemovalCandidatesActionResult> {
+    return this.http.post<RemovalCandidatesActionResult>(
+      `${this.baseUrl}/api/scraping/removal-candidates/confirm`,
+      { tickers, reason: reason || null }
+    );
+  }
+
+  refreshSelectedStocks(tickers: string[]): Observable<RefreshSelectedStocksResult> {
+    return this.http.post<RefreshSelectedStocksResult>(
+      `${this.baseUrl}/api/scraping/removal-candidates/refresh`,
+      { tickers }
+    );
+  }
+
+  reactivateSelectedStocks(tickers: string[]): Observable<RemovalCandidatesActionResult> {
+    return this.http.post<RemovalCandidatesActionResult>(
+      `${this.baseUrl}/api/scraping/removal-candidates/reactivate`,
+      { tickers }
+    );
   }
 
   // ── Admin Market Data ──────────────────────────────────────────────

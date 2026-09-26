@@ -17,15 +17,16 @@ import { INDEX_ARABIC_NAMES } from '../../models/api.models';
           {{ ticker }}
           <span *ngIf="nameEn">{{ nameEn }}</span>
         </div>
-        <span class="change" [ngClass]="(changePct || 0) >= 0 ? 'positive' : 'negative'">
-          {{ (changePct || 0) > 0 ? '+' : '' }}{{ (changePct || 0) | number:'1.2-2' }}%
+        <span class="change" *ngIf="changePct !== null && changePct !== undefined"
+              [ngClass]="changePct >= 0 ? 'positive' : 'negative'">
+          {{ changePct > 0 ? '+' : '' }}{{ changePct | number:'1.2-2' }}%
         </span>
       </div>
 
       <div class="stock-name">{{ nameAr || ticker }}</div>
 
       <div class="stock-price">
-        <strong>{{ (closingPrice || 0) | number:'1.2-2' }}</strong>
+        <strong>{{ closingPrice !== null && closingPrice !== undefined ? (closingPrice | number:'1.2-2') : '—' }}</strong>
         <span>{{ currencyLabel }}</span>
         <em *ngIf="weight && weight > 0">الوزن {{ weight | number:'1.2-2' }}%</em>
       </div>

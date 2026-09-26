@@ -556,6 +556,11 @@ button, input, select, textarea {
   background: var(--warn-soft);
 }
 
+.comparison-badge.unavailable {
+  color: var(--muted-foreground);
+  background: rgba(112, 128, 120, 0.14);
+}
+
 .neutral-line {
   width: 10px;
   height: 2px;
@@ -1112,6 +1117,28 @@ button, input, select, textarea {
 }
 
 /* Fair Value Breakdown */
+
+/* "بيانات غير كافية لحساب القيمة العادلة" — no numeric fair value, no verdict */
+.fair-unavailable {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: rgba(112, 128, 120, 0.06);
+}
+
+.fair-unavailable strong {
+  display: block;
+  font-size: 16px;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.fair-unavailable p {
+  margin: 0;
+  line-height: 1.8;
+}
+
 .fair-number {
   display: flex;
   align-items: baseline;
@@ -1240,6 +1267,60 @@ button, input, select, textarea {
   gap: 4px;
   font-size: 11px;
   font-weight: 500;
+}
+
+/* Simplified "internal Sharia board exists" display (ATLC, SAUD, ADIB, AMIA, FAIT) */
+.board-exists-panel {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid #e3eede;
+  border-radius: 14px;
+  background: #f5faf3;
+}
+
+.board-exists-panel .board-note {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0 0 14px;
+}
+
+.board-exists-panel .board-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.board-exists-panel .board-source {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 12px;
+}
+
+.board-exists-panel .board-source strong {
+  font-size: 13px;
+}
+
+.board-exists-panel .board-source span {
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+
+.board-only-notice {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: var(--muted);
+}
+
+.board-only-notice strong {
+  font-size: 13px;
 }
 
 /* Shariah Metrics Detailed Section */

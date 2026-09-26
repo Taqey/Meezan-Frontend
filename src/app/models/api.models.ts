@@ -1,5 +1,13 @@
 export type ShariahStatus = 'Compliant' | 'NonCompliant' | 'Pending' | 'Blocked';
-export type PriceComparison = 'Cheap' | 'Expensive' | 'Fair';
+/**
+ * 'Unavailable' = no trustworthy fair value could be computed (zero applicable methods,
+ * nothing survived the outlier fallback, or the stock's own price is missing/zero).
+ * In that state fairValue / fairValueDiff / fairValueDiffPct are all null, the
+ * valuationConfidence is 'None' and no Cheap/Expensive/Fair verdict may be shown.
+ * A null priceComparison means the stock has no fair-value row at all — treat it as
+ * 'Unavailable'.
+ */
+export type PriceComparison = 'Cheap' | 'Expensive' | 'Fair' | 'Unavailable';
 export type ValuationConfidence = 'None' | 'Low' | 'Medium' | 'High';
 
 export enum ShariahSourceKey {
@@ -76,12 +84,14 @@ export interface IndexInStockDto {
   code: string;
   nameAr: string;
   nameEn: string;
-  weight: number;
+  /** null when the source file for this index had no weight column */
+  weight: number | null;
 }
 
 export interface FairValueMethodDto {
   name: string;
-  value: number;
+  /** Null when the method produced no usable estimate — never coerced to 0. */
+  value?: number | null;
   isOutlier: boolean;
 }
 
@@ -107,9 +117,18 @@ export interface MarketDataDto {
   sectorNameEn?: string | null;
   indices: IndexInStockDto[];
   shariahStatus?: string | null;
+  /** Purification percentage — never populated for board-governed stocks. */
   shariahPct?: number | null;
+  /** Empty for board-governed stocks (external opinion panel suppressed). */
   shariahOpinions: ShariahSourceOpinionDto[];
   hasMarketData?: boolean;
+  /**
+   * Stock overseen by its own Sharia board/committee — a plain "لجنة شرعية" and an
+   * accredited "هيئة رقابة شرعية داخلية معتمدة" are the same case. Simplified display:
+   * status + shariahBoardNote only (no purification %, opinions or metrics panel).
+   */
+  hasShariahBoard?: boolean;
+  shariahBoardNote?: string | null;
   nominalValue?: number | null;
   marketValue?: number | null;
   bookValue?: number | null;
@@ -124,10 +143,16 @@ export interface MarketDataDto {
   sourceLastUpdateText?: string | null;
   fetchedAt?: string | null;
   // Fair value
+  /** Null when no trustworthy fair value exists — never rendered as 0.00. */
   fairValue?: number | null;
+  /**
+   * 'Cheap' | 'Expensive' | 'Fair' | 'Unavailable'; null when the stock has no
+   * fair-value row at all. 'Unavailable'/null ⇒ "بيانات غير كافية لحساب القيمة العادلة".
+   */
   priceComparison?: string | null;
   fairValueDiff?: number | null;
   fairValueDiffPct?: number | null;
+  /** Number of methods that actually fed the fair value (0 for 'Unavailable'). */
   methodsUsedCount?: number | null;
   methodsExcludedCount?: number | null;
   valuationConfidence?: string | null;
@@ -150,21 +175,68 @@ export interface SupportResistanceDto {
   fetchedAt?: string | null;
 }
 
+/** One reviewable row in the operator removal/stale checklist (read-only). */
+export interface RemovalCandidateDto {
+  stockId: number;
+  ticker: string;
+  nameAr?: string | null;
+  nameEn?: string | null;
+  lastSuccessfulUpdate?: string | null;
+  sourceLastUpdateText?: string | null;
+  lastClosingPrice?: number | null;
+  /** StaleData | NotFoundOnSource | Deactivated */
+  reason: string;
+  currentIsActive: boolean;
+  dataStatus: string;
+  deactivatedAt?: string | null;
+  deactivationReason?: string | null;
+  sectorNameAr?: string | null;
+}
+
+export interface RemovalCandidatesActionResult {
+  message: string;
+  confirmed?: string[];
+  reactivated?: string[];
+  notFound?: string[];
+}
+
+export interface SelectedStockRefreshOutcomeDto {
+  ticker: string;
+  success: boolean;
+  message?: string | null;
+}
+
+export interface RefreshSelectedStocksResult {
+  success: boolean;
+  totalRequested: number;
+  totalFound: number;
+  succeeded: number;
+  failed: number;
+  duration: string;
+  errorSummary?: string | null;
+  outcomes: SelectedStockRefreshOutcomeDto[];
+}
+
 export interface ConstituentItemDto {
   ticker: string;
   nameAr?: string | null;
   nameEn?: string | null;
   indices: string[];
   shariahStatus?: string | null;
+  /** Empty for board-governed stocks (external opinion panel suppressed). */
   shariahOpinions: ShariahSourceOpinionDto[];
   closingPrice?: number | null;
   changePct?: number | null;
   fairValue?: number | null;
   priceComparison?: string | null;
   fairValueDiffPct?: number | null;
-  weight: number;
+  /** null when the source file for this index had no weight column */
+  weight: number | null;
   currency?: string | null;
   sectorNameAr?: string | null;
+  /** Stock overseen by a Sharia board/committee (unified simplified display). */
+  hasShariahBoard?: boolean;
+  shariahBoardNote?: string | null;
 }
 
 export interface IndexConstituentsPagedResultDto {

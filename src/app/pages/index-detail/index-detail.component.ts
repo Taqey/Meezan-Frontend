@@ -69,6 +69,7 @@ import { ConstituentItemDto, IndexConstituentsPagedResultDto } from '../../model
           <option value="Cheap">أرخص من العادلة</option>
           <option value="Fair">قريبة من العادلة</option>
           <option value="Expensive">أغلى من العادلة</option>
+          <option value="Unavailable">لا يمكن حساب القيمة العادلة</option>
         </select>
       </div>
 

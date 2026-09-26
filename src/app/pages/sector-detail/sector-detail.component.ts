@@ -67,6 +67,7 @@ import { PagedResult, SectorSummaryDto, StockListItemDto } from '../../models/ap
           <option value="Cheap">أرخص من العادلة</option>
           <option value="Fair">قريبة من العادلة</option>
           <option value="Expensive">أغلى من العادلة</option>
+          <option value="Unavailable">لا يمكن حساب القيمة العادلة</option>
         </select>
 
         <select [(ngModel)]="sortSelection" (change)="onSortChange()" aria-label="ترتيب النتائج">

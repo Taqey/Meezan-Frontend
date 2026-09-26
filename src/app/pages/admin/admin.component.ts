@@ -31,7 +31,9 @@ import {
   ScrapeStatusResponse,
   SeedShariahResultDto,
   StockListItemDto,
-  UploadIndexFileResultDto
+  UploadIndexFileResultDto,
+  RemovalCandidateDto,
+  RefreshSelectedStocksResult
 } from '../../models/api.models';
 
 interface EditableMarketForm {
@@ -85,6 +87,9 @@ interface EditableMarketForm {
         </button>
         <button class="admin-tab" [class.active]="activeTab === 'shariah'" (click)="activeTab = 'shariah'">
           تحديث الشريعة والبيانات المدمجة
+        </button>
+        <button class="admin-tab" [class.active]="activeTab === 'review'" (click)="openReviewTab()">
+          مراجعة الأسهم القديمة والمحذوفة
         </button>
       </div>
 
@@ -306,7 +311,7 @@ interface EditableMarketForm {
                   {{ selectedStockMarketData.fairValue ? (selectedStockMarketData.fairValue | number:'1.2-2') + ' جنيه' : 'غير متوفرة' }}
                 </strong>
                 <span *ngIf="selectedStockMarketData.priceComparison" style="font-size: 11px; margin-right: 4px;" [style.color]="selectedStockMarketData.priceComparison === 'Cheap' ? 'var(--good)' : (selectedStockMarketData.priceComparison === 'Expensive' ? 'var(--bad)' : 'inherit')">
-                  ({{ selectedStockMarketData.priceComparison === 'Cheap' ? 'أرخص من العادلة' : (selectedStockMarketData.priceComparison === 'Expensive' ? 'أعلى من العادلة' : 'قريبة من العادلة') }})
+                  ({{ selectedStockMarketData.priceComparison === 'Cheap' ? 'أرخص من العادلة' : (selectedStockMarketData.priceComparison === 'Expensive' ? 'أعلى من العادلة' : (selectedStockMarketData.priceComparison === 'Fair' ? 'قريبة من العادلة' : 'لا يمكن حساب القيمة العادلة')) }})
                 </span>
               </div>
 
@@ -660,6 +665,95 @@ interface EditableMarketForm {
           <div>إجمالي المعالجة: <strong>{{ seedResult.totalProcessed }}</strong></div>
         </div>
       </div>
+
+      <!-- TAB 5: OPERATOR REVIEW CHECKLIST (stale / missing / deactivated) -->
+      <div *ngIf="activeTab === 'review'" class="admin-card">
+        <h2>قائمة مراجعة الأسهم القديمة والمحذوفة</h2>
+        <p class="muted">
+          الأسهم التالية مرشحة للمراجعة فقط: بياناتها قديمة في المصدر، أو غير موجودة في المصدر، أو معطّلة يدوياً.
+          <strong>لا يقوم النظام بأي إجراء تلقائي</strong> — حدّد الأسهم يدوياً ثم اختر الإجراء المناسب:
+          إعادة السحب (تحديث البيانات)، تأكيد الإيقاف، أو إعادة التفعيل.
+        </p>
+
+        <div style="display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; align-items: center;">
+          <button class="btn btn-outline" (click)="loadRemovalCandidates()" [disabled]="candidatesLoading">
+            <lucide-icon [img]="RefreshCwIcon" size="16"></lucide-icon>
+            {{ candidatesLoading ? 'جارٍ التحميل...' : 'تحديث القائمة' }}
+          </button>
+          <button class="btn btn-primary" (click)="refreshSelectedCandidates()" [disabled]="candidatesBusy || selectedTickers.size === 0">
+            <lucide-icon [img]="PlayIcon" size="16"></lucide-icon>
+            إعادة سحب المحدَّد ({{ selectedTickers.size }})
+          </button>
+          <button class="btn btn-outline" (click)="confirmSelectedCandidates()" [disabled]="candidatesBusy || selectedTickers.size === 0"
+                  style="border-color: #fecaca; color: var(--bad);">
+            <lucide-icon [img]="AlertTriangleIcon" size="16"></lucide-icon>
+            تأكيد الإيقاف للمحدَّد
+          </button>
+          <button class="btn btn-outline" (click)="reactivateSelectedCandidates()" [disabled]="candidatesBusy || selectedTickers.size === 0">
+            <lucide-icon [img]="RotateCcwIcon" size="16"></lucide-icon>
+            إعادة تفعيل المحدَّد
+          </button>
+          <label style="font-size: 12px; color: var(--muted-foreground); display: flex; align-items: center; gap: 6px; margin-right: auto;">
+            <input type="checkbox" [checked]="allCandidatesSelected" (change)="toggleSelectAllCandidates($any($event).target.checked)" />
+            تحديد الكل ({{ removalCandidates.length }})
+          </label>
+        </div>
+
+        <div *ngIf="candidatesMessage" class="admin-result" [class.success]="!candidatesError" [class.error]="candidatesError"
+             style="background: #f5faf3; border: 1px solid #e3eede; border-radius: 12px; padding: 14px; margin-bottom: 16px;">
+          {{ candidatesMessage }}
+          <ul *ngIf="refreshSelectedResult?.outcomes?.length" style="margin: 8px 16px 0 0; font-size: 12px;">
+            <li *ngFor="let o of refreshSelectedResult!.outcomes">
+              <strong>{{ o.ticker }}</strong> —
+              <span [style.color]="o.success ? 'var(--good)' : 'var(--bad)'">{{ o.success ? 'تم التحديث' : 'فشل' }}</span>
+              <span *ngIf="o.message"> ({{ o.message }})</span>
+            </li>
+          </ul>
+        </div>
+
+        <div *ngIf="!candidatesLoading && removalCandidates.length === 0" class="muted" style="padding: 24px 0;">
+          لا توجد أسهم مرشحة للمراجعة حالياً.
+        </div>
+
+        <div *ngIf="removalCandidates.length" style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>الرمز</th>
+                <th>الاسم</th>
+                <th>القطاع</th>
+                <th>سبب المراجعة</th>
+                <th>آخر تحديث بالمصدر</th>
+                <th>آخر إغلاق</th>
+                <th>الحالة</th>
+                <th>ملاحظات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of removalCandidates">
+                <td><input type="checkbox" [checked]="selectedTickers.has(c.ticker)" (change)="toggleCandidate(c.ticker, $any($event).target.checked)" /></td>
+                <td><strong style="font-family: monospace;">{{ c.ticker }}</strong></td>
+                <td>{{ c.nameAr || c.nameEn || '—' }}</td>
+                <td style="font-size: 12px; color: var(--muted-foreground);">{{ c.sectorNameAr || '—' }}</td>
+                <td>
+                  <span style="font-size: 11px; padding: 3px 8px; border-radius: 999px;"
+                        [style.background]="c.reason === 'Deactivated' ? '#fee2e2' : (c.reason === 'StaleData' ? '#fef3c7' : '#e0f2fe')"
+                        [style.color]="c.reason === 'Deactivated' ? '#b91c1c' : (c.reason === 'StaleData' ? '#92400e' : '#075985')">
+                    {{ reasonLabel(c.reason) }}
+                  </span>
+                </td>
+                <td style="font-size: 12px;">{{ c.sourceLastUpdateText || '—' }}</td>
+                <td>{{ c.lastClosingPrice != null ? (c.lastClosingPrice | number:'1.2-2') : '—' }}</td>
+                <td style="font-size: 12px;" [style.color]="c.currentIsActive ? 'var(--good)' : 'var(--bad)'">
+                  {{ c.currentIsActive ? 'فعَّال' : 'معطَّل' }} · {{ c.dataStatus }}
+                </td>
+                <td style="font-size: 11px; color: var(--muted-foreground);">{{ c.deactivationReason || c.lastSuccessfulUpdate || '—' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   `
 })
@@ -676,8 +770,9 @@ export class AdminComponent implements OnInit, OnDestroy {
   readonly CalendarIcon = Calendar;
   readonly ClockIcon = Clock;
   readonly Edit3Icon = Edit3;
+  readonly AlertTriangleIcon = AlertTriangle;
 
-  activeTab: 'scraping' | 'market-data' | 'upload' | 'shariah' = 'scraping';
+  activeTab: 'scraping' | 'market-data' | 'upload' | 'shariah' | 'review' = 'scraping';
 
   indices: IndexSummaryDto[] = [];
   allStocks: AdminStockLookupItem[] = [];
@@ -725,6 +820,15 @@ export class AdminComponent implements OnInit, OnDestroy {
   refreshResult?: RefreshShariahDataResult;
   seedResult?: SeedShariahResultDto;
   seedJsonOverride = '';
+
+  // Review checklist tab
+  removalCandidates: RemovalCandidateDto[] = [];
+  selectedTickers = new Set<string>();
+  candidatesLoading = false;
+  candidatesBusy = false;
+  candidatesMessage = '';
+  candidatesError = false;
+  refreshSelectedResult?: RefreshSelectedStocksResult;
 
   constructor(
     private api: ApiService,
@@ -1058,5 +1162,124 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.shariahSeeding = false;
       }
     });
+  }
+
+  // ── Review checklist tab ───────────────────────────────────────────
+  openReviewTab(): void {
+    this.activeTab = 'review';
+    if (this.removalCandidates.length === 0) this.loadRemovalCandidates();
+  }
+
+  loadRemovalCandidates(): void {
+    this.candidatesLoading = true;
+    this.candidatesMessage = '';
+    this.candidatesError = false;
+    this.api.getRemovalCandidates().subscribe({
+      next: (rows) => {
+        this.removalCandidates = rows || [];
+        // Drop selections for tickers that are no longer candidates.
+        this.selectedTickers = new Set(
+          [...this.selectedTickers].filter((t) => this.removalCandidates.some((c) => c.ticker === t))
+        );
+        this.candidatesLoading = false;
+      },
+      error: () => {
+        this.candidatesLoading = false;
+        this.candidatesError = true;
+        this.candidatesMessage = 'تعذّر تحميل قائمة المراجعة.';
+      }
+    });
+  }
+
+  toggleCandidate(ticker: string, checked: boolean): void {
+    if (checked) this.selectedTickers.add(ticker);
+    else this.selectedTickers.delete(ticker);
+    this.selectedTickers = new Set(this.selectedTickers);
+  }
+
+  get allCandidatesSelected(): boolean {
+    return this.removalCandidates.length > 0 && this.selectedTickers.size === this.removalCandidates.length;
+  }
+
+  toggleSelectAllCandidates(checked: boolean): void {
+    this.selectedTickers = checked
+      ? new Set(this.removalCandidates.map((c) => c.ticker))
+      : new Set<string>();
+  }
+
+  refreshSelectedCandidates(): void {
+    const tickers = [...this.selectedTickers];
+    if (!tickers.length) return;
+    this.candidatesBusy = true;
+    this.candidatesMessage = '';
+    this.candidatesError = false;
+    this.refreshSelectedResult = undefined;
+    this.api.refreshSelectedStocks(tickers).subscribe({
+      next: (res) => {
+        this.candidatesBusy = false;
+        this.refreshSelectedResult = res;
+        this.candidatesError = !res.success;
+        this.candidatesMessage = `اكتملت إعادة السحب: نجح ${res.succeeded} وفشل ${res.failed} من ${res.totalRequested}.`
+          + (res.errorSummary ? ` — ${res.errorSummary}` : '');
+        this.loadRemovalCandidates();
+      },
+      error: () => {
+        this.candidatesBusy = false;
+        this.candidatesError = true;
+        this.candidatesMessage = 'تعذّر تنفيذ إعادة السحب للأسهم المحددة.';
+      }
+    });
+  }
+
+  confirmSelectedCandidates(): void {
+    const tickers = [...this.selectedTickers];
+    if (!tickers.length) return;
+    if (!confirm(`تأكيد إيقاف ${tickers.length} سهم؟ (يتم الإيقاف فقط مع الاحتفاظ بالبيانات)`)) return;
+    this.candidatesBusy = true;
+    this.candidatesMessage = '';
+    this.candidatesError = false;
+    this.api.confirmRemovals(tickers, 'تم الإيقاف يدوياً عبر قائمة المراجعة').subscribe({
+      next: (res) => {
+        this.candidatesBusy = false;
+        this.candidatesMessage = res.message;
+        this.selectedTickers = new Set<string>();
+        this.loadRemovalCandidates();
+      },
+      error: () => {
+        this.candidatesBusy = false;
+        this.candidatesError = true;
+        this.candidatesMessage = 'تعذّر تأكيد الإيقاف.';
+      }
+    });
+  }
+
+  reactivateSelectedCandidates(): void {
+    const tickers = [...this.selectedTickers];
+    if (!tickers.length) return;
+    this.candidatesBusy = true;
+    this.candidatesMessage = '';
+    this.candidatesError = false;
+    this.api.reactivateSelectedStocks(tickers).subscribe({
+      next: (res) => {
+        this.candidatesBusy = false;
+        this.candidatesMessage = res.message;
+        this.selectedTickers = new Set<string>();
+        this.loadRemovalCandidates();
+      },
+      error: () => {
+        this.candidatesBusy = false;
+        this.candidatesError = true;
+        this.candidatesMessage = 'تعذّر إعادة التفعيل.';
+      }
+    });
+  }
+
+  reasonLabel(reason: string): string {
+    switch (reason) {
+      case 'StaleData': return 'بيانات قديمة';
+      case 'NotFoundOnSource': return 'غير موجود في المصدر';
+      case 'Deactivated': return 'معطَّل يدوياً';
+      default: return reason;
+    }
   }
 }

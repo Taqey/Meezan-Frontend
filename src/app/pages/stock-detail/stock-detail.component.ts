@@ -64,10 +64,15 @@ import {
 
           <div class="detail-price" *ngIf="marketData.hasMarketData !== false">
             <span>سعر الإغلاق الأخير</span>
-            <strong>{{ (marketData.closingPrice || 0) | number:'1.2-2' }} <small>{{ currencyLabel }}</small></strong>
+            <strong *ngIf="marketData.closingPrice !== null && marketData.closingPrice !== undefined; else noPrice">
+              {{ marketData.closingPrice | number:'1.2-2' }} <small>{{ currencyLabel }}</small>
+            </strong>
+            <ng-template #noPrice>
+              <strong>— <small>{{ currencyLabel }}</small></strong>
+            </ng-template>
             <b *ngIf="supportResistance?.changePct !== null && supportResistance?.changePct !== undefined"
-               [ngClass]="(supportResistance?.changePct || 0) >= 0 ? 'positive' : 'negative'">
-              {{ (supportResistance?.changePct || 0) > 0 ? '+' : '' }}{{ supportResistance?.changePct | number:'1.2-2' }}%
+               [ngClass]="(supportResistance?.changePct ?? 0) >= 0 ? 'positive' : 'negative'">
+              {{ (supportResistance?.changePct ?? 0) > 0 ? '+' : '' }}{{ supportResistance?.changePct | number:'1.2-2' }}%
             </b>
           </div>
           <div class="detail-price board-only-notice" *ngIf="marketData.hasMarketData === false">
@@ -87,7 +92,7 @@ import {
               <h2>الدعم والمقاومة والارتكاز</h2>
             </div>
             <span class="neutral-pill" *ngIf="supportResistance">
-              الارتكاز: {{ (supportResistance.pivot || 0) | number:'1.2-2' }} {{ currencyLabel }}
+              الارتكاز: {{ supportResistance.pivot != null ? (supportResistance.pivot | number:'1.2-2') : '—' }} {{ currencyLabel }}
             </span>
           </div>
 
@@ -106,27 +111,27 @@ import {
             <div class="ladder-point" style="right: 5%;">
               <i></i>
               <b>S2</b>
-              <span>{{ (supportResistance.s2 || 0) | number:'1.2-2' }}</span>
+              <span>{{ supportResistance.s2 != null ? (supportResistance.s2 | number:'1.2-2') : '—' }}</span>
             </div>
             <div class="ladder-point" style="right: 27.5%;">
               <i></i>
               <b>S1</b>
-              <span>{{ (supportResistance.s1 || 0) | number:'1.2-2' }}</span>
+              <span>{{ supportResistance.s1 != null ? (supportResistance.s1 | number:'1.2-2') : '—' }}</span>
             </div>
             <div class="ladder-point" style="right: 50%;">
               <i></i>
               <b>PIVOT</b>
-              <span>{{ (supportResistance.pivot || 0) | number:'1.2-2' }}</span>
+              <span>{{ supportResistance.pivot != null ? (supportResistance.pivot | number:'1.2-2') : '—' }}</span>
             </div>
             <div class="ladder-point" style="right: 72.5%;">
               <i></i>
               <b>R1</b>
-              <span>{{ (supportResistance.r1 || 0) | number:'1.2-2' }}</span>
+              <span>{{ supportResistance.r1 != null ? (supportResistance.r1 | number:'1.2-2') : '—' }}</span>
             </div>
             <div class="ladder-point" style="right: 95%;">
               <i></i>
               <b>R2</b>
-              <span>{{ (supportResistance.r2 || 0) | number:'1.2-2' }}</span>
+              <span>{{ supportResistance.r2 != null ? (supportResistance.r2 | number:'1.2-2') : '—' }}</span>
             </div>
           </div>
           <div *ngIf="!supportResistance" class="muted" style="margin-top: 40px;">
@@ -144,34 +149,68 @@ import {
             <app-comparison-badge [comparison]="marketData.priceComparison"></app-comparison-badge>
           </div>
 
-          <div class="fair-number">
-            <strong>{{ (marketData.fairValue || 0) | number:'1.2-2' }}</strong>
-            <span>{{ currencyLabel }}</span>
-            <b *ngIf="marketData.fairValueDiffPct !== null && marketData.fairValueDiffPct !== undefined"
-               [ngClass]="(marketData.fairValueDiffPct || 0) >= 0 ? 'positive' : 'negative'">
-              {{ (marketData.fairValueDiffPct || 0) > 0 ? '+' : '' }}{{ marketData.fairValueDiffPct | number:'1.2-2' }}% عن السعر الحالي
-            </b>
+          <!-- Insufficient data: no trustworthy fair value exists. Shown instead of a
+               fabricated "قريبة من العادلة — 0.00" verdict: no numeric fair value, no
+               confidence %, no approved-methods line. -->
+          <div class="fair-unavailable" *ngIf="isFairValueUnavailable">
+            <strong>بيانات غير كافية لحساب القيمة العادلة</strong>
+            <p class="muted">
+              لا توجد حالياً طرق تقييم مُعتمدة لهذا السهم (ربحية EPS، قيمة دفترية، أو بيانات قطاع
+              كافية) أو أن سعر السهم الحالي غير متاح. لن تُعرض قيمة عادلة رقمية أو نسبة ثقة حتى
+              توفّر هذه البيانات.
+            </p>
           </div>
 
-          <p class="muted">
-            مستوى الثقة: <strong>{{ getConfidenceLabel(marketData.valuationConfidence) }}</strong> ·
-            اعتُمدت {{ marketData.methodsUsedCount || 0 }} طرق واستُبعدت {{ marketData.methodsExcludedCount || 0 }} كقيم شاذة عبر نطاق Tukey IQR (1.5×IQR).
-          </p>
-
-          <!-- 4 Methods List -->
-          <div class="method-list" *ngIf="marketData.fairValueMethods && marketData.fairValueMethods.length">
-            <div class="method" *ngFor="let m of marketData.fairValueMethods" [class.outlier]="m.isOutlier">
-              <span>{{ getMethodDisplayName(m.name) }}</span>
-              <strong>{{ (m.value || 0) | number:'1.2-2' }} {{ currencyLabel }}</strong>
-              <em *ngIf="m.isOutlier">قيمة شاذة مستبعدة (Outlier)</em>
+          <ng-container *ngIf="!isFairValueUnavailable">
+            <div class="fair-number">
+              <strong>{{ marketData.fairValue | number:'1.2-2' }}</strong>
+              <span>{{ currencyLabel }}</span>
+              <b *ngIf="marketData.fairValueDiffPct !== null && marketData.fairValueDiffPct !== undefined"
+                 [ngClass]="marketData.fairValueDiffPct >= 0 ? 'positive' : 'negative'">
+                {{ marketData.fairValueDiffPct > 0 ? '+' : '' }}{{ marketData.fairValueDiffPct | number:'1.2-2' }}% عن السعر الحالي
+              </b>
             </div>
-          </div>
+
+            <p class="muted">
+              مستوى الثقة: <strong>{{ getConfidenceLabel(marketData.valuationConfidence) }}</strong> ·
+              اعتُمدت {{ marketData.methodsUsedCount ?? 0 }} طرق واستُبعدت {{ marketData.methodsExcludedCount ?? 0 }} كقيم شاذة عبر نطاق Tukey IQR (1.5×IQR).
+            </p>
+
+            <!-- 4 Methods List -->
+            <div class="method-list" *ngIf="marketData.fairValueMethods && marketData.fairValueMethods.length">
+              <div class="method" *ngFor="let m of marketData.fairValueMethods" [class.outlier]="m.isOutlier">
+                <span>{{ getMethodDisplayName(m.name) }}</span>
+                <strong>{{ m.value != null ? (m.value | number:'1.2-2') : '—' }} {{ currencyLabel }}</strong>
+                <em *ngIf="m.isOutlier">قيمة شاذة مستبعدة (Outlier)</em>
+              </div>
+            </div>
+          </ng-container>
         </div>
       </div>
 
       <!-- Shariah Opinions Grid: Multi-source evaluators -->
       <section class="detail-card shariah-card">
-        <div class="card-heading">
+        <!-- Simplified display for stocks overseen by their own Sharia board/committee
+             (plain "لجنة شرعية" and accredited "هيئة رقابة شرعية داخلية معتمدة" are the
+             same case): status + one note only — no purification %, no 7-source grid,
+             no AAOIFI/S&P metrics panel. -->
+        <div class="card-heading" *ngIf="marketData.hasShariahBoard">
+          <div>
+            <span class="eyebrow">الإشراف الشرعي</span>
+            <h2>الإشراف الشرعي للسهم</h2>
+            <p>الحكم المعتمد: <app-status-badge [status]="marketData.shariahStatus"></app-status-badge></p>
+          </div>
+          <div class="ratio-big">
+            <strong>موجودة</strong>
+            <span>لجنة أو هيئة شرعية تشرف على السهم</span>
+          </div>
+        </div>
+
+        <div class="board-exists-panel" *ngIf="marketData.hasShariahBoard">
+          <p class="board-note">{{ marketData.shariahBoardNote || 'تشرف لجنة/هيئة شرعية على هذا السهم وعلى توافق أنشطته ومعاييره الشرعية.' }}</p>
+        </div>
+
+        <div class="card-heading" *ngIf="!marketData.hasShariahBoard">
           <div>
             <span class="eyebrow">تغطية الجهات الشرعية</span>
             <h2>آراء الهيئات الشرعية (7 مصادر مستقلة)</h2>
@@ -183,7 +222,7 @@ import {
           </div>
         </div>
 
-        <div class="opinion-grid">
+        <div class="opinion-grid" *ngIf="!marketData.hasShariahBoard">
           <div class="source-card" *ngFor="let op of sourceOpinionsList">
             <div class="source-top">
               <strong>{{ getSourceName(op.sourceKey) }}</strong>
@@ -208,8 +247,9 @@ import {
           </div>
         </div>
 
-        <!-- Dedicated Shariah Metrics Section (AAOIFI & S&P Breakdown) - Suppressed for NonCompliant stocks or when no metrics exist -->
-        <div class="shariah-metrics-panel" *ngIf="marketData.shariahMetrics && marketData.shariahStatus !== 'NonCompliant'">
+        <!-- Dedicated Shariah Metrics Section (AAOIFI & S&P Breakdown) - Suppressed for
+             NonCompliant stocks, board-governed stocks, or when no metrics exist -->
+        <div class="shariah-metrics-panel" *ngIf="marketData.shariahMetrics && marketData.shariahStatus !== 'NonCompliant' && !marketData.hasShariahBoard">
           <div class="metrics-header">
             <div>
               <h3>المعايير والنسب المالية الشرعية التفصيلية (AAOIFI & S&P)</h3>
@@ -237,15 +277,15 @@ import {
             </div>
             <div class="metric-cell">
               <span>تطهير السهم (AAOIFI)</span>
-              <strong>{{ marketData.shariahMetrics?.aaoifiHaramEarningPerShare || 0 }} {{ currencyLabel }}/سهم</strong>
+              <strong>{{ aaoifiHaramPerShare != null ? aaoifiHaramPerShare : '—' }} {{ currencyLabel }}/سهم</strong>
             </div>
             <div class="metric-cell">
               <span>نسبة الإيراد المحرم (S&P)</span>
-              <strong>{{ marketData.shariahMetrics?.spHaramEarningPercentage || marketData.shariahPct || 0 }}%</strong>
+              <strong>{{ spHaramPct != null ? spHaramPct : '—' }}%</strong>
             </div>
             <div class="metric-cell">
               <span>نسبة القروض والفوائد</span>
-              <strong>{{ marketData.shariahMetrics?.loansPercentage || marketData.shariahMetrics?.interestBearingDebtRatio || 0 }}%</strong>
+              <strong>{{ loansPct != null ? loansPct : '—' }}%</strong>
             </div>
           </div>
         </div>
@@ -264,11 +304,11 @@ import {
         <div class="fundamentals">
           <div>
             <span>القيمة الاسمية</span>
-            <strong>{{ (marketData.nominalValue || 0) | number:'1.2-2' }} {{ marketData.currency || 'ج.م' }}</strong>
+            <strong>{{ marketData.nominalValue != null ? (marketData.nominalValue | number:'1.2-2') + ' ' + (marketData.currency || 'ج.م') : '—' }}</strong>
           </div>
           <div>
             <span>القيمة الدفترية</span>
-            <strong>{{ (marketData.bookValue || 0) | number:'1.2-2' }} {{ marketData.currency || 'ج.م' }}</strong>
+            <strong>{{ marketData.bookValue != null ? (marketData.bookValue | number:'1.2-2') + ' ' + (marketData.currency || 'ج.م') : '—' }}</strong>
           </div>
           <div>
             <span>مضاعف القيمة الدفترية (P/B)</span>
@@ -276,7 +316,7 @@ import {
           </div>
           <div>
             <span>ربحية السهم (EPS)</span>
-            <strong>{{ (marketData.eps || 0) | number:'1.2-2' }} {{ marketData.currency || 'ج.م' }}</strong>
+            <strong>{{ marketData.eps != null ? (marketData.eps | number:'1.2-2') + ' ' + (marketData.currency || 'ج.م') : '—' }}</strong>
           </div>
           <div>
             <span>مضاعف الربحية (P/E)</span>
@@ -284,15 +324,15 @@ import {
           </div>
           <div>
             <span>القيمة السوقية</span>
-            <strong>{{ (marketData.marketValue || 0) | number:'1.0-0' }}</strong>
+            <strong>{{ marketData.marketValue != null ? (marketData.marketValue | number:'1.0-0') : '—' }}</strong>
           </div>
           <div>
             <span>أعلى سعر بالجلسة</span>
-            <strong>{{ (marketData.high || 0) | number:'1.2-2' }}</strong>
+            <strong>{{ marketData.high != null ? (marketData.high | number:'1.2-2') : '—' }}</strong>
           </div>
           <div>
             <span>أدنى سعر بالجلسة</span>
-            <strong>{{ (marketData.low || 0) | number:'1.2-2' }}</strong>
+            <strong>{{ marketData.low != null ? (marketData.low | number:'1.2-2') : '—' }}</strong>
           </div>
         </div>
       </section>
@@ -406,6 +446,41 @@ export class StockDetailComponent implements OnInit {
     if (l === 'medium') return 'متوسط (معادلتان متوافقتان)';
     if (l === 'low') return 'منخفض (معادلة واحدة متوافقة)';
     return 'غير محدد (0 معادلات)';
+  }
+
+  /**
+   * True when there is no trustworthy fair value for this stock: no fair-value row at all
+   * (priceComparison null), an explicit 'Unavailable' comparison, zero approved methods,
+   * Confidence 'None', or a missing/zero fairValue. The card then shows
+   * "بيانات غير كافية لحساب القيمة العادلة" instead of a fabricated
+   * "قريبة من العادلة — 0.00 ج.م" verdict.
+   */
+  get isFairValueUnavailable(): boolean {
+    const md = this.marketData;
+    if (!md) return true;
+    if (!md.fairValue) return true;
+
+    const cmp = (md.priceComparison || '').trim().toLowerCase();
+    if (!cmp || cmp === 'unavailable') return true;
+    if (md.methodsUsedCount === 0) return true;
+    if ((md.valuationConfidence || '').trim().toLowerCase() === 'none') return true;
+
+    return false;
+  }
+
+  get aaoifiHaramPerShare(): number | null {
+    return this.marketData?.shariahMetrics?.aaoifiHaramEarningPerShare ?? null;
+  }
+
+  get spHaramPct(): number | null {
+    return this.marketData?.shariahMetrics?.spHaramEarningPercentage
+      ?? this.marketData?.shariahPct
+      ?? null;
+  }
+
+  get loansPct(): number | null {
+    const m = this.marketData?.shariahMetrics;
+    return m?.loansPercentage ?? m?.interestBearingDebtRatio ?? null;
   }
 
   get currentStockPrice(): number | null {

@@ -65,6 +65,7 @@ import { IndexSummaryDto, PagedResult, StockListItemDto } from '../../models/api
         <option value="Cheap">أرخص من العادلة (فرصة)</option>
         <option value="Fair">قريبة من العادلة (±5%)</option>
         <option value="Expensive">أغلى من العادلة</option>
+        <option value="Unavailable">لا يمكن حساب القيمة العادلة</option>
       </select>
 
       <!-- Min Compliant Sources Filter (1 to 7) -->

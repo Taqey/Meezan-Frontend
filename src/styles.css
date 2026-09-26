@@ -1319,6 +1319,24 @@ button, input, select, textarea {
   background: var(--muted);
 }
 
+/* Activity hard gate: a single "غير متوافق مع الشريعة — النشاط: …" verdict replaces the
+   7-source opinion grid and the AAOIFI/S&P ratio panel for prohibited activities. */
+.activity-verdict-card {
+  border-color: rgba(200, 68, 61, 0.35);
+  background: var(--bad-soft);
+}
+
+.activity-verdict-card h2 {
+  color: var(--bad);
+  font-size: 19px;
+  line-height: 1.6;
+}
+
+.activity-verdict-card .muted {
+  margin-top: 14px;
+  line-height: 1.8;
+}
+
 .board-only-notice strong {
   font-size: 13px;
 }

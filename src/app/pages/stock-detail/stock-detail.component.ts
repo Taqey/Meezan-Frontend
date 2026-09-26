@@ -188,8 +188,10 @@ import {
         </div>
       </div>
 
-      <!-- Shariah Opinions Grid: Multi-source evaluators -->
-      <section class="detail-card shariah-card">
+      <!-- Shariah Opinions Grid: Multi-source evaluators.
+           Hidden entirely when نشاط الشركة is غير متوافق: the activity is a standalone,
+           automatic disqualification, so no board opinion grid and no ratio panel apply. -->
+      <section class="detail-card shariah-card" *ngIf="!isActivityNonCompliant">
         <!-- Simplified display for stocks overseen by their own Sharia board/committee
              (plain "لجنة شرعية" and accredited "هيئة رقابة شرعية داخلية معتمدة" are the
              same case): status + one note only — no purification %, no 7-source grid,
@@ -289,6 +291,22 @@ import {
             </div>
           </div>
         </div>
+      </section>
+
+      <!-- Activity hard gate: when the company's own line of business is prohibited the
+           stock is out at the first screening gate. Single verdict with the activity as
+           the only reason — no 7-source opinion grid and no AAOIFI/S&P ratio panel. -->
+      <section class="detail-card shariah-card activity-verdict-card" *ngIf="isActivityNonCompliant">
+        <div class="card-heading">
+          <div>
+            <span class="eyebrow">حُكم النشاط</span>
+            <h2>غير متوافق مع الشريعة — النشاط: {{ activityClassificationLabel }}</h2>
+          </div>
+        </div>
+        <p class="muted">
+          يستبعد السهم بوابة النشاط ذاتها، ولذلك لا تُعرض النسب المالية الشرعية ولا آراء
+          الهيئات الشرعية.
+        </p>
       </section>
 
       <!-- Market Data Fundamentals (Only if stock has market data) -->
@@ -556,11 +574,32 @@ export class StockDetailComponent implements OnInit {
     return 'ج.م';
   }
 
-  /** Returns true if activity is compliant. Defaults to false for NonCompliant stocks when null. */
+  /**
+   * Activity hard gate — نشاط الشركة is the first screening step. When it is
+   * غير متوافق the stock is disqualified on its own, so neither the 7-source opinion
+   * grid, nor the AAOIFI/S&P ratio panel, nor the Shariah-board panel are rendered;
+   * only the single activity verdict is. The API follows the same gate (empty
+   * shariahOpinions, null shariahPct, null shariahMetrics).
+   */
+  get isActivityNonCompliant(): boolean {
+    const md = this.marketData;
+    if (!md) return false;
+    const flag = md.activityCompliant ?? md.shariahMetrics?.isCompliantActivity;
+    return flag === false;
+  }
+
+  /** Business-activity classification behind the verdict, e.g. "خدمات مالية / تخصيص". */
+  get activityClassificationLabel(): string {
+    const md = this.marketData;
+    const label = md?.activityClassification
+      || md?.shariahMetrics?.activityClassification
+      || md?.sectorNameAr;
+    return label && label.trim() ? label : 'غير محدد';
+  }
+
+  /** True when the activity screen passes (inverse of the activity hard gate). */
   getActivityCompliant(): boolean {
-    const v = this.marketData?.shariahMetrics?.isCompliantActivity;
-    if (v !== null && v !== undefined) return v;
-    return this.marketData?.shariahStatus !== 'NonCompliant';
+    return !this.isActivityNonCompliant;
   }
 
   /** Returns true if AAOIFI compliant. Defaults to false for NonCompliant stocks when null. */

@@ -129,6 +129,15 @@ export interface MarketDataDto {
    */
   hasShariahBoard?: boolean;
   shariahBoardNote?: string | null;
+  /**
+   * Activity hard gate (first screening): false = نشاط الشركة غير متوافق, an automatic
+   * standalone disqualification. When false the API returns no shariahOpinions, no
+   * shariahPct and no shariahMetrics, and the page shows only the activity verdict.
+   * Null = unknown (no metrics row).
+   */
+  activityCompliant?: boolean | null;
+  /** Business-activity classification behind the verdict, e.g. "خدمات مالية / تخصيص". */
+  activityClassification?: string | null;
   nominalValue?: number | null;
   marketValue?: number | null;
   bookValue?: number | null;

@@ -23,6 +23,9 @@ export class ComparisonBadgeComponent {
    */
   @Input() comparison?: string | null;
 
+  /** Percentage difference from current price to fair value. Used to append "%" to the badge label. */
+  @Input() fairValueDiffPct?: number | null;
+
   readonly TrendingUpIcon = TrendingUp;
   readonly TrendingDownIcon = TrendingDown;
   readonly MinusIcon = Minus;
@@ -62,9 +65,13 @@ export class ComparisonBadgeComponent {
   }
 
   get label(): string {
-    if (this.isCheap) return 'أرخص من العادلة';
-    if (this.isExpensive) return 'أغلى من العادلة';
+    const pct = this.fairValueDiffPct;
+    const hasPct = pct !== null && pct !== undefined && !isNaN(pct);
+    const pctStr = hasPct ? ` بـ ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%` : '';
+
+    if (this.isCheap) return `أرخص من العادلة${pctStr}`;
+    if (this.isExpensive) return `أغلى من العادلة${pctStr}`;
     if (this.isUnavailable) return 'بيانات غير كافية';
-    return 'قريبة من العادلة';
+    return `قريبة من العادلة${pctStr}`;
   }
 }

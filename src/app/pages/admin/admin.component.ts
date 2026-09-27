@@ -16,7 +16,9 @@ import {
   LogOut,
   Calendar,
   Clock,
-  Edit3
+  Edit3,
+  FileText,
+  Upload as UploadIcon
 } from 'lucide-angular';
 import { ApiService } from '../../services/api.service';
 import { AdminAuthService } from '../../services/admin-auth.service';
@@ -74,7 +76,7 @@ interface EditableMarketForm {
         </div>
       </div>
 
-      <!-- Navigation Tabs -->
+<!-- Navigation Tabs -->
       <div class="admin-tabs">
         <button class="admin-tab" [class.active]="activeTab === 'scraping'" (click)="activeTab = 'scraping'">
           سحب بيانات السوق (Live & Quarterly)
@@ -83,13 +85,16 @@ interface EditableMarketForm {
           تعديل بيانات السوق يدوياً
         </button>
         <button class="admin-tab" [class.active]="activeTab === 'upload'" (click)="activeTab = 'upload'">
-          رفع كشوف المؤشرات (Excel)
+          رفع ملفات المؤشرات (Excel)
         </button>
         <button class="admin-tab" [class.active]="activeTab === 'shariah'" (click)="activeTab = 'shariah'">
-          تحديث الشريعة والبيانات المدمجة
+          تحديث وبذر بيانات الشريعة
         </button>
-        <button class="admin-tab" [class.active]="activeTab === 'review'" (click)="openReviewTab()">
-          مراجعة الأسهم القديمة والمحذوفة
+        <button class="admin-tab" [class.active]="activeTab === 'pdf-upload'" (click)="activeTab = 'pdf-upload'">
+          رفع تقارير فيصل/أسطول (PDF)
+        </button>
+        <button class="admin-tab" [class.active]="activeTab === 'review'" (click)="activeTab = 'review'">
+          قائمة المراجعة
         </button>
       </div>
 
@@ -666,7 +671,108 @@ interface EditableMarketForm {
         </div>
       </div>
 
-      <!-- TAB 5: OPERATOR REVIEW CHECKLIST (stale / missing / deactivated) -->
+      <!-- TAB 5: FAISAL/OSOUL PDF REPORT UPLOAD -->
+      <div *ngIf="activeTab === 'pdf-upload'" class="admin-card">
+        <h2>رفع تقارير فيصل / أسطول (PDF)</h2>
+        <p class="muted">
+          رفع ملف PDF جديد لأحد المصدرين (بنك فيصل الإسلامي / أسطول) واستبدال الملف المخزن مسبقاً لهذا المصدر.
+          بعد الرفع، شغّل "تحديث الشريعة المدمجة" (import-faisal-osoul) لتحديث روابط PDF في آراء الأسهم.
+        </p>
+
+        <!-- Current stored files status -->
+        <div class="admin-card" style="margin-bottom: 24px; padding: 16px; background: #fbfcfb; border: 1px solid var(--border); border-radius: 12px;">
+          <h3 style="margin: 0 0 12px; font-size: 15px;">الملفات المخزنة حالياً:</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+            <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+              <strong style="color: var(--primary);">بنك فيصل الإسلامي</strong>
+              <div style="font-size: 12px; color: var(--muted-foreground); margin-top: 4px;">
+                <span *ngIf="faisalFileExists">موجود ({{ faisalFileSize }})</span>
+                <span *ngIf="!faisalFileExists" style="color: var(--bad);">غير موجود</span>
+              </div>
+            </div>
+            <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
+              <strong style="color: #1e40af;">أسطول</strong>
+              <div style="font-size: 12px; color: var(--muted-foreground); margin-top: 4px;">
+                <span *ngIf="osoulFileExists">موجود ({{ osoulFileSize }})</span>
+                <span *ngIf="!osoulFileExists" style="color: var(--bad);">غير موجود</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload form -->
+        <div style="background: #fbfcfb; border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+          <h3 style="margin: 0 0 16px; font-size: 15px;">رفع ملف جديد واستبدال القديم</h3>
+
+          <!-- Source selector -->
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;">
+              اختر المصدر:
+            </label>
+            <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px;">
+                <input type="radio" name="pdfSource" [(ngModel)]="selectedPdfSource" value="FaisalBank" style="accent-color: var(--primary);" />
+                <span style="color: var(--primary);">بنك فيصل الإسلامي</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px;">
+                <input type="radio" name="pdfSource" [(ngModel)]="selectedPdfSource" value="Osoul" style="accent-color: #1e40af;" />
+                <span style="color: #1e40af;">أسطول</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Report date (optional) -->
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;">
+              تاريخ التقرير (اختياري — للعرض فقط، لا يغيّر آراء الأسهم):
+            </label>
+            <input type="date" [(ngModel)]="pdfReportDate" class="admin-form input" style="max-width: 220px;" />
+          </div>
+
+          <!-- File picker -->
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;">
+              ملف PDF (سيحل محل الملف الحالي للمصدر المحدد):
+            </label>
+            <input
+              type="file"
+              #pdfFileInput
+              accept=".pdf"
+              (change)="onPdfFileSelected($event)"
+              class="admin-form input"
+              style="max-width: 400px;" />
+            <div *ngIf="selectedPdfFile" style="font-size: 12px; color: var(--muted-foreground); margin-top: 6px;">
+              محدد: {{ selectedPdfFile.name }} ({{ formatFileSize(selectedPdfFile.size) }})
+            </div>
+          </div>
+
+          <!-- Upload button -->
+          <button
+            class="btn btn-primary"
+            (click)="uploadPdfReport()"
+            [disabled]="pdfUploading || !selectedPdfFile"
+            style="display: inline-flex; align-items: center; gap: 8px;">
+            <lucide-icon [img]="UploadFileIcon" size="16"></lucide-icon>
+            {{ pdfUploading ? 'جارٍ الرفع...' : 'رفع واستبدال الملف' }}
+          </button>
+
+          <!-- Result message -->
+          <div *ngIf="pdfUploadResult" class="admin-result" [class.success]="pdfUploadResult.success" [class.error]="!pdfUploadResult.success" style="margin-top: 16px;">
+            <div style="font-weight: 700; margin-bottom: 4px;">{{ pdfUploadResult.success ? 'تم الرفع بنجاح' : 'فشل الرفع' }}</div>
+            <div>{{ pdfUploadResult.message }}</div>
+            <div *ngIf="pdfUploadResult.success" style="font-size: 12px; color: var(--muted-foreground); margin-top: 8px;">
+              الملف: {{ pdfUploadResult.fileName }} | المسار: {{ pdfUploadResult.storedAt }} | مرفوع في: {{ pdfUploadResult.uploadedAt }}
+              <br> <strong>لا تنسَ تشغيل "تحديث الشريعة المدمجة" (import-faisal-osoul) لتحديث آراء الأسهم.</strong>
+            </div>
+          </div>
+
+          <div *ngIf="pdfUploadError" class="admin-result error" style="margin-top: 16px; color: var(--bad);">
+            {{ pdfUploadError }}
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 6: OPERATOR REVIEW CHECKLIST (stale / missing / deactivated) -->
       <div *ngIf="activeTab === 'review'" class="admin-card">
         <h2>قائمة مراجعة الأسهم القديمة والمحذوفة</h2>
         <p class="muted">
@@ -771,8 +877,10 @@ export class AdminComponent implements OnInit, OnDestroy {
   readonly ClockIcon = Clock;
   readonly Edit3Icon = Edit3;
   readonly AlertTriangleIcon = AlertTriangle;
+  readonly FileTextIcon = FileText;
+  readonly UploadFileIcon = UploadIcon;
 
-  activeTab: 'scraping' | 'market-data' | 'upload' | 'shariah' | 'review' = 'scraping';
+  activeTab: 'scraping' | 'market-data' | 'upload' | 'shariah' | 'pdf-upload' | 'review' = 'scraping';
 
   indices: IndexSummaryDto[] = [];
   allStocks: AdminStockLookupItem[] = [];
@@ -820,6 +928,18 @@ export class AdminComponent implements OnInit, OnDestroy {
   refreshResult?: RefreshShariahDataResult;
   seedResult?: SeedShariahResultDto;
   seedJsonOverride = '';
+
+  // PDF Upload tab
+  selectedPdfSource: 'FaisalBank' | 'Osoul' = 'FaisalBank';
+  pdfReportDate = '';
+  selectedPdfFile?: File;
+  pdfUploading = false;
+  pdfUploadResult?: { success: boolean; message: string; fileName?: string; storedAt?: string; uploadedAt?: string; reportDate?: string };
+  pdfUploadError = '';
+  faisalFileExists = false;
+  osoulFileExists = false;
+  faisalFileSize = '';
+  osoulFileSize = '';
 
   // Review checklist tab
   removalCandidates: RemovalCandidateDto[] = [];
@@ -1162,6 +1282,113 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.shariahSeeding = false;
       }
     });
+  }
+
+  // ── PDF Upload tab ────────────────────────────────────────────────
+  onPdfFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+        alert('الملف يجب أن يكون بصيغة PDF');
+        this.selectedPdfFile = undefined;
+        return;
+      }
+      if (file.size > 50 * 1024 * 1024) {
+        alert('حجم الملف يتجاوز 50 ميجابايت');
+        this.selectedPdfFile = undefined;
+        return;
+      }
+      this.selectedPdfFile = file;
+      this.pdfUploadError = '';
+    }
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024) return bytes + ' بايت';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' كيلوبايت';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' ميجابايت';
+  }
+
+  async uploadPdfReport(): Promise<void> {
+    if (!this.selectedPdfFile) {
+      this.pdfUploadError = 'الرجاء اختيار ملف PDF أولاً';
+      return;
+    }
+
+    this.pdfUploading = true;
+    this.pdfUploadError = '';
+    this.pdfUploadResult = undefined;
+
+    const formData = new FormData();
+    formData.append('file', this.selectedPdfFile);
+    if (this.pdfReportDate) {
+      formData.append('reportDate', this.pdfReportDate);
+    }
+
+    try {
+      const res = await fetch(`http://localhost:5250/api/shariah/sources/${this.selectedPdfSource}/report-file`, {
+        method: 'POST',
+        body: formData
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        this.pdfUploadResult = {
+          success: true,
+          message: data.message,
+          fileName: data.fileName,
+          storedAt: data.storedAt,
+          uploadedAt: data.uploadedAt,
+          reportDate: data.reportDate
+        };
+        this.pdfUploadError = '';
+        this.selectedPdfFile = undefined;
+        // Refresh file existence status
+        await this.checkStoredFiles();
+      } else {
+        this.pdfUploadError = data.message || 'فشل رفع الملف';
+        this.pdfUploadResult = {
+          success: false,
+          message: data.message || 'فشل رفع الملف'
+        };
+      }
+    } catch (e) {
+      this.pdfUploadError = 'خطأ في الاتصال بالخادم: ' + (e as Error).message;
+      this.pdfUploadResult = {
+        success: false,
+        message: 'خطأ في الاتصال بالخادم'
+      };
+    } finally {
+      this.pdfUploading = false;
+    }
+  }
+
+  private async checkStoredFiles(): Promise<void> {
+    try {
+      // Check Faisal
+      const fRes = await fetch('http://localhost:5250/api/shariah/source-pdf/FaisalBank', { method: 'HEAD' });
+      this.faisalFileExists = fRes.ok;
+      if (fRes.ok) {
+        const len = fRes.headers.get('content-length');
+        this.faisalFileSize = len ? this.formatFileSize(parseInt(len, 10)) : '';
+      } else {
+        this.faisalFileSize = '';
+      }
+
+      // Check Osoul
+      const oRes = await fetch('http://localhost:5250/api/shariah/source-pdf/Osoul', { method: 'HEAD' });
+      this.osoulFileExists = oRes.ok;
+      if (oRes.ok) {
+        const len = oRes.headers.get('content-length');
+        this.osoulFileSize = len ? this.formatFileSize(parseInt(len, 10)) : '';
+      } else {
+        this.osoulFileSize = '';
+      }
+    } catch {
+      // Ignore errors
+    }
   }
 
   // ── Review checklist tab ───────────────────────────────────────────

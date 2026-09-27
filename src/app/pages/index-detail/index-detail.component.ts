@@ -89,6 +89,7 @@ import { ConstituentItemDto, IndexConstituentsPagedResultDto } from '../../model
           [changePct]="item.changePct"
           [fairValue]="item.fairValue"
           [priceComparison]="item.priceComparison"
+          [fairValueDiffPct]="item.fairValueDiffPct"
           [shariahStatus]="item.shariahStatus"
           [indices]="item.indices"
           [weight]="item.weight"

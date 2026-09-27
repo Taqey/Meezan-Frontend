@@ -1260,6 +1260,127 @@ button, input, select, textarea {
   margin: 8px 0;
 }
 
+/* Board with no recorded opinion on this stock — an explicit third state, never a
+   fabricated متوافق/غير متوافق verdict, and never counted in the aggregate. */
+.source-card.no-opinion {
+  background: var(--muted);
+  border-style: dashed;
+}
+
+/* Unified full-color cards for ALL 7 Shariah boards — no progress bar, no percentage.
+   Color is determined by the status VALUE, not the source key. */
+.source-card {
+  padding: 16px;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 500;
+}
+
+.source-card .source-top strong,
+.source-card .verdict-badge,
+.source-card .verdict-meta,
+.source-card .verdict-note {
+  color: #fff;
+}
+
+.source-card.compliant {
+  background: #1e7a2e; /* solid green */
+}
+
+.source-card.non-compliant {
+  background: #b02a2a; /* solid red */
+}
+
+.source-card.doubtful {
+  background: #c7880e; /* solid amber/yellow */
+  color: #1a1a1a; /* dark text for readability on yellow */
+}
+
+.source-card.doubtful .source-top strong,
+.source-card.doubtful .verdict-badge,
+.source-card.doubtful .verdict-meta,
+.source-card.doubtful .verdict-note {
+  color: #1a1a1a;
+}
+
+/* noOpinion: full gray — used for both "لا يوجد رأي" boards AND EGX33 non-membership. */
+.source-card.no-opinion {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border-style: dashed;
+}
+
+.source-card.no-opinion .source-top strong,
+.source-card.no-opinion .no-opinion-label,
+.source-card.no-opinion .verdict-badge,
+.source-card.no-opinion .verdict-note {
+  color: var(--muted-foreground);
+}
+
+.verdict-badge {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 8px 0 12px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.verdict-meta {
+  font-size: 11px;
+  opacity: 0.9;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.verdict-note {
+  font-size: 12px;
+  opacity: 0.95;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.verdict-pdf-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 10px;
+  color: inherit; /* matches card's text color (white on colored, dark on amber, muted on gray) */
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.verdict-pdf-link:hover {
+  opacity: 0.8;
+}
+
+.no-opinion-label {
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border: 1px dashed var(--border);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.source-card .no-opinion-hint {
+  min-height: 0;
+  margin: 12px 0 0;
+}
+
+.ratio-big .coverage-note {
+  line-height: 1.6;
+}
+
+.ratio-big .no-coverage {
+  color: var(--muted-foreground);
+}
+
 .pdf-link {
   color: var(--primary);
   display: inline-flex;

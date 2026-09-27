@@ -100,6 +100,7 @@ import { PagedResult, SectorSummaryDto, StockListItemDto } from '../../models/ap
           [changePct]="s.changePct"
           [fairValue]="s.fairValue"
           [priceComparison]="s.priceComparison"
+          [fairValueDiffPct]="s.fairValueDiffPct"
           [shariahStatus]="s.shariahStatus"
           [indices]="s.indices"
           [currency]="s.currency"

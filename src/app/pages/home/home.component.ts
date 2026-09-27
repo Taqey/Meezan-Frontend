@@ -105,6 +105,7 @@ import { IndexSummaryDto, StockListItemDto } from '../../models/api.models';
           [changePct]="s.changePct"
           [fairValue]="s.fairValue"
           [priceComparison]="s.priceComparison"
+          [fairValueDiffPct]="s.fairValueDiffPct"
           [shariahStatus]="s.shariahStatus"
           [indices]="s.indices"
           [currency]="s.currency"

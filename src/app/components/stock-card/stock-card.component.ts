@@ -35,7 +35,7 @@ import { INDEX_ARABIC_NAMES } from '../../models/api.models';
         <div class="mini-ratio">
           <app-status-badge [status]="shariahStatus"></app-status-badge>
         </div>
-        <app-comparison-badge [comparison]="priceComparison"></app-comparison-badge>
+        <app-comparison-badge [comparison]="priceComparison" [fairValueDiffPct]="fairValueDiffPct"></app-comparison-badge>
       </div>
 
       <div class="stock-meta" *ngIf="indexLabels && indexLabels.length">
@@ -52,6 +52,7 @@ export class StockCardComponent {
   @Input() changePct?: number | null;
   @Input() fairValue?: number | null;
   @Input() priceComparison?: string | null;
+  @Input() fairValueDiffPct?: number | null;
   @Input() shariahStatus?: string | null;
   @Input() indices: string[] = [];
   @Input() weight?: number | null;

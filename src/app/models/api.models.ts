@@ -100,6 +100,7 @@ export interface ShariahSourceOpinionDto {
   stockId?: number;
   sourceKey: number;
   sourceKeyName?: string;
+  /** This board's verdict for THIS stock. null = no recorded opinion ("لا يوجد رأي مسجّل"). */
   status?: string | null;
   percentage?: number | null;
   note?: string | null;

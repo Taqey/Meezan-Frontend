@@ -29,6 +29,8 @@ export class StatusBadgeComponent {
     if (s === 'noncompliant' || s === 'غير متوافق') return 'غير متوافق';
     if (s === 'blocked') return 'محظور';
     if (s === 'pending') return 'قيد المراجعة';
+    // A real stored verdict that is neither agreement nor refusal — never shown as one.
+    if (s === 'doubtful' || s === 'مشكوك') return 'مشكوك';
     return this.status || 'غير محدد';
   }
 }

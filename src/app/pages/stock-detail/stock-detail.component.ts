@@ -24,6 +24,9 @@ import {
   INDEX_ARABIC_NAMES
 } from '../../models/api.models';
 
+/** One board's card: either its real stored opinion, or an explicit "no opinion" state. */
+type ShariahSourceOpinionView = ShariahSourceOpinionDto & { noOpinion: boolean };
+
 @Component({
   selector: 'app-stock-detail',
   standalone: true,
@@ -139,25 +142,24 @@ import {
           </div>
         </div>
 
-        <!-- Fair Value Card (4 methods with IQR outlier rejection) -->
+        <!-- Fair Value Card (Graham formula only) -->
         <div class="detail-card fair-card">
           <div class="card-heading">
             <div>
-              <span class="eyebrow">تقييم عادل (IQR Fences)</span>
-              <h2>القيمة العادلة المجمعة</h2>
+              <span class="eyebrow">نموذج جراهام (Graham Formula)</span>
+              <h2>القيمة العادلة</h2>
             </div>
             <app-comparison-badge [comparison]="marketData.priceComparison"></app-comparison-badge>
           </div>
 
-          <!-- Insufficient data: no trustworthy fair value exists. Shown instead of a
-               fabricated "قريبة من العادلة — 0.00" verdict: no numeric fair value, no
+          <!-- Insufficient data: no trustworthy fair value exists (Graham needs EPS > 0 & BookValue > 0).
+               Shown instead of a fabricated "قريبة من العادلة — 0.00" verdict: no numeric fair value, no
                confidence %, no approved-methods line. -->
           <div class="fair-unavailable" *ngIf="isFairValueUnavailable">
-            <strong>بيانات غير كافية لحساب القيمة العادلة</strong>
+            <strong>بيانات غير كافية لحساب القيمة العادلة (نموذج جراهام)</strong>
             <p class="muted">
-              لا توجد حالياً طرق تقييم مُعتمدة لهذا السهم (ربحية EPS، قيمة دفترية، أو بيانات قطاع
-              كافية) أو أن سعر السهم الحالي غير متاح. لن تُعرض قيمة عادلة رقمية أو نسبة ثقة حتى
-              توفّر هذه البيانات.
+              لا توجد حالياً بيانات كافية لنموذج جراهام (ربحية EPS، قيمة دفترية BookValue، أو سعر السهم الحالي
+              غير متاح). لن تُعرض قيمة عادلة رقمية أو نسبة ثقة حتى توفّر هذه البيانات.
             </p>
           </div>
 
@@ -172,11 +174,10 @@ import {
             </div>
 
             <p class="muted">
-              مستوى الثقة: <strong>{{ getConfidenceLabel(marketData.valuationConfidence) }}</strong> ·
-              اعتُمدت {{ marketData.methodsUsedCount ?? 0 }} طرق واستُبعدت {{ marketData.methodsExcludedCount ?? 0 }} كقيم شاذة عبر نطاق Tukey IQR (1.5×IQR).
+              نموذج جراهام: √(22.5 × EPS × BookValue) · مستوى الثقة: <strong>{{ getConfidenceLabel(marketData.valuationConfidence) }}</strong>
             </p>
 
-            <!-- 4 Methods List -->
+            <!-- 4 Methods List (displayed individually, no aggregation) -->
             <div class="method-list" *ngIf="marketData.fairValueMethods && marketData.fairValueMethods.length">
               <div class="method" *ngFor="let m of marketData.fairValueMethods" [class.outlier]="m.isOutlier">
                 <span>{{ getMethodDisplayName(m.name) }}</span>
@@ -219,33 +220,75 @@ import {
             <p>الحكم الداخلي المعتمد: <app-status-badge [status]="marketData.shariahStatus"></app-status-badge> <span *ngIf="marketData.shariahPct"> (نسبة التطهير: {{ marketData.shariahPct }}%)</span></p>
           </div>
           <div class="ratio-big">
-            <strong>{{ compliantSourcesCount }} من {{ totalAvailableSourcesCount }}</strong>
-            <span>جهات تعتبر السهم متوافقاً</span>
+            <!-- Aggregate is over boards that actually returned a stored opinion for THIS
+                 stock (per stock-board pair), never a fixed /7 when coverage is incomplete. -->
+            <strong *ngIf="totalAvailableSourcesCount > 0">
+              {{ compliantSourcesCount }} من {{ totalAvailableSourcesCount }}
+            </strong>
+            <strong *ngIf="totalAvailableSourcesCount === 0" class="no-coverage">لا رأي مسجّل</strong>
+            <span *ngIf="totalAvailableSourcesCount > 0">جهات تعتبر السهم متوافقاً</span>
+            <span *ngIf="totalAvailableSourcesCount === 0">من أصل 7 مصادر مستقلة</span>
+            <span class="coverage-note" *ngIf="compliancePercent !== null">
+              {{ compliancePercent }}% مؤشرات متوافقة من أصل {{ totalAvailableSourcesCount }} رأياً مسجّلاً
+            </span>
+            <span class="coverage-note muted" *ngIf="noOpinionSourcesCount > 0">
+              {{ noOpinionSourcesCount }} من 7 بلا رأي مسجّل على هذا السهم
+            </span>
           </div>
         </div>
 
         <div class="opinion-grid" *ngIf="!marketData.hasShariahBoard">
-          <div class="source-card" *ngFor="let op of sourceOpinionsList">
+          <!-- 7 board cards -->
+          <div class="source-card"
+               [class.no-opinion]="op.noOpinion"
+               [class.compliant]="!op.noOpinion && isCompliant(op.status)"
+               [class.non-compliant]="!op.noOpinion && !isCompliant(op.status) && !isDoubtful(op.status)"
+               [class.doubtful]="!op.noOpinion && isDoubtful(op.status)"
+               *ngFor="let op of sourceOpinionsList">
             <div class="source-top">
               <strong>{{ getSourceName(op.sourceKey) }}</strong>
-              <app-status-badge [status]="op.status"></app-status-badge>
+              <!-- No recorded opinion on this stock: say so explicitly instead of
+                   rendering a default متوافق / غير متوافق verdict. -->
+              <span class="no-opinion-label" *ngIf="op.noOpinion">لا يوجد رأي مسجّل</span>
+              <app-status-badge *ngIf="!op.noOpinion && !isManualSource(op)" [status]="op.status"></app-status-badge>
             </div>
 
-            <div class="source-progress">
-              <span [style.width.%]="op.percentage || (op.status === 'Compliant' ? 100 : 0)"></span>
+            <p class="no-opinion-hint" *ngIf="op.noOpinion">
+              لم تُصدر هذه الجهة رأياً على هذا السهم بعد — لا تُحتسب في نسبة الامتثال.
+            </p>
+
+            <!-- All 7 boards: unified full-color card, no progress/score -->
+            <ng-container *ngIf="!op.noOpinion">
+              <div class="verdict-badge">
+                {{ getVerdictLabel(op.status) }}
+              </div>
+              <div class="verdict-meta">
+                <span *ngIf="op.sourceLastUpdated">تحديث: {{ op.sourceLastUpdated | date:'yyyy-MM-dd' }}</span>
+                <span *ngIf="!op.sourceLastUpdated && op.fetchedAt">جُلب: {{ op.fetchedAt | date:'yyyy-MM-dd' }}</span>
+              </div>
+              <p class="verdict-note">{{ op.note || 'لا توجد ملاحظات تفصيلية مسجلة من المصدر.' }}</p>
+              <!-- PDF link for manual sources (FaisalBank, Osoul) when stored -->
+              <a *ngIf="isManualSource(op) && op.pdfUrl" [href]="op.pdfUrl" target="_blank" rel="noopener noreferrer" class="verdict-pdf-link">
+                <lucide-icon [img]="FileTextIcon" size="14"></lucide-icon> View PDF
+              </a>
+            </ng-container>
+          </div>
+
+          <!-- 8th card: EGX33 Shariah index membership (informational, not a board opinion) -->
+          <div class="source-card"
+               [class.compliant]="isEGX33Constituent"
+               [class.no-opinion]="!isEGX33Constituent">
+            <div class="source-top">
+              <strong>مؤشر الشريعة EGX33</strong>
             </div>
-
-            <div class="source-details">
-              <span>{{ op.percentage ? op.percentage + '% مؤشرات متوافقة' : (op.status ? op.status : 'لا توجد نسبة معلنة') }}</span>
-              <span *ngIf="op.sourceLastUpdated">تحديث: {{ op.sourceLastUpdated | date:'yyyy-MM-dd' }}</span>
-              <span *ngIf="!op.sourceLastUpdated && op.fetchedAt">جُلب: {{ op.fetchedAt | date:'yyyy-MM-dd' }}</span>
-            </div>
-
-            <p>{{ op.note || 'لا توجد ملاحظات تفصيلية مسجلة من المصدر.' }}</p>
-
-            <a *ngIf="op.pdfUrl" [href]="op.pdfUrl" target="_blank" rel="noopener noreferrer" class="pdf-link">
-              <lucide-icon [img]="FileTextIcon" size="14"></lucide-icon> عرض قائمة المصدر / PDF
-            </a>
+            <ng-container *ngIf="isEGX33Constituent">
+              <div class="verdict-badge">ضمن مؤشر الشريعة EGX33</div>
+              <p class="verdict-note">السهم مدرج ضمن مكونات مؤشر الشريعة EGX33.</p>
+            </ng-container>
+            <ng-container *ngIf="!isEGX33Constituent">
+              <div class="verdict-badge">غير مدرج في مؤشر الشريعة EGX33</div>
+              <p class="verdict-note">السهم غير مدرج في مكونات مؤشر الشريعة EGX33 (قد يكون متوافقاً شرعياً لأسباب أخرى).</p>
+            </ng-container>
           </div>
         </div>
 
@@ -405,48 +448,97 @@ export class StockDetailComponent implements OnInit {
     });
   }
 
-  get sourceOpinionsList(): ShariahSourceOpinionDto[] {
+  /** The 7 independent boards, in display order. */
+  private readonly allSourceKeys: number[] = [
+    ShariahSourceKey.HalalBourse,
+    ShariahSourceKey.Musaffa,
+    ShariahSourceKey.Kashif,
+    ShariahSourceKey.HalalInvest,
+    ShariahSourceKey.FaisalBank,
+    ShariahSourceKey.Osoul,
+    ShariahSourceKey.Thndr
+  ];
+
+  /**
+   * One card per board, evaluated per (stock, board) pair: a board only gets a verdict
+   * when the API actually returned a stored opinion for THIS stock. Boards without one
+   * (no row at all, or a row whose status is null/empty) get `noOpinion: true` with a
+   * null status — never a fabricated متوافق / غير متوافق default — and are excluded from
+   * the aggregate. The same board may have a real verdict on another stock.
+   */
+  get sourceOpinionsList(): ShariahSourceOpinionView[] {
     const existing = this.marketData?.shariahOpinions || [];
     const map = new Map<number, ShariahSourceOpinionDto>();
     for (const op of existing) {
-      map.set(Number(op.sourceKey), op);
+      const key = Number(op.sourceKey);
+      if (!Number.isNaN(key)) map.set(key, op);
     }
 
-    // Ensure all 7 sources have an entry represented in the UI
-    const allSources = [
-      ShariahSourceKey.HalalBourse,
-      ShariahSourceKey.Musaffa,
-      ShariahSourceKey.Kashif,
-      ShariahSourceKey.HalalInvest,
-      ShariahSourceKey.FaisalBank,
-      ShariahSourceKey.Osoul,
-      ShariahSourceKey.Thndr
-    ];
-
-    return allSources.map((key) => {
-      if (map.has(key)) {
-        return map.get(key)!;
+    return this.allSourceKeys.map((key) => {
+      const real = map.get(key);
+      if (real && (real.status || '').trim()) {
+        return { ...real, noOpinion: false };
       }
-      return {
-        sourceKey: key,
-        status: 'غير متوفر',
-        note: 'لم يصدر تصنيف معلن لهذا السهم حتى الآن'
-      };
+      return { sourceKey: key, status: null, percentage: null, note: null, noOpinion: true };
     });
   }
 
-  get compliantSourcesCount(): number {
+  /** Boards that actually returned a stored verdict for this stock. */
+  get recordedOpinions(): ShariahSourceOpinionDto[] {
     return (this.marketData?.shariahOpinions || []).filter(
+      (o) => !!(o.status || '').trim()
+    );
+  }
+
+  get compliantSourcesCount(): number {
+    return this.recordedOpinions.filter(
       (o) => (o.status || '').toLowerCase() === 'compliant'
     ).length;
   }
 
+  /** Aggregate denominator: boards with a recorded opinion — not a fixed 7. */
   get totalAvailableSourcesCount(): number {
-    return 7;
+    return this.recordedOpinions.length;
+  }
+
+  get noOpinionSourcesCount(): number {
+    return Math.max(0, this.allSourceKeys.length - this.totalAvailableSourcesCount);
+  }
+
+  /** (compliant opinions) / (boards with any recorded opinion); null when none recorded. */
+  get compliancePercent(): number | null {
+    if (this.totalAvailableSourcesCount === 0) return null;
+    return Math.round((this.compliantSourcesCount / this.totalAvailableSourcesCount) * 100);
+  }
+
+  /** SourceKeys 5 (FaisalBank) and 6 (Osoul) come from the manual JSON import, verdict-only. */
+  isManualSource(op: ShariahSourceOpinionView): boolean {
+    return op.sourceKey === 5 || op.sourceKey === 6;
+  }
+
+  isCompliant(status?: string | null): boolean {
+    return (status || '').toLowerCase().trim() === 'compliant';
+  }
+
+  isDoubtful(status?: string | null): boolean {
+    return (status || '').toLowerCase().trim() === 'doubtful';
+  }
+
+  getVerdictLabel(status?: string | null): string {
+    const s = (status || '').toLowerCase().trim();
+    if (s === 'compliant' || s === 'متوافق') return 'متوافق';
+    if (s === 'non_compliant' || s === 'غير متوافق') return 'غير متوافق';
+    if (s === 'doubtful' || s === 'مشكوك') return 'مشكوك';
+    return status || 'غير محدد';
   }
 
   getSourceName(key: number): string {
     return SHARIAH_SOURCE_NAMES[key]?.ar || `جهة شرعية #${key}`;
+  }
+
+  /** True if the stock is a constituent of the EGX33 Shariah index (Index code = 'EGX 33'). */
+  get isEGX33Constituent(): boolean {
+    return this.marketData?.indices?.some(i => i.code === 'EGX 33') ?? false;
   }
 
   getMethodDisplayName(name: string): string {

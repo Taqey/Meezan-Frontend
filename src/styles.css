@@ -677,12 +677,28 @@ button, input, select, textarea {
 .filters {
   background: var(--card);
   border: 1px solid var(--border);
-  padding: 12px;
+  padding: 16px;
   border-radius: 14px;
-  display: grid;
-  grid-template-columns: 1.5fr repeat(5, 1fr);
-  gap: 8px;
   margin: 0 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.filters-row-main {
+  display: grid;
+  grid-template-columns: 1.5fr repeat(4, 1fr);
+  gap: 10px;
+  align-items: center;
+}
+
+.filters-row-secondary {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr 0.8fr;
+  gap: 14px;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
 }
 
 .search-wrap {
@@ -717,14 +733,162 @@ button, input, select, textarea {
   background: #fbfcfb;
   color: var(--foreground);
   padding: 0 10px;
+  height: 40px;
   outline-color: var(--primary);
   font-size: 12px;
+}
+
+/* Multi-select dropdown custom popup */
+.multi-dropdown {
+  position: relative;
+  min-width: 0;
+}
+
+.multi-dropdown-trigger {
+  width: 100%;
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #fbfcfb;
+  color: var(--foreground);
+  padding: 0 10px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  text-align: right;
+  gap: 6px;
+}
+
+.multi-dropdown-trigger:hover {
+  border-color: var(--primary);
+}
+
+.multi-dropdown-trigger .trigger-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.multi-dropdown-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 100;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.multi-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--foreground);
+  user-select: none;
+}
+
+.multi-dropdown-item:hover {
+  background: var(--secondary);
+}
+
+.multi-dropdown-item input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+/* Slicer controls */
+.slicer-card {
+  background: #fbfcfb;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.slicer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--muted-foreground);
+  font-weight: 600;
+}
+
+.slicer-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.slicer-inputs input[type="number"] {
+  width: 58px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0 6px;
+  font-size: 11px;
+  text-align: center;
+  background: #fff;
+  outline-color: var(--primary);
+}
+
+.slicer-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.slicer-slider-wrap input[type="range"] {
+  width: 100%;
+  accent-color: var(--primary);
+  height: 4px;
+  cursor: pointer;
+}
+
+.sort-group {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.sort-group select {
+  flex: 1;
 }
 
 .results-head {
   padding: 0 24px 18px;
   color: var(--muted-foreground);
   font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.active-filters-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
 }
 
 .active-filter {
@@ -744,6 +908,29 @@ button, input, select, textarea {
   background: none;
   cursor: pointer;
   font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+}
+
+/* Page size selector */
+.page-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.page-size-selector select {
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--card);
+  color: var(--foreground);
+  padding: 0 8px;
+  font-size: 12px;
+  cursor: pointer;
 }
 
 .stock-grid {
@@ -1827,8 +2014,11 @@ footer {
     grid-template-columns: 1fr;
     gap: 35px;
   }
-  .filters {
-    grid-template-columns: repeat(2, 1fr);
+  .filters-row-main {
+    grid-template-columns: 1fr 1fr;
+  }
+  .filters-row-secondary {
+    grid-template-columns: 1fr;
   }
   .search-wrap {
     grid-column: 1 / -1;
@@ -1851,8 +2041,10 @@ footer {
   .leader-grid, .stock-grid, .index-grid {
     grid-template-columns: 1fr;
   }
-  .filters {
+  .filters-row-main {
     grid-template-columns: 1fr;
+  }
+  .filters {
     margin-inline: 16px;
   }
   .opinion-grid {

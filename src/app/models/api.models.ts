@@ -62,6 +62,8 @@ export interface StockListItemDto {
   fairValueDiffPct?: number | null;
   currency?: string | null;
   sectorNameAr?: string | null;
+  peRatio?: number | null;
+  pbRatio?: number | null;
 }
 
 export interface IndexSummaryDto {

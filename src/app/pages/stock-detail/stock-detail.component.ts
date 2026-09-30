@@ -267,7 +267,7 @@ type ShariahSourceOpinionView = ShariahSourceOpinionDto & { noOpinion: boolean }
                 <span *ngIf="!op.sourceLastUpdated && op.fetchedAt">جُلب: {{ op.fetchedAt | date:'yyyy-MM-dd' }}</span>
               </div>
               <p class="verdict-note">{{ op.note || 'لا توجد ملاحظات تفصيلية مسجلة من المصدر.' }}</p>
-              <!-- PDF link for manual sources (FaisalBank, Osoul) when stored -->
+              <!-- PDF link for manual sources (FaisalBank, Ostoul) when stored -->
               <a *ngIf="isManualSource(op) && op.pdfUrl" [href]="op.pdfUrl" target="_blank" rel="noopener noreferrer" class="verdict-pdf-link">
                 <lucide-icon [img]="FileTextIcon" size="14"></lucide-icon> View PDF
               </a>
@@ -455,7 +455,7 @@ export class StockDetailComponent implements OnInit {
     ShariahSourceKey.Kashif,
     ShariahSourceKey.HalalInvest,
     ShariahSourceKey.FaisalBank,
-    ShariahSourceKey.Osoul,
+    ShariahSourceKey.Ostoul,
     ShariahSourceKey.Thndr
   ];
 
@@ -511,7 +511,7 @@ export class StockDetailComponent implements OnInit {
     return Math.round((this.compliantSourcesCount / this.totalAvailableSourcesCount) * 100);
   }
 
-  /** SourceKeys 5 (FaisalBank) and 6 (Osoul) come from the manual JSON import, verdict-only. */
+  /** SourceKeys 5 (FaisalBank) and 6 (Ostoul) come from the manual JSON import, verdict-only. */
   isManualSource(op: ShariahSourceOpinionView): boolean {
     return op.sourceKey === 5 || op.sourceKey === 6;
   }

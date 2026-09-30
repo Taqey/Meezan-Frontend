@@ -49,7 +49,13 @@ export class ApiService {
       sortDir?: string;
       search?: string;
       shariahStatus?: string;
+      shariahStatuses?: string[];
       priceComparison?: string;
+      minCompliantSources?: number;
+      minPeRatio?: number;
+      maxPeRatio?: number;
+      minPbRatio?: number;
+      maxPbRatio?: number;
     }
   ): Observable<IndexConstituentsPagedResultDto> {
     let httpParams = new HttpParams();
@@ -60,7 +66,17 @@ export class ApiService {
       if (params.sortDir) httpParams = httpParams.set('sortDir', params.sortDir);
       if (params.search) httpParams = httpParams.set('search', params.search);
       if (params.shariahStatus) httpParams = httpParams.set('shariahStatus', params.shariahStatus);
+      if (params.shariahStatuses && params.shariahStatuses.length > 0) {
+        for (const status of params.shariahStatuses) {
+          httpParams = httpParams.append('shariahStatuses', status);
+        }
+      }
       if (params.priceComparison) httpParams = httpParams.set('priceComparison', params.priceComparison);
+      if (params.minCompliantSources !== undefined) httpParams = httpParams.set('minCompliantSources', params.minCompliantSources);
+      if (params.minPeRatio !== undefined && params.minPeRatio !== null) httpParams = httpParams.set('minPeRatio', params.minPeRatio);
+      if (params.maxPeRatio !== undefined && params.maxPeRatio !== null) httpParams = httpParams.set('maxPeRatio', params.maxPeRatio);
+      if (params.minPbRatio !== undefined && params.minPbRatio !== null) httpParams = httpParams.set('minPbRatio', params.minPbRatio);
+      if (params.maxPbRatio !== undefined && params.maxPbRatio !== null) httpParams = httpParams.set('maxPbRatio', params.maxPbRatio);
     }
     return this.http.get<IndexConstituentsPagedResultDto>(`${this.baseUrl}/api/indices/${code}/constituents`, {
       params: httpParams

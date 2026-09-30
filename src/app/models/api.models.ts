@@ -16,6 +16,7 @@ export enum ShariahSourceKey {
   Kashif = 3,
   HalalInvest = 4,
   FaisalBank = 5,
+  Ostoul = 6,
   Osoul = 6,
   Thndr = 7
 }
@@ -26,7 +27,7 @@ export const SHARIAH_SOURCE_NAMES: Record<number, { ar: string, en: string }> = 
   [ShariahSourceKey.Kashif]: { ar: 'كاشف', en: 'Kashif' },
   [ShariahSourceKey.HalalInvest]: { ar: 'حلال إنفست', en: 'Halal Invest' },
   [ShariahSourceKey.FaisalBank]: { ar: 'بنك فيصل الإسلامي', en: 'Faisal Bank' },
-  [ShariahSourceKey.Osoul]: { ar: 'أسطول', en: 'Osoul' },
+  [ShariahSourceKey.Ostoul]: { ar: 'أسطول', en: 'Ostoul' },
   [ShariahSourceKey.Thndr]: { ar: 'ثندر', en: 'Thndr' }
 };
 

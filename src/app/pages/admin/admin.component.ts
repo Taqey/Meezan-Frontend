@@ -715,7 +715,7 @@ interface EditableMarketForm {
                 <span style="color: var(--primary);">بنك فيصل الإسلامي</span>
               </label>
               <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px;">
-                <input type="radio" name="pdfSource" [(ngModel)]="selectedPdfSource" value="Osoul" style="accent-color: #1e40af;" />
+                <input type="radio" name="pdfSource" [(ngModel)]="selectedPdfSource" value="Ostoul" style="accent-color: #1e40af;" />
                 <span style="color: #1e40af;">أسطول</span>
               </label>
             </div>
@@ -930,7 +930,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   seedJsonOverride = '';
 
   // PDF Upload tab
-  selectedPdfSource: 'FaisalBank' | 'Osoul' = 'FaisalBank';
+  selectedPdfSource: 'FaisalBank' | 'Ostoul' = 'FaisalBank';
   pdfReportDate = '';
   selectedPdfFile?: File;
   pdfUploading = false;
@@ -1377,8 +1377,8 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.faisalFileSize = '';
       }
 
-      // Check Osoul
-      const oRes = await fetch('http://localhost:5250/api/shariah/source-pdf/Osoul', { method: 'HEAD' });
+      // Check Ostoul
+      const oRes = await fetch('http://localhost:5250/api/shariah/source-pdf/Ostoul', { method: 'HEAD' });
       this.osoulFileExists = oRes.ok;
       if (oRes.ok) {
         const len = oRes.headers.get('content-length');

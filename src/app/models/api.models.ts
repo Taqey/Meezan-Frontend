@@ -21,6 +21,20 @@ export enum ShariahSourceKey {
   Thndr = 7
 }
 
+/**
+ * Tickers whose Shariah display is frozen to a single "يوجد لجنة شرعية" badge.
+ * For this ticker group, detailed board opinions and AAOIFI/S&P metric panels are skipped entirely.
+ */
+export const SHARIAH_BOARD_FROZEN_TICKERS: readonly string[] = [
+  'ADIB',
+  'SAUD',
+  'FAIT',
+  'FAITA',
+  'ATLC',
+  'AMIA'
+];
+
+
 export const SHARIAH_SOURCE_NAMES: Record<number, { ar: string, en: string }> = {
   [ShariahSourceKey.HalalBourse]: { ar: 'بورصة حلال', en: 'Halal Bourse' },
   [ShariahSourceKey.Musaffa]: { ar: 'مصفّى', en: 'Musaffa' },

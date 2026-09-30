@@ -21,7 +21,8 @@ import {
   ShariahSourceKey,
   ShariahSourceOpinionDto,
   SupportResistanceDto,
-  INDEX_ARABIC_NAMES
+  INDEX_ARABIC_NAMES,
+  SHARIAH_BOARD_FROZEN_TICKERS
 } from '../../models/api.models';
 
 /** One board's card: either its real stored opinion, or an explicit "no opinion" state. */
@@ -193,51 +194,76 @@ type ShariahSourceOpinionView = ShariahSourceOpinionDto & { noOpinion: boolean }
            Hidden entirely when نشاط الشركة is غير متوافق: the activity is a standalone,
            automatic disqualification, so no board opinion grid and no ratio panel apply. -->
       <section class="detail-card shariah-card" *ngIf="!isActivityNonCompliant">
-        <!-- Simplified display for stocks overseen by their own Sharia board/committee
-             (plain "لجنة شرعية" and accredited "هيئة رقابة شرعية داخلية معتمدة" are the
-             same case): status + one note only — no purification %, no 7-source grid,
-             no AAOIFI/S&P metrics panel. -->
-        <div class="card-heading" *ngIf="marketData.hasShariahBoard">
-          <div>
-            <span class="eyebrow">الإشراف الشرعي</span>
-            <h2>الإشراف الشرعي للسهم</h2>
-            <p>الحكم المعتمد: <app-status-badge [status]="marketData.shariahStatus"></app-status-badge></p>
+        <!-- Permanent display-layer override for frozen ticker group:
+             ADIB, SAUD, FAIT, FAITA, ATLC, AMIA.
+             Shows only a single green "يوجد لجنة شرعية" badge.
+             Skips normal rendering (7-source opinions and AAOIFI & S&P ratio panel) entirely. -->
+        <ng-container *ngIf="isShariahBoardFrozen">
+          <div class="card-heading">
+            <div>
+              <span class="eyebrow">الإشراف الشرعي</span>
+              <h2>الإشراف الشرعي للسهم</h2>
+            </div>
+            <div>
+              <span class="status-badge status-good" style="font-size: 13px; padding: 6px 14px;">
+                <span class="status-dot"></span>
+                يوجد لجنة شرعية
+              </span>
+            </div>
           </div>
-          <div class="ratio-big">
-            <strong>موجودة</strong>
-            <span>لجنة أو هيئة شرعية تشرف على السهم</span>
-          </div>
-        </div>
 
-        <div class="board-exists-panel" *ngIf="marketData.hasShariahBoard">
-          <p class="board-note">{{ marketData.shariahBoardNote || 'تشرف لجنة/هيئة شرعية على هذا السهم وعلى توافق أنشطته ومعاييره الشرعية.' }}</p>
-        </div>
-
-        <div class="card-heading" *ngIf="!marketData.hasShariahBoard">
-          <div>
-            <span class="eyebrow">تغطية الجهات الشرعية</span>
-            <h2>آراء الهيئات الشرعية (7 مصادر مستقلة)</h2>
-            <p>الحكم الداخلي المعتمد: <app-status-badge [status]="marketData.shariahStatus"></app-status-badge> <span *ngIf="marketData.shariahPct"> (نسبة التطهير: {{ marketData.shariahPct }}%)</span></p>
+          <div class="board-exists-panel">
+            <p class="board-note" style="margin: 0;">تشرف لجنة/هيئة شرعية على هذا السهم وعلى توافق أنشطته ومعاييره الشرعية.</p>
           </div>
-          <div class="ratio-big">
-            <!-- Aggregate is over boards that actually returned a stored opinion for THIS
-                 stock (per stock-board pair), never a fixed /7 when coverage is incomplete. -->
-            <strong *ngIf="totalAvailableSourcesCount > 0">
-              {{ compliantSourcesCount }} من {{ totalAvailableSourcesCount }}
-            </strong>
-            <strong *ngIf="totalAvailableSourcesCount === 0" class="no-coverage">لا رأي مسجّل</strong>
-            <span *ngIf="totalAvailableSourcesCount > 0">جهات تعتبر السهم متوافقاً</span>
-            <span *ngIf="totalAvailableSourcesCount === 0">من أصل 7 مصادر مستقلة</span>
-            <span class="coverage-note" *ngIf="compliancePercent !== null">
-              {{ compliancePercent }}% مؤشرات متوافقة من أصل {{ totalAvailableSourcesCount }} رأياً مسجّلاً
-            </span>
-            <span class="coverage-note muted" *ngIf="noOpinionSourcesCount > 0">
-              {{ noOpinionSourcesCount }} من 7 بلا رأي مسجّل على هذا السهم
-            </span>
-          </div>
-        </div>
+        </ng-container>
 
-        <div class="opinion-grid" *ngIf="!marketData.hasShariahBoard">
+        <!-- Standard resolution pipeline for all other tickers outside the frozen list -->
+        <ng-container *ngIf="!isShariahBoardFrozen">
+          <!-- Simplified display for stocks overseen by their own Sharia board/committee
+               (plain "لجنة شرعية" and accredited "هيئة رقابة شرعية داخلية معتمدة" are the
+               same case): status + one note only — no purification %, no 7-source grid,
+               no AAOIFI/S&P metrics panel. -->
+          <div class="card-heading" *ngIf="marketData.hasShariahBoard">
+            <div>
+              <span class="eyebrow">الإشراف الشرعي</span>
+              <h2>الإشراف الشرعي للسهم</h2>
+              <p>الحكم المعتمد: <app-status-badge [status]="marketData.shariahStatus"></app-status-badge></p>
+            </div>
+            <div class="ratio-big">
+              <strong>موجودة</strong>
+              <span>لجنة أو هيئة شرعية تشرف على السهم</span>
+            </div>
+          </div>
+
+          <div class="board-exists-panel" *ngIf="marketData.hasShariahBoard">
+            <p class="board-note">{{ marketData.shariahBoardNote || 'تشرف لجنة/هيئة شرعية على هذا السهم وعلى توافق أنشطته ومعاييره الشرعية.' }}</p>
+          </div>
+
+          <div class="card-heading" *ngIf="!marketData.hasShariahBoard">
+            <div>
+              <span class="eyebrow">تغطية الجهات الشرعية</span>
+              <h2>آراء الهيئات الشرعية (7 مصادر مستقلة)</h2>
+              <p>الحكم الداخلي المعتمد: <app-status-badge [status]="marketData.shariahStatus"></app-status-badge> <span *ngIf="marketData.shariahPct"> (نسبة التطهير: {{ marketData.shariahPct }}%)</span></p>
+            </div>
+            <div class="ratio-big">
+              <!-- Aggregate is over boards that actually returned a stored opinion for THIS
+                   stock (per stock-board pair), never a fixed /7 when coverage is incomplete. -->
+              <strong *ngIf="totalAvailableSourcesCount > 0">
+                {{ compliantSourcesCount }} من {{ totalAvailableSourcesCount }}
+              </strong>
+              <strong *ngIf="totalAvailableSourcesCount === 0" class="no-coverage">لا رأي مسجّل</strong>
+              <span *ngIf="totalAvailableSourcesCount > 0">جهات تعتبر السهم متوافقاً</span>
+              <span *ngIf="totalAvailableSourcesCount === 0">من أصل 7 مصادر مستقلة</span>
+              <span class="coverage-note" *ngIf="compliancePercent !== null">
+                {{ compliancePercent }}% مؤشرات متوافقة من أصل {{ totalAvailableSourcesCount }} رأياً مسجّلاً
+              </span>
+              <span class="coverage-note muted" *ngIf="noOpinionSourcesCount > 0">
+                {{ noOpinionSourcesCount }} من 7 بلا رأي مسجّل على هذا السهم
+              </span>
+            </div>
+          </div>
+
+          <div class="opinion-grid" *ngIf="!marketData.hasShariahBoard">
           <!-- 7 board cards -->
           <div class="source-card"
                [class.no-opinion]="op.noOpinion"
@@ -334,6 +360,7 @@ type ShariahSourceOpinionView = ShariahSourceOpinionDto & { noOpinion: boolean }
             </div>
           </div>
         </div>
+        </ng-container>
       </section>
 
       <!-- Activity hard gate: when the company's own line of business is prohibited the
@@ -410,6 +437,21 @@ export class StockDetailComponent implements OnInit {
   marketData?: MarketDataDto | null;
   supportResistance?: SupportResistanceDto | null;
   loading = true;
+
+  /** Single source of truth ticker freeze list (also imported from models) */
+  readonly frozenShariahTickers = SHARIAH_BOARD_FROZEN_TICKERS;
+
+  /**
+   * Permanent display-layer override:
+   * If ticker is in SHARIAH_BOARD_FROZEN_TICKERS (ADIB, SAUD, FAIT, FAITA, ATLC, AMIA),
+   * the display skips normal resolution/rendering of the 7-source grid and AAOIFI & S&P ratio panel,
+   * rendering only the green "يوجد لجنة شرعية" badge.
+   */
+  get isShariahBoardFrozen(): boolean {
+    const raw = (this.ticker || this.marketData?.ticker || '').trim().toUpperCase();
+    return this.frozenShariahTickers.includes(raw);
+  }
+
 
   constructor(
     private route: ActivatedRoute,

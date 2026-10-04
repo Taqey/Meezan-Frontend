@@ -170,8 +170,8 @@ type ShariahSourceOpinionView = ShariahSourceOpinionDto & { noOpinion: boolean }
               <span>{{ currencyLabel }}</span>
               <b *ngIf="fairValuePremiumPct !== null; else fvGapNa"
                  [ngClass]="fairValueSignal === 'cheap' ? 'positive' : (fairValueSignal === 'expensive' ? 'negative' : '')">
-                <ng-container *ngIf="fairValueSignal === 'expensive'">+{{ fairValuePremiumPct | number:'1.1-1' }}% — السعر أعلى من القيمة العادلة بنسبة {{ fairValuePremiumPct | number:'1.1-1' }}%+<span *ngIf="showFairValueMultiple"> (≈ {{ fairValueMultiple | number:'1.1-1' }}x fair value)</span></ng-container>
-                <ng-container *ngIf="fairValueSignal === 'cheap'">{{ fairValuePremiumAbs | number:'1.1-1' }}% — السعر أقل من القيمة العادلة بنسبة {{ fairValuePremiumAbs | number:'1.1-1' }}%</ng-container>
+                <ng-container *ngIf="fairValueSignal === 'expensive'">-{{ fairValuePremiumPct | number:'1.1-1' }}% — السعر أعلى من القيمة العادلة بنسبة {{ fairValuePremiumPct | number:'1.1-1' }}%-<span *ngIf="showFairValueMultiple"> (≈ {{ fairValueMultiple | number:'1.1-1' }}x fair value)</span></ng-container>
+                <ng-container *ngIf="fairValueSignal === 'cheap'">السعر أقل من القيمة العادلة — فرصة صعود +{{ fairValueUpsidePct | number:'1.1-1' }}% ({{ fairValueUpsideMultiple | number:'1.1-1' }}x للوصول للعادلة)</ng-container>
                 <ng-container *ngIf="fairValueSignal !== 'cheap' && fairValueSignal !== 'expensive'">{{ fairValuePremiumPct | number:'1.1-1' }}% — السعر قريب من القيمة العادلة</ng-container>
               </b>
               <ng-template #fvGapNa><b class="muted">N/A</b></ng-template>
@@ -714,6 +714,28 @@ export class StockDetailComponent implements OnInit {
   get fairValuePremiumAbs(): number | null {
     const p = this.fairValuePremiumPct;
     return p === null ? null : Math.abs(p);
+  }
+
+  /** Upside when price is below fair value: (fair / price - 1) * 100; null when not computable. */
+  get fairValueUpsidePct(): number | null {
+    const price = this.marketData?.closingPrice;
+    const fair = this.marketData?.fairValue;
+    if (price === null || price === undefined || fair === null || fair === undefined) return null;
+    const p = Number(price);
+    const f = Number(fair);
+    if (isNaN(p) || isNaN(f) || p <= 0 || f <= 0) return null;
+    return (f / p - 1) * 100;
+  }
+
+  /** Fair-to-price multiple for the below-fair case: fair / price (e.g. 4.2x); null when not computable. */
+  get fairValueUpsideMultiple(): number | null {
+    const price = this.marketData?.closingPrice;
+    const fair = this.marketData?.fairValue;
+    if (price === null || price === undefined || fair === null || fair === undefined) return null;
+    const p = Number(price);
+    const f = Number(fair);
+    if (isNaN(p) || isNaN(f) || p <= 0 || f <= 0) return null;
+    return f / p;
   }
 
   /** Price as a multiple of fair value (e.g. 8.3x); null when not computable. */

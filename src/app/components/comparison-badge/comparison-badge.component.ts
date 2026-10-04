@@ -26,6 +26,12 @@ export class ComparisonBadgeComponent {
   /** Percentage difference from current price to fair value. Used to append "%" to the badge label. */
   @Input() fairValueDiffPct?: number | null;
 
+  /** Current price — used with fairValue to compute upside for the cheap case. */
+  @Input() closingPrice?: number | null;
+
+  /** Fair value — used with closingPrice to compute upside for the cheap case. */
+  @Input() fairValue?: number | null;
+
   readonly TrendingUpIcon = TrendingUp;
   readonly TrendingDownIcon = TrendingDown;
   readonly MinusIcon = Minus;
@@ -69,9 +75,46 @@ export class ComparisonBadgeComponent {
     const hasPct = pct !== null && pct !== undefined && !isNaN(pct);
     const pctStr = hasPct ? ` بـ ${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%` : '';
 
-    if (this.isCheap) return `أرخص من العادلة${pctStr}`;
+    if (this.isCheap) {
+      const up = this.upsidePct;
+      const mult = this.upsideMultiple;
+      if (up !== null && mult !== null) {
+        return `أرخص من العادلة — فرصة صعود +${up.toFixed(1)}% (${mult.toFixed(1)}x للوصول للعادلة)`;
+      }
+      return `أرخص من العادلة${pctStr}`;
+    }
     if (this.isExpensive) return `أغلى من العادلة${pctStr}`;
     if (this.isUnavailable) return 'بيانات غير كافية';
     return `قريبة من العادلة${pctStr}`;
+  }
+
+  /** Upside when price is below fair value: (fair / price - 1) * 100. */
+  private get upsidePct(): number | null {
+    const p = this.closingPrice !== null && this.closingPrice !== undefined ? Number(this.closingPrice) : NaN;
+    const f = this.fairValue !== null && this.fairValue !== undefined ? Number(this.fairValue) : NaN;
+    if (!isNaN(p) && !isNaN(f) && p > 0 && f > 0) {
+      return (f / p - 1) * 100;
+    }
+    // Fallback: derive from the old-convention diffPct ((price - fair) / fair * 100).
+    const pct = this.fairValueDiffPct;
+    if (pct !== null && pct !== undefined && !isNaN(pct) && (1 + pct / 100) > 0) {
+      return (1 / (1 + pct / 100) - 1) * 100;
+    }
+    return null;
+  }
+
+  /** Fair-to-price multiple for the cheap case: fair / price. */
+  private get upsideMultiple(): number | null {
+    const p = this.closingPrice !== null && this.closingPrice !== undefined ? Number(this.closingPrice) : NaN;
+    const f = this.fairValue !== null && this.fairValue !== undefined ? Number(this.fairValue) : NaN;
+    if (!isNaN(p) && !isNaN(f) && p > 0 && f > 0) {
+      return f / p;
+    }
+    // Fallback: derive from the old-convention diffPct.
+    const pct = this.fairValueDiffPct;
+    if (pct !== null && pct !== undefined && !isNaN(pct) && (1 + pct / 100) > 0) {
+      return 1 / (1 + pct / 100);
+    }
+    return null;
   }
 }

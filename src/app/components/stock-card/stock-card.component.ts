@@ -35,7 +35,7 @@ import { INDEX_ARABIC_NAMES } from '../../models/api.models';
         <div class="mini-ratio">
           <app-status-badge [status]="shariahStatus"></app-status-badge>
         </div>
-        <app-comparison-badge [comparison]="priceComparison" [fairValueDiffPct]="fairValueDiffPct"></app-comparison-badge>
+        <app-comparison-badge [comparison]="priceComparison" [fairValueDiffPct]="fairValueDiffPct" [closingPrice]="closingPrice" [fairValue]="fairValue"></app-comparison-badge>
       </div>
 
       <div class="stock-meta" *ngIf="indexLabels && indexLabels.length">

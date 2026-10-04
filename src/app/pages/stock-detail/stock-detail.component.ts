@@ -150,7 +150,7 @@ type ShariahSourceOpinionView = ShariahSourceOpinionDto & { noOpinion: boolean }
               <span class="eyebrow">نموذج جراهام (Graham Formula)</span>
               <h2>القيمة العادلة</h2>
             </div>
-            <app-comparison-badge [comparison]="marketData.priceComparison"></app-comparison-badge>
+            <app-comparison-badge [comparison]="fairValueComparison"></app-comparison-badge>
           </div>
 
           <!-- Insufficient data: no trustworthy fair value exists (Graham needs EPS > 0 & BookValue > 0).
@@ -168,10 +168,13 @@ type ShariahSourceOpinionView = ShariahSourceOpinionDto & { noOpinion: boolean }
             <div class="fair-number">
               <strong>{{ marketData.fairValue | number:'1.2-2' }}</strong>
               <span>{{ currencyLabel }}</span>
-              <b *ngIf="marketData.fairValueDiffPct !== null && marketData.fairValueDiffPct !== undefined"
-                 [ngClass]="marketData.fairValueDiffPct >= 0 ? 'positive' : 'negative'">
-                {{ marketData.fairValueDiffPct > 0 ? '+' : '' }}{{ marketData.fairValueDiffPct | number:'1.2-2' }}% عن السعر الحالي
+              <b *ngIf="fairValuePremiumPct !== null; else fvGapNa"
+                 [ngClass]="fairValueSignal === 'cheap' ? 'positive' : (fairValueSignal === 'expensive' ? 'negative' : '')">
+                <ng-container *ngIf="fairValueSignal === 'expensive'">+{{ fairValuePremiumPct | number:'1.1-1' }}% — السعر أعلى من القيمة العادلة بنسبة {{ fairValuePremiumPct | number:'1.1-1' }}%+<span *ngIf="showFairValueMultiple"> (≈ {{ fairValueMultiple | number:'1.1-1' }}x fair value)</span></ng-container>
+                <ng-container *ngIf="fairValueSignal === 'cheap'">{{ fairValuePremiumAbs | number:'1.1-1' }}% — السعر أقل من القيمة العادلة بنسبة {{ fairValuePremiumAbs | number:'1.1-1' }}%</ng-container>
+                <ng-container *ngIf="fairValueSignal !== 'cheap' && fairValueSignal !== 'expensive'">{{ fairValuePremiumPct | number:'1.1-1' }}% — السعر قريب من القيمة العادلة</ng-container>
               </b>
+              <ng-template #fvGapNa><b class="muted">N/A</b></ng-template>
             </div>
 
             <p class="muted">
@@ -671,6 +674,63 @@ export class StockDetailComponent implements OnInit {
     if ((md.valuationConfidence || '').trim().toLowerCase() === 'none') return true;
 
     return false;
+  }
+
+  /**
+   * Single helper for the Fair Value card verdict: the badge, the percentage
+   * sign/wording and the color ALL derive from here, so they can never
+   * contradict each other. Convention (matches the API's ComputePremium):
+   * 'expensive' = price above fair value (positive premium, red),
+   * 'cheap' = price below fair value (negative premium, green),
+   * 'fair' = within ±2% (neutral), anything else = 'unavailable' (N/A).
+   */
+  get fairValueSignal(): 'cheap' | 'expensive' | 'fair' | 'unavailable' {
+    const c = (this.marketData?.priceComparison || '').trim().toLowerCase();
+    if (c === 'cheap') return 'cheap';
+    if (c === 'expensive') return 'expensive';
+    if (c === 'fair') return 'fair';
+    return 'unavailable';
+  }
+
+  /** Canonical comparison string fed to the badge — always agrees with the signal. */
+  get fairValueComparison(): string {
+    switch (this.fairValueSignal) {
+      case 'cheap': return 'Cheap';
+      case 'expensive': return 'Expensive';
+      case 'fair': return 'Fair';
+      default: return 'Unavailable';
+    }
+  }
+
+  /** Premium % from the API: (price − fairValue) / fairValue × 100; null → show N/A. */
+  get fairValuePremiumPct(): number | null {
+    const v = this.marketData?.fairValueDiffPct;
+    if (v === null || v === undefined) return null;
+    const n = Number(v);
+    return isNaN(n) ? null : n;
+  }
+
+  /** Magnitude of the premium (for "below fair value" wording, shown unsigned). */
+  get fairValuePremiumAbs(): number | null {
+    const p = this.fairValuePremiumPct;
+    return p === null ? null : Math.abs(p);
+  }
+
+  /** Price as a multiple of fair value (e.g. 8.3x); null when not computable. */
+  get fairValueMultiple(): number | null {
+    const price = this.marketData?.closingPrice;
+    const fair = this.marketData?.fairValue;
+    if (price === null || price === undefined || fair === null || fair === undefined) return null;
+    const p = Number(price);
+    const f = Number(fair);
+    if (isNaN(p) || isNaN(f) || p <= 0 || f <= 0) return null;
+    return p / f;
+  }
+
+  /** Show the multiple hint only for large gaps (above 100%). */
+  get showFairValueMultiple(): boolean {
+    const p = this.fairValuePremiumPct;
+    return p !== null && Math.abs(p) > 100 && this.fairValueMultiple !== null;
   }
 
   get aaoifiHaramPerShare(): number | null {

@@ -83,7 +83,14 @@ export class ComparisonBadgeComponent {
       }
       return `أرخص من العادلة${pctStr}`;
     }
-    if (this.isExpensive) return `أغلى من العادلة${pctStr}`;
+    if (this.isExpensive) {
+      const down = this.upsidePct;
+      const over = this.overMultiple;
+      if (down !== null && over !== null) {
+        return `أغلى من العادلة — فرصة هبوط ${down.toFixed(1)}% (${over.toFixed(1)}x فوق العادلة)`;
+      }
+      return `أغلى من العادلة${pctStr}`;
+    }
     if (this.isUnavailable) return 'بيانات غير كافية';
     return `قريبة من العادلة${pctStr}`;
   }
@@ -114,6 +121,21 @@ export class ComparisonBadgeComponent {
     const pct = this.fairValueDiffPct;
     if (pct !== null && pct !== undefined && !isNaN(pct) && (1 + pct / 100) > 0) {
       return 1 / (1 + pct / 100);
+    }
+    return null;
+  }
+
+  /** Price-to-fair multiple for the expensive case: price / fair. */
+  private get overMultiple(): number | null {
+    const p = this.closingPrice !== null && this.closingPrice !== undefined ? Number(this.closingPrice) : NaN;
+    const f = this.fairValue !== null && this.fairValue !== undefined ? Number(this.fairValue) : NaN;
+    if (!isNaN(p) && !isNaN(f) && p > 0 && f > 0) {
+      return p / f;
+    }
+    // Fallback: derive from the old-convention diffPct ((price - fair) / fair * 100).
+    const pct = this.fairValueDiffPct;
+    if (pct !== null && pct !== undefined && !isNaN(pct)) {
+      return 1 + pct / 100;
     }
     return null;
   }

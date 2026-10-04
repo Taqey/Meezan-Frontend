@@ -170,7 +170,7 @@ type ShariahSourceOpinionView = ShariahSourceOpinionDto & { noOpinion: boolean }
               <span>{{ currencyLabel }}</span>
               <b *ngIf="fairValuePremiumPct !== null; else fvGapNa"
                  [ngClass]="fairValueSignal === 'cheap' ? 'positive' : (fairValueSignal === 'expensive' ? 'negative' : '')">
-                <ng-container *ngIf="fairValueSignal === 'expensive'">-{{ fairValuePremiumPct | number:'1.1-1' }}% — السعر أعلى من القيمة العادلة بنسبة {{ fairValuePremiumPct | number:'1.1-1' }}%-<span *ngIf="showFairValueMultiple"> (≈ {{ fairValueMultiple | number:'1.1-1' }}x fair value)</span></ng-container>
+                <ng-container *ngIf="fairValueSignal === 'expensive'">السعر أعلى من القيمة العادلة — فرصة هبوط {{ fairValueUpsidePct | number:'1.1-1' }}% ({{ fairValueMultiple | number:'1.1-1' }}x فوق العادلة)</ng-container>
                 <ng-container *ngIf="fairValueSignal === 'cheap'">السعر أقل من القيمة العادلة — فرصة صعود +{{ fairValueUpsidePct | number:'1.1-1' }}% ({{ fairValueUpsideMultiple | number:'1.1-1' }}x للوصول للعادلة)</ng-container>
                 <ng-container *ngIf="fairValueSignal !== 'cheap' && fairValueSignal !== 'expensive'">{{ fairValuePremiumPct | number:'1.1-1' }}% — السعر قريب من القيمة العادلة</ng-container>
               </b>

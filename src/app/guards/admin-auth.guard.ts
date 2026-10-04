@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateChildFn, CanActivateFn, Router } from '@angular/router';
 import { AdminAuthService } from '../services/admin-auth.service';
 
 export const adminAuthGuard: CanActivateFn = () => {
@@ -10,5 +10,16 @@ export const adminAuthGuard: CanActivateFn = () => {
     return true;
   }
 
-  return router.createUrlTree(['/portal/login']);
+  return router.createUrlTree(['/admin/login']);
+};
+
+export const adminAuthChildGuard: CanActivateChildFn = () => {
+  const auth = inject(AdminAuthService);
+  const router = inject(Router);
+
+  if (auth.isLoggedIn) {
+    return true;
+  }
+
+  return router.createUrlTree(['/admin/login']);
 };

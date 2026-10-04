@@ -348,7 +348,7 @@ export class SectorDetailComponent implements OnInit {
     private router: Router,
     private api: ApiService,
     private elementRef: ElementRef
-  ) {}
+  ) { }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {

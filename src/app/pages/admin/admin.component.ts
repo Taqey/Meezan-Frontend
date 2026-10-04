@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import {
   LucideAngularModule,
   Upload,
@@ -32,6 +33,7 @@ import {
   RunCombinedScrapeResult,
   ScrapeStatusResponse,
   SeedShariahResultDto,
+  SourcePdfStatusDto,
   StockListItemDto,
   UploadIndexFileResultDto,
   RemovalCandidateDto,
@@ -74,28 +76,6 @@ interface EditableMarketForm {
             </button>
           </div>
         </div>
-      </div>
-
-<!-- Navigation Tabs -->
-      <div class="admin-tabs">
-        <button class="admin-tab" [class.active]="activeTab === 'scraping'" (click)="activeTab = 'scraping'">
-          سحب بيانات السوق (Live & Quarterly)
-        </button>
-        <button class="admin-tab" [class.active]="activeTab === 'market-data'" (click)="activeTab = 'market-data'">
-          تعديل بيانات السوق يدوياً
-        </button>
-        <button class="admin-tab" [class.active]="activeTab === 'upload'" (click)="activeTab = 'upload'">
-          رفع ملفات المؤشرات (Excel)
-        </button>
-        <button class="admin-tab" [class.active]="activeTab === 'shariah'" (click)="activeTab = 'shariah'">
-          تحديث وبذر بيانات الشريعة
-        </button>
-        <button class="admin-tab" [class.active]="activeTab === 'pdf-upload'" (click)="activeTab = 'pdf-upload'">
-          رفع تقارير فيصل/أسطول (PDF)
-        </button>
-        <button class="admin-tab" [class.active]="activeTab === 'review'" (click)="activeTab = 'review'">
-          قائمة المراجعة
-        </button>
       </div>
 
       <!-- TAB 1: SCRAPING & FAIR VALUE RUNNER -->
@@ -679,22 +659,38 @@ interface EditableMarketForm {
           بعد الرفع، شغّل "تحديث الشريعة المدمجة" (import-faisal-osoul) لتحديث روابط PDF في آراء الأسهم.
         </p>
 
-        <!-- Current stored files status -->
+        <!-- Current stored files status (DB record + file on disk, per source) -->
         <div class="admin-card" style="margin-bottom: 24px; padding: 16px; background: #fbfcfb; border: 1px solid var(--border); border-radius: 12px;">
           <h3 style="margin: 0 0 12px; font-size: 15px;">الملفات المخزنة حالياً:</h3>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+          <div *ngIf="sourcePdfLoading" style="font-size: 13px; color: var(--muted-foreground);">جارٍ تحميل حالة الملفات المخزنة...</div>
+          <div *ngIf="!sourcePdfLoading && sourcePdfError" class="admin-result error" style="color: var(--bad);">{{ sourcePdfError }}</div>
+          <div *ngIf="!sourcePdfLoading && !sourcePdfError" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
             <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
               <strong style="color: var(--primary);">بنك فيصل الإسلامي</strong>
-              <div style="font-size: 12px; color: var(--muted-foreground); margin-top: 4px;">
-                <span *ngIf="faisalFileExists">موجود ({{ faisalFileSize }})</span>
-                <span *ngIf="!faisalFileExists" style="color: var(--bad);">غير موجود</span>
+              <div style="font-size: 12px; color: var(--muted-foreground); margin-top: 4px;" [ngSwitch]="getSourcePdfState('FaisalBank')?.status">
+                <span *ngSwitchCase="'exists'">
+                  موجود ({{ getSourcePdfState('FaisalBank')?.fileName }}<span *ngIf="getSourcePdfState('FaisalBank')?.sizeBytes != null"> — {{ formatFileSize(getSourcePdfState('FaisalBank')?.sizeBytes!) }}</span><span *ngIf="formatPdfDate(getSourcePdfState('FaisalBank')?.lastModifiedUtc)"> — {{ formatPdfDate(getSourcePdfState('FaisalBank')?.lastModifiedUtc) }}</span>)
+                  <br><a [href]="getSourcePdfViewUrl('FaisalBank')" target="_blank" rel="noopener">View PDF</a>
+                </span>
+                <span *ngSwitchCase="'missing-file'" style="color: var(--bad);">
+                  Referenced in database but file missing on server (مسجّل في قاعدة البيانات لكن الملف مفقود على الخادم<span *ngIf="getSourcePdfState('FaisalBank')?.fileName">: {{ getSourcePdfState('FaisalBank')?.fileName }}</span>)
+                </span>
+                <span *ngSwitchCase="'not-found'" style="color: var(--bad);">غير موجود</span>
+                <span *ngSwitchDefault style="color: var(--bad);">غير موجود</span>
               </div>
             </div>
             <div style="background: white; border: 1px solid var(--border); border-radius: 8px; padding: 12px;">
               <strong style="color: #1e40af;">أسطول</strong>
-              <div style="font-size: 12px; color: var(--muted-foreground); margin-top: 4px;">
-                <span *ngIf="osoulFileExists">موجود ({{ osoulFileSize }})</span>
-                <span *ngIf="!osoulFileExists" style="color: var(--bad);">غير موجود</span>
+              <div style="font-size: 12px; color: var(--muted-foreground); margin-top: 4px;" [ngSwitch]="getSourcePdfState('Ostoul')?.status">
+                <span *ngSwitchCase="'exists'">
+                  موجود ({{ getSourcePdfState('Ostoul')?.fileName }}<span *ngIf="getSourcePdfState('Ostoul')?.sizeBytes != null"> — {{ formatFileSize(getSourcePdfState('Ostoul')?.sizeBytes!) }}</span><span *ngIf="formatPdfDate(getSourcePdfState('Ostoul')?.lastModifiedUtc)"> — {{ formatPdfDate(getSourcePdfState('Ostoul')?.lastModifiedUtc) }}</span>)
+                  <br><a [href]="getSourcePdfViewUrl('Ostoul')" target="_blank" rel="noopener">View PDF</a>
+                </span>
+                <span *ngSwitchCase="'missing-file'" style="color: var(--bad);">
+                  Referenced in database but file missing on server (مسجّل في قاعدة البيانات لكن الملف مفقود على الخادم<span *ngIf="getSourcePdfState('Ostoul')?.fileName">: {{ getSourcePdfState('Ostoul')?.fileName }}</span>)
+                </span>
+                <span *ngSwitchCase="'not-found'" style="color: var(--bad);">غير موجود</span>
+                <span *ngSwitchDefault style="color: var(--bad);">غير موجود</span>
               </div>
             </div>
           </div>
@@ -936,10 +932,9 @@ export class AdminComponent implements OnInit, OnDestroy {
   pdfUploading = false;
   pdfUploadResult?: { success: boolean; message: string; fileName?: string; storedAt?: string; uploadedAt?: string; reportDate?: string };
   pdfUploadError = '';
-  faisalFileExists = false;
-  osoulFileExists = false;
-  faisalFileSize = '';
-  osoulFileSize = '';
+  sourcePdfStatuses: Record<string, SourcePdfStatusDto> = {};
+  sourcePdfLoading = false;
+  sourcePdfError = '';
 
   // Review checklist tab
   removalCandidates: RemovalCandidateDto[] = [];
@@ -952,10 +947,30 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   constructor(
     private api: ApiService,
-    private auth: AdminAuthService
+    private auth: AdminAuthService,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    // Each operations section is its own child route of the admin dashboard
+    // shell; the route's `tab` data value selects the visible section so the
+    // browser back/forward buttons work. Defaults to 'scraping' when no data.
+    this.route.data.subscribe((data) => {
+      const tab = data['tab'];
+      if (
+        tab === 'scraping' ||
+        tab === 'market-data' ||
+        tab === 'upload' ||
+        tab === 'shariah' ||
+        tab === 'pdf-upload' ||
+        tab === 'review'
+      ) {
+        this.activeTab = tab;
+        if (tab === 'pdf-upload') {
+          this.loadSourcePdfStatus();
+        }
+      }
+    });
     this.loadIndices();
     this.loadStocks();
     this.fetchScrapeStatus();
@@ -1310,7 +1325,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     return (bytes / (1024 * 1024)).toFixed(1) + ' ميجابايت';
   }
 
-  async uploadPdfReport(): Promise<void> {
+  uploadPdfReport(): void {
     if (!this.selectedPdfFile) {
       this.pdfUploadError = 'الرجاء اختيار ملف PDF أولاً';
       return;
@@ -1320,75 +1335,77 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.pdfUploadError = '';
     this.pdfUploadResult = undefined;
 
-    const formData = new FormData();
-    formData.append('file', this.selectedPdfFile);
-    if (this.pdfReportDate) {
-      formData.append('reportDate', this.pdfReportDate);
-    }
-
-    try {
-      const res = await fetch(`http://localhost:5250/api/shariah/sources/${this.selectedPdfSource}/report-file`, {
-        method: 'POST',
-        body: formData
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        this.pdfUploadResult = {
-          success: true,
-          message: data.message,
-          fileName: data.fileName,
-          storedAt: data.storedAt,
-          uploadedAt: data.uploadedAt,
-          reportDate: data.reportDate
-        };
-        this.pdfUploadError = '';
-        this.selectedPdfFile = undefined;
-        // Refresh file existence status
-        await this.checkStoredFiles();
-      } else {
-        this.pdfUploadError = data.message || 'فشل رفع الملف';
+    this.api.uploadSourcePdf(this.selectedPdfSource, this.selectedPdfFile, this.pdfReportDate || undefined).subscribe({
+      next: (data) => {
+        if (data.success) {
+          this.pdfUploadResult = {
+            success: true,
+            message: data.message || '',
+            fileName: data.fileName || undefined,
+            storedAt: data.storedAt || undefined,
+            uploadedAt: data.uploadedAt || undefined,
+            reportDate: data.reportDate || undefined
+          };
+          this.pdfUploadError = '';
+          this.selectedPdfFile = undefined;
+          // Refresh stored-files status immediately (no stale cache).
+          this.loadSourcePdfStatus();
+        } else {
+          this.pdfUploadError = data.message || 'فشل رفع الملف';
+          this.pdfUploadResult = {
+            success: false,
+            message: data.message || 'فشل رفع الملف'
+          };
+        }
+        this.pdfUploading = false;
+      },
+      error: (e) => {
+        this.pdfUploadError = 'خطأ في الاتصال بالخادم: ' + (e?.message || e);
         this.pdfUploadResult = {
           success: false,
-          message: data.message || 'فشل رفع الملف'
+          message: 'خطأ في الاتصال بالخادم'
         };
+        this.pdfUploading = false;
       }
-    } catch (e) {
-      this.pdfUploadError = 'خطأ في الاتصال بالخادم: ' + (e as Error).message;
-      this.pdfUploadResult = {
-        success: false,
-        message: 'خطأ في الاتصال بالخادم'
-      };
-    } finally {
-      this.pdfUploading = false;
-    }
+    });
   }
 
-  private async checkStoredFiles(): Promise<void> {
-    try {
-      // Check Faisal
-      const fRes = await fetch('http://localhost:5250/api/shariah/source-pdf/FaisalBank', { method: 'HEAD' });
-      this.faisalFileExists = fRes.ok;
-      if (fRes.ok) {
-        const len = fRes.headers.get('content-length');
-        this.faisalFileSize = len ? this.formatFileSize(parseInt(len, 10)) : '';
-      } else {
-        this.faisalFileSize = '';
+  /**
+   * Loads the stored-files status from the API (database record + file on
+   * disk, per source). Never defaults to "not found": loading and error states
+   * are surfaced explicitly in the template.
+   */
+  loadSourcePdfStatus(): void {
+    this.sourcePdfLoading = true;
+    this.sourcePdfError = '';
+    this.api.getSourcePdfStatus().subscribe({
+      next: (rows) => {
+        const map: Record<string, SourcePdfStatusDto> = {};
+        for (const row of rows || []) {
+          if (row?.sourceKey) map[row.sourceKey] = row;
+        }
+        this.sourcePdfStatuses = map;
+        this.sourcePdfLoading = false;
+      },
+      error: () => {
+        this.sourcePdfLoading = false;
+        this.sourcePdfError = 'تعذّر تحميل حالة الملفات المخزنة.';
       }
+    });
+  }
 
-      // Check Ostoul
-      const oRes = await fetch('http://localhost:5250/api/shariah/source-pdf/Ostoul', { method: 'HEAD' });
-      this.osoulFileExists = oRes.ok;
-      if (oRes.ok) {
-        const len = oRes.headers.get('content-length');
-        this.osoulFileSize = len ? this.formatFileSize(parseInt(len, 10)) : '';
-      } else {
-        this.osoulFileSize = '';
-      }
-    } catch {
-      // Ignore errors
-    }
+  getSourcePdfState(sourceKey: string): SourcePdfStatusDto | null {
+    return this.sourcePdfStatuses[sourceKey] ?? null;
+  }
+
+  getSourcePdfViewUrl(sourceKey: string): string {
+    return this.api.getSourcePdfUrl(sourceKey);
+  }
+
+  formatPdfDate(iso?: string | null): string {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return isNaN(d.getTime()) ? '' : d.toLocaleString();
   }
 
   // ── Review checklist tab ───────────────────────────────────────────

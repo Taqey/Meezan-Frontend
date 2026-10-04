@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Meta } from '@angular/platform-browser';
 import { Lock, LogIn, LineChart } from 'lucide-angular';
 import { LucideAngularModule } from 'lucide-angular';
 import { AdminAuthService } from '../../services/admin-auth.service';
@@ -49,8 +50,13 @@ import { AdminAuthService } from '../../services/admin-auth.service';
     </section>
   `,
   styles: [`
+    :host {
+      display: block;
+      min-height: 100vh;
+      background: var(--background, #f4f6f4);
+    }
     .portal-login {
-      min-height: 70vh;
+      min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -143,7 +149,7 @@ import { AdminAuthService } from '../../services/admin-auth.service';
     }
   `]
 })
-export class AdminLoginComponent {
+export class AdminLoginComponent implements OnInit, OnDestroy {
   readonly LockIcon = Lock;
   readonly LogInIcon = LogIn;
   readonly LineChartIcon = LineChart;
@@ -153,8 +159,20 @@ export class AdminLoginComponent {
 
   constructor(
     private auth: AdminAuthService,
-    private router: Router
+    private router: Router,
+    private meta: Meta
   ) {}
+
+  ngOnInit(): void {
+    this.meta.addTag({ name: 'robots', content: 'noindex' });
+    if (this.auth.isLoggedIn) {
+      this.router.navigate(['/admin']);
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.meta.removeTag("name='robots'");
+  }
 
   login(event: Event): void {
     event.preventDefault();
@@ -165,6 +183,6 @@ export class AdminLoginComponent {
       return;
     }
 
-    this.router.navigate(['/portal/dashboard']);
+    this.router.navigate(['/admin']);
   }
 }

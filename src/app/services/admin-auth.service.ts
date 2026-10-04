@@ -23,6 +23,6 @@ export class AdminAuthService {
 
   logout(): void {
     localStorage.removeItem(ADMIN_SESSION_KEY);
-    this.router.navigate(['/portal/login']);
+    this.router.navigate(['/admin/login']);
   }
 }

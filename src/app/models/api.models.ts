@@ -186,6 +186,14 @@ export interface MarketDataDto {
   fairValueMethods?: FairValueMethodDto[] | null;
   // Shariah detailed metrics
   shariahMetrics?: StockShariahMetricsDto | null;
+  /**
+   * Why detailed financial screens are missing: "MISSING_FINANCIALS" when the
+   * required inputs are absent, "NOT_CALCULATED" when screens are intentionally
+   * not applied (impermissible activity or board-governed), null when data present.
+   * Keeps "not applicable" and "not available" distinguishable.
+   * (camelCase to match the API's camelCase JSON.)
+   */
+  shariahMetricsUnavailableReason?: 'MISSING_FINANCIALS' | 'NOT_CALCULATED' | string | null;
 }
 
 export interface SupportResistanceDto {
@@ -352,6 +360,31 @@ export interface SeedShariahResultDto {
   insertedCount: number;
   updatedCount: number;
   totalProcessed: number;
+}
+
+/**
+ * Stored-PDF status for one source (FaisalBank / Ostoul).
+ * Field names are camelCase to match the API response exactly.
+ * status: 'exists' | 'missing-file' | 'not-found'.
+ */
+export interface SourcePdfStatusDto {
+  sourceKey: string;
+  dbPdfUrl?: string | null;
+  status: 'exists' | 'missing-file' | 'not-found' | string;
+  fileName?: string | null;
+  sizeBytes?: number | null;
+  lastModifiedUtc?: string | null;
+  viewPath?: string | null;
+}
+
+export interface UploadSourcePdfResultDto {
+  success: boolean;
+  message?: string | null;
+  sourceKey?: string | null;
+  fileName?: string | null;
+  storedAt?: string | null;
+  reportDate?: string | null;
+  uploadedAt?: string | null;
 }
 
 export interface RefreshShariahDataResult {

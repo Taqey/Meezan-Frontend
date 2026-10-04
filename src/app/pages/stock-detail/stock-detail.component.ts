@@ -318,9 +318,13 @@ type ShariahSourceOpinionView = ShariahSourceOpinionDto & { noOpinion: boolean }
           </div>
         </div>
 
-        <!-- Dedicated Shariah Metrics Section (AAOIFI & S&P Breakdown) - Suppressed for
-             NonCompliant stocks, board-governed stocks, or when no metrics exist -->
-        <div class="shariah-metrics-panel" *ngIf="marketData.shariahMetrics && marketData.shariahStatus !== 'NonCompliant' && !marketData.hasShariahBoard">
+        <!-- Dedicated Shariah Metrics Section (AAOIFI & S&P Breakdown).
+             Visibility depends on WHY the stock is non-compliant, not on the status
+             alone: hidden only for impermissible core business (activityCompliant ===
+             false) and board-governed stocks. Permissible-activity stocks show it for
+             every status (Compliant, Doubtful, NonCompliant); with no data it shows
+             "Data currently unavailable" instead of hiding silently. -->
+        <div class="shariah-metrics-panel" *ngIf="shouldShowRatiosSection">
           <div class="metrics-header">
             <div>
               <h3>المعايير والنسب المالية الشرعية التفصيلية (AAOIFI & S&P)</h3>
@@ -332,33 +336,38 @@ type ShariahSourceOpinionView = ShariahSourceOpinionDto & { noOpinion: boolean }
               <span class="flag-badge" [class.pass]="getActivityCompliant()" [class.fail]="!getActivityCompliant()">
                 نشاط الشركة: {{ getActivityCompliant() ? 'متوافق' : 'غير متوافق' }}
               </span>
-              <span class="flag-badge" [class.pass]="getAaoifiCompliant()" [class.fail]="!getAaoifiCompliant()">
-                معيار AAOIFI: {{ getAaoifiCompliant() ? 'مجاز' : 'غير مجاز' }}
+              <span class="flag-badge" [class.pass]="getAaoifiCompliant() === true" [class.fail]="getAaoifiCompliant() === false">
+                معيار AAOIFI: {{ getAaoifiCompliant() === true ? 'مجاز' : (getAaoifiCompliant() === false ? 'غير مجاز' : 'غير متاح') }}
               </span>
-              <span class="flag-badge" [class.pass]="getSpCompliant()" [class.fail]="!getSpCompliant()">
-                معيار S&P: {{ getSpCompliant() ? 'مجاز' : 'غير مجاز' }}
+              <span class="flag-badge" [class.pass]="getSpCompliant() === true" [class.fail]="getSpCompliant() === false">
+                معيار S&P: {{ getSpCompliant() === true ? 'مجاز' : (getSpCompliant() === false ? 'غير مجاز' : 'غير متاح') }}
               </span>
             </div>
           </div>
 
-          <div class="metrics-grid">
-            <div class="metric-cell">
-              <span>تصنيف النشاط</span>
-              <strong>{{ marketData.shariahMetrics?.activityClassification || marketData.sectorNameAr || 'نشاط تشغيلي تجاري' }}</strong>
+          <ng-container *ngIf="hasShariahMetricsData; else metricsUnavailable">
+            <div class="metrics-grid">
+              <div class="metric-cell">
+                <span>تصنيف النشاط</span>
+                <strong>{{ marketData.shariahMetrics?.activityClassification || marketData.sectorNameAr || 'نشاط تشغيلي تجاري' }}</strong>
+              </div>
+              <div class="metric-cell">
+                <span>تطهير السهم (AAOIFI)</span>
+                <strong>{{ aaoifiHaramPerShare != null ? aaoifiHaramPerShare : '—' }} {{ currencyLabel }}/سهم</strong>
+              </div>
+              <div class="metric-cell">
+                <span>نسبة الإيراد المحرم (S&P)</span>
+                <strong>{{ spHaramPct != null ? spHaramPct : '—' }}%</strong>
+              </div>
+              <div class="metric-cell">
+                <span>نسبة القروض والفوائد</span>
+                <strong>{{ loansPct != null ? loansPct : '—' }}%</strong>
+              </div>
             </div>
-            <div class="metric-cell">
-              <span>تطهير السهم (AAOIFI)</span>
-              <strong>{{ aaoifiHaramPerShare != null ? aaoifiHaramPerShare : '—' }} {{ currencyLabel }}/سهم</strong>
-            </div>
-            <div class="metric-cell">
-              <span>نسبة الإيراد المحرم (S&P)</span>
-              <strong>{{ spHaramPct != null ? spHaramPct : '—' }}%</strong>
-            </div>
-            <div class="metric-cell">
-              <span>نسبة القروض والفوائد</span>
-              <strong>{{ loansPct != null ? loansPct : '—' }}%</strong>
-            </div>
-          </div>
+          </ng-container>
+          <ng-template #metricsUnavailable>
+            <p class="muted" style="margin: 0;">Data currently unavailable — لا توجد حالياً بيانات النسب المالية الشرعية لهذا السهم.</p>
+          </ng-template>
         </div>
         </ng-container>
       </section>
@@ -373,6 +382,9 @@ type ShariahSourceOpinionView = ShariahSourceOpinionDto & { noOpinion: boolean }
             <h2>غير متوافق مع الشريعة — النشاط: {{ activityClassificationLabel }}</h2>
           </div>
         </div>
+        <p class="muted">
+          Non-compliant due to the nature of its core business; financial screens are not applied.
+        </p>
         <p class="muted">
           يستبعد السهم بوابة النشاط ذاتها، ولذلك لا تُعرض النسب المالية الشرعية ولا آراء
           الهيئات الشرعية.
@@ -456,7 +468,7 @@ export class StockDetailComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private api: ApiService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params) => {
@@ -519,7 +531,9 @@ export class StockDetailComponent implements OnInit {
     return this.allSourceKeys.map((key) => {
       const real = map.get(key);
       if (real && (real.status || '').trim()) {
-        return { ...real, noOpinion: false };
+        // HalalBourse-specific rule: compliant + percentage < 100 → treat as doubtful.
+        const effectiveStatus = this.halalBourseEffectiveStatus(real, key);
+        return { ...real, status: effectiveStatus, noOpinion: false };
       }
       return { sourceKey: key, status: null, percentage: null, note: null, noOpinion: true };
     });
@@ -532,10 +546,27 @@ export class StockDetailComponent implements OnInit {
     );
   }
 
+  /**
+   * Single helper that normalizes every Shariah status value exactly once.
+   * The API returns PascalCase ("Compliant", "NonCompliant", "Doubtful"); legacy
+   * rows may use "non_compliant"/"non-compliant". All comparisons in this
+   * component go through this helper — no scattered string comparisons.
+   */
+  normalizeShariahStatus(status?: string | null): 'compliant' | 'noncompliant' | 'doubtful' | 'pending' | 'blocked' | '' {
+    const s = (status || '').toLowerCase().replace(/[-_ ]/g, '');
+    if (s === 'compliant') return 'compliant';
+    if (s === 'noncompliant') return 'noncompliant';
+    if (s === 'doubtful') return 'doubtful';
+    if (s === 'pending') return 'pending';
+    if (s === 'blocked') return 'blocked';
+    return '';
+  }
+
   get compliantSourcesCount(): number {
-    return this.recordedOpinions.filter(
-      (o) => (o.status || '').toLowerCase() === 'compliant'
-    ).length;
+    return this.recordedOpinions.filter((o) => {
+      const effective = this.halalBourseEffectiveStatus(o, Number(o.sourceKey));
+      return this.normalizeShariahStatus(effective) === 'compliant';
+    }).length;
   }
 
   /** Aggregate denominator: boards with a recorded opinion — not a fixed 7. */
@@ -558,19 +589,41 @@ export class StockDetailComponent implements OnInit {
     return op.sourceKey === 5 || op.sourceKey === 6;
   }
 
+  /**
+   * HalalBourse-specific rule (sourceKey = 1):
+   * if status is "compliant" but percentage < 100 (or percentage is null/missing),
+   * override the displayed/counted status to "doubtful".
+   * All other sources and all other statuses are returned unchanged.
+   */
+  private halalBourseEffectiveStatus(
+    op: ShariahSourceOpinionDto | ShariahSourceOpinionView,
+    key: number
+  ): string | null {
+    const status = this.normalizeShariahStatus(op.status);
+    if (key === ShariahSourceKey.HalalBourse && status === 'compliant') {
+      const pct = op.percentage;
+      if (pct == null || pct < 100) return 'doubtful';
+    }
+    return op.status ?? null;
+  }
+
   isCompliant(status?: string | null): boolean {
-    return (status || '').toLowerCase().trim() === 'compliant';
+    return this.normalizeShariahStatus(status) === 'compliant';
   }
 
   isDoubtful(status?: string | null): boolean {
-    return (status || '').toLowerCase().trim() === 'doubtful';
+    return this.normalizeShariahStatus(status) === 'doubtful';
+  }
+
+  isNonCompliant(status?: string | null): boolean {
+    return this.normalizeShariahStatus(status) === 'noncompliant';
   }
 
   getVerdictLabel(status?: string | null): string {
-    const s = (status || '').toLowerCase().trim();
-    if (s === 'compliant' || s === 'متوافق') return 'متوافق';
-    if (s === 'non_compliant' || s === 'غير متوافق') return 'غير متوافق';
-    if (s === 'doubtful' || s === 'مشكوك') return 'مشكوك';
+    const s = this.normalizeShariahStatus(status);
+    if (s === 'compliant' || status === 'متوافق') return 'متوافق';
+    if (s === 'noncompliant' || status === 'غير متوافق') return 'غير متوافق';
+    if (s === 'doubtful' || status === 'مشكوك') return 'مشكوك';
     return status || 'غير محدد';
   }
 
@@ -736,18 +789,51 @@ export class StockDetailComponent implements OnInit {
     return !this.isActivityNonCompliant;
   }
 
-  /** Returns true if AAOIFI compliant. Defaults to false for NonCompliant stocks when null. */
-  getAaoifiCompliant(): boolean {
-    const v = this.marketData?.shariahMetrics?.isCompliantAaoifi;
-    if (v !== null && v !== undefined) return v;
-    return this.marketData?.shariahStatus !== 'NonCompliant';
+  /**
+   * Ratios-section visibility: depends on WHY the stock is non-compliant, not on
+   * the status alone. Hidden only when the core business itself is impermissible
+   * (activityCompliant === false), for board-governed stocks, or for the frozen
+   * board ticker group. Permissible-activity stocks (any status: Compliant,
+   * Doubtful, NonCompliant) and unclassified activity (null/undefined) always
+   * show the section — with data or with "Data currently unavailable".
+   */
+  get shouldShowRatiosSection(): boolean {
+    if (!this.marketData) return false;
+    if (this.isActivityNonCompliant) return false;
+    if (this.marketData.hasShariahBoard) return false;
+    if (this.isShariahBoardFrozen) return false;
+    return true;
   }
 
-  /** Returns true if S&P compliant. Defaults to false for NonCompliant stocks when null. */
-  getSpCompliant(): boolean {
+  /** True when the metrics DTO carries at least one usable ratio/flag value. */
+  get hasShariahMetricsData(): boolean {
+    const m = this.marketData?.shariahMetrics;
+    if (!m) return false;
+    return m.loansPercentage != null
+      || m.interestBearingDebtRatio != null
+      || m.haramEarningsPercentage != null
+      || m.spHaramEarningPercentage != null
+      || m.aaoifiHaramEarningPerShare != null
+      || m.cashLiquidityCompliant != null
+      || m.haramInvestmentsCompliant != null;
+  }
+
+  /**
+   * Stored AAOIFI verdict exactly as returned (no status fallback): true = pass,
+   * false = fail, null = unknown/unavailable. Never derived from shariahStatus.
+   */
+  getAaoifiCompliant(): boolean | null {
+    const v = this.marketData?.shariahMetrics?.isCompliantAaoifi;
+    return v === true ? true : v === false ? false : null;
+  }
+
+  /**
+   * Stored S&P verdict exactly as returned (no status fallback): true = pass,
+   * false = fail, null = unknown/unavailable. Never derived from shariahStatus.
+   */
+  getSpCompliant(): boolean | null {
     const v = this.marketData?.shariahMetrics?.isCompliantSp;
-    if (v !== null && v !== undefined) return v;
-    return this.marketData?.shariahStatus !== 'NonCompliant';
+    return v === true ? true : v === false ? false : null;
   }
 
   getIndexLabel(code: string): string {

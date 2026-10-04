@@ -12,9 +12,11 @@ import {
   ScrapeStatusResponse,
   SectorSummaryDto,
   SeedShariahResultDto,
+  SourcePdfStatusDto,
   StockListItemDto,
   SupportResistanceDto,
   UploadIndexFileResultDto,
+  UploadSourcePdfResultDto,
   ManualMarketDataUpdateRequest,
   ManualMarketDataUpdateResponse,
   AdminStockLookupItem,
@@ -193,6 +195,24 @@ export class ApiService {
   }
 
   // ── Shariah ────────────────────────────────────────────────────────
+  getSourcePdfStatus(): Observable<SourcePdfStatusDto[]> {
+    return this.http.get<SourcePdfStatusDto[]>(`${this.baseUrl}/api/shariah/source-pdfs/status`);
+  }
+
+  uploadSourcePdf(sourceKey: string, file: File, reportDate?: string): Observable<UploadSourcePdfResultDto> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+    if (reportDate) {
+      formData.append('reportDate', reportDate);
+    }
+    return this.http.post<UploadSourcePdfResultDto>(
+      `${this.baseUrl}/api/shariah/sources/${encodeURIComponent(sourceKey)}/report-file`, formData);
+  }
+
+  getSourcePdfUrl(sourceKey: string): string {
+    return `${this.baseUrl}/api/shariah/source-pdf/${encodeURIComponent(sourceKey)}`;
+  }
+
   seedShariah(payload?: any): Observable<SeedShariahResultDto> {
     return this.http.post<SeedShariahResultDto>(`${this.baseUrl}/api/shariah/seed`, payload || null);
   }

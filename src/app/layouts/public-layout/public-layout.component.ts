@@ -41,6 +41,7 @@ import {
         <nav class="nav-links" [class.is-open]="isMenuOpen" aria-label="التنقل الرئيسي">
           <a routerLink="/stocks" routerLinkActive="active" (click)="closeMenu()">الأسهم</a>
           <a routerLink="/indices" routerLinkActive="active" (click)="closeMenu()">المؤشرات</a>
+          <a routerLink="/shariah-standards" routerLinkActive="active" (click)="closeMenu()">المعايير الشرعية</a>
         </nav>
 
         <div class="header-meta">

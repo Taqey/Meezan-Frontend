@@ -2067,3 +2067,308 @@ footer {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* ── Shariah standards (comparison page + Bourse Halal dialog) ────────── */
+.table-scroll {
+  overflow-x: auto;
+  margin: 8px -4px 0;
+  padding: 0 4px;
+}
+
+.standards-table {
+  width: 100%;
+  min-width: 660px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.standards-table th, .standards-table td {
+  padding: 12px 14px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.standards-table th {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  font-weight: 600;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.standards-table th small {
+  font-weight: 400;
+  opacity: .85;
+}
+
+.standards-table td:not(:first-child) {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.std-name {
+  display: block;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.std-en {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  direction: ltr;
+  text-align: right;
+}
+
+.std-sub {
+  display: block;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+.scholars-row {
+  background: var(--cream);
+}
+
+.scholars-note {
+  margin: 14px 0 0;
+  font-size: 12px;
+  line-height: 1.9;
+  color: var(--muted-foreground);
+  border-top: 1px dashed var(--border);
+  padding-top: 12px;
+}
+
+.explainer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.explainer-cell {
+  background: var(--cream);
+  border: 1px solid #e4dfd0;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.explainer-cell strong {
+  display: block;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.explainer-cell span {
+  font-size: 11px;
+  color: var(--primary);
+  direction: ltr;
+  display: inline-block;
+}
+
+.explainer-cell p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--muted-foreground);
+  line-height: 1.8;
+}
+
+.explainer-note {
+  margin-top: 16px;
+  line-height: 1.9;
+}
+
+/* Upgraded Bourse Halal card extras (rendered on the green compliant card). */
+.source-card .upgrade-note {
+  color: #fff;
+  background: rgba(255, 255, 255, .16);
+  border-radius: 8px;
+  padding: 7px 9px;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.7;
+}
+
+.details-button {
+  margin-top: 10px;
+  width: 100%;
+  padding: 8px;
+  border-radius: 999px;
+  border: 1.5px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.details-button:hover {
+  background: rgba(255, 255, 255, .16);
+}
+
+/* Quantitative standards dialog. */
+.standards-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 35, 31, .55);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.standards-dialog {
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 560px;
+  max-height: min(86vh, 720px);
+  overflow-y: auto;
+  padding: 22px;
+  box-shadow: 0 24px 70px rgba(23, 35, 31, .28);
+  outline: none;
+}
+
+.standards-dialog-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.standards-dialog-head h2 {
+  margin: 6px 0 0;
+  font-size: 19px;
+  line-height: 1.6;
+}
+
+.standards-dialog-close {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--muted);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.standards-summary {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  font-size: 13px;
+  margin: 14px 0;
+}
+
+.std-block {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+.std-block-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.std-block-title strong {
+  display: block;
+  font-size: 14px;
+}
+
+.std-verdict {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.std-verdict.pass {
+  background: var(--good-soft);
+  color: var(--good);
+}
+
+.std-verdict.fail {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+
+.criterion-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+}
+
+.criterion-name {
+  flex: 1;
+}
+
+.criterion-values {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.criterion-mark {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.criterion-mark.pass {
+  background: var(--good-soft);
+  color: var(--good);
+}
+
+.criterion-mark.fail {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+
+.criterion-mark.nodata {
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.standards-dialog-foot {
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+@media (max-width: 600px) {
+  .standards-dialog-backdrop {
+    padding: 12px;
+  }
+  .standards-dialog {
+    padding: 16px;
+    max-height: 92vh;
+    border-radius: 16px;
+  }
+  .explainer-grid {
+    grid-template-columns: 1fr;
+  }
+}

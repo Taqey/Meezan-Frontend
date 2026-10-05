@@ -31,7 +31,10 @@ import {
   CRITERION_LABELS,
   CRITERION_ORDER,
   evaluateStandards,
-  shouldUpgradeDoubtfulToCompliant,
+  getEffectiveSourceStatuses,
+  normalizeStatusValue,
+  resolveInternalVerdict,
+  type EffectiveSourceStatus,
   type ShariahCriterionKey,
   type StandardsEvaluation,
   type StockRatios
@@ -39,6 +42,9 @@ import {
 
 /** One board's card: either its real stored opinion, or an explicit "no opinion" state. */
 type ShariahSourceOpinionView = ShariahSourceOpinionDto & { noOpinion: boolean };
+
+/** Card view with the single effective status every consumer must read. */
+type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
 
 @Component({
   selector: 'app-stock-detail',
@@ -258,7 +264,7 @@ type ShariahSourceOpinionView = ShariahSourceOpinionDto & { noOpinion: boolean }
             <div>
               <span class="eyebrow">تغطية الجهات الشرعية</span>
               <h2>آراء الهيئات الشرعية (7 مصادر مستقلة)</h2>
-              <p>الحكم الداخلي المعتمد: <app-status-badge [status]="marketData.shariahStatus"></app-status-badge> <span *ngIf="marketData.shariahPct"> (نسبة التطهير: {{ marketData.shariahPct }}%)</span></p>
+              <p>الحكم الداخلي المعتمد: <app-status-badge [status]="internalVerdict"></app-status-badge> <span *ngIf="marketData.shariahPct"> (نسبة التطهير: {{ marketData.shariahPct }}%)</span> <span *ngIf="verdictSolelyFromOverride" class="verdict-override-note">متوافق وفق بعض المعايير فقط</span></p>
             </div>
             <div class="ratio-big">
               <!-- Aggregate is over boards that actually returned a stored opinion for THIS
@@ -618,8 +624,12 @@ export class StockDetailComponent implements OnInit, OnDestroy {
    * (no row at all, or a row whose status is null/empty) get `noOpinion: true` with a
    * null status — never a fabricated متوافق / غير متوافق default — and are excluded from
    * the aggregate. The same board may have a real verdict on another stock.
+   *
+   * Every card carries ONE effective status (see getEffectiveSourceStatuses): the
+   * template, the verdict badge and the counters all read `effectiveStatus` — never
+   * the raw stored status.
    */
-  get sourceOpinionsList(): ShariahSourceOpinionView[] {
+  get sourceOpinionsList(): EffectiveOpinionView[] {
     const existing = this.marketData?.shariahOpinions || [];
     const map = new Map<number, ShariahSourceOpinionDto>();
     for (const op of existing) {
@@ -627,15 +637,15 @@ export class StockDetailComponent implements OnInit, OnDestroy {
       if (!Number.isNaN(key)) map.set(key, op);
     }
 
-    return this.allSourceKeys.map((key) => {
+    const raw: ShariahSourceOpinionView[] = this.allSourceKeys.map((key) => {
       const real = map.get(key);
       if (real && (real.status || '').trim()) {
-        // HalalBourse-specific rule: compliant + percentage < 100 → treat as doubtful.
-        const effectiveStatus = this.halalBourseEffectiveStatus(real, key);
-        return { ...real, status: effectiveStatus, noOpinion: false };
+        return { ...real, noOpinion: false };
       }
       return { sourceKey: key, status: null, percentage: null, note: null, noOpinion: true };
     });
+
+    return getEffectiveSourceStatuses(raw, this.standardsEvaluation, ShariahSourceKey.HalalBourse);
   }
 
   /** Boards that actually returned a stored verdict for this stock. */
@@ -649,23 +659,17 @@ export class StockDetailComponent implements OnInit, OnDestroy {
    * Single helper that normalizes every Shariah status value exactly once.
    * The API returns PascalCase ("Compliant", "NonCompliant", "Doubtful"); legacy
    * rows may use "non_compliant"/"non-compliant". All comparisons in this
-   * component go through this helper — no scattered string comparisons.
+   * component go through the shared normalizer — no scattered string comparisons.
    */
   normalizeShariahStatus(status?: string | null): 'compliant' | 'noncompliant' | 'doubtful' | 'pending' | 'blocked' | '' {
-    const s = (status || '').toLowerCase().replace(/[-_ ]/g, '');
-    if (s === 'compliant') return 'compliant';
-    if (s === 'noncompliant') return 'noncompliant';
-    if (s === 'doubtful') return 'doubtful';
-    if (s === 'pending') return 'pending';
-    if (s === 'blocked') return 'blocked';
-    return '';
+    return normalizeStatusValue(status);
   }
 
+  /** Boards with an EFFECTIVE compliant status — drives the "X من Y" counter. */
   get compliantSourcesCount(): number {
-    return this.recordedOpinions.filter((o) => {
-      const effective = this.halalBourseEffectiveStatus(o, Number(o.sourceKey));
-      return this.normalizeShariahStatus(effective) === 'compliant';
-    }).length;
+    return this.sourceOpinionsList.filter(
+      (o) => !o.noOpinion && this.normalizeShariahStatus(o.effectiveStatus) === 'compliant'
+    ).length;
   }
 
   /** Aggregate denominator: boards with a recorded opinion — not a fixed 7. */
@@ -686,24 +690,6 @@ export class StockDetailComponent implements OnInit, OnDestroy {
   /** SourceKeys 5 (FaisalBank) and 6 (Ostoul) come from the manual JSON import, verdict-only. */
   isManualSource(op: ShariahSourceOpinionView): boolean {
     return op.sourceKey === 5 || op.sourceKey === 6;
-  }
-
-  /**
-   * HalalBourse-specific rule (sourceKey = 1):
-   * if status is "compliant" but percentage < 100 (or percentage is null/missing),
-   * override the displayed/counted status to "doubtful".
-   * All other sources and all other statuses are returned unchanged.
-   */
-  private halalBourseEffectiveStatus(
-    op: ShariahSourceOpinionDto | ShariahSourceOpinionView,
-    key: number
-  ): string | null {
-    const status = this.normalizeShariahStatus(op.status);
-    if (key === ShariahSourceKey.HalalBourse && status === 'compliant') {
-      const pct = op.percentage;
-      if (pct == null || pct < 100) return 'doubtful';
-    }
-    return op.status ?? null;
   }
 
   isCompliant(status?: string | null): boolean {
@@ -740,19 +726,16 @@ export class StockDetailComponent implements OnInit, OnDestroy {
     return Number(op.sourceKey) === ShariahSourceKey.HalalBourse;
   }
 
-  private get halalBourseCard(): ShariahSourceOpinionView | undefined {
+  private get halalBourseCard(): EffectiveOpinionView | undefined {
     return this.sourceOpinionsList.find((op) => this.isHalalBourseCard(op));
   }
 
   /**
-   * True when the Bourse Halal card is doubtful AND passes at least one
-   * quantitative standard — the card is then shown as compliant (green).
-   * Every other board is untouched.
+   * True when the Bourse Halal card was flipped to compliant by the standards
+   * upgrade. Every other board is untouched.
    */
   get halalBourseUpgraded(): boolean {
-    const hb = this.halalBourseCard;
-    if (!hb || hb.noOpinion) return false;
-    return shouldUpgradeDoubtfulToCompliant(this.isDoubtful(hb.status), this.standardsEvaluation);
+    return this.halalBourseCard?.upgraded ?? false;
   }
 
   /** Upgraded but not all standards pass → show the "some standards only" note. */
@@ -762,13 +745,36 @@ export class StockDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Display status for an opinion card: the stored status everywhere, except
-   * an upgraded doubtful Bourse Halal card which renders as 'compliant'
-   * (same green styling as other compliant cards).
+   * Display status for an opinion card — the single effective status, computed
+   * once in sourceOpinionsList. No caller reads the raw status anymore.
    */
-  getCardStatus(op: ShariahSourceOpinionView): string | null {
-    if (!op.noOpinion && this.isHalalBourseCard(op) && this.halalBourseUpgraded) return 'compliant';
-    return op.status ?? null;
+  getCardStatus(op: EffectiveOpinionView): string | null {
+    return op.effectiveStatus ?? null;
+  }
+
+  /**
+   * Internal verdict from EFFECTIVE statuses: at least one effective compliant
+   * → "Compliant"; otherwise the API verdict (existing behavior preserved for
+   * every other case).
+   */
+  get internalVerdict(): string | null {
+    return resolveInternalVerdict(
+      this.sourceOpinionsList.map((o) => o.effectiveStatus),
+      this.marketData?.shariahStatus ?? null
+    );
+  }
+
+  /**
+   * True when the verdict is compliant ONLY because of the standards-based
+   * Bourse Halal override (no other source is effectively compliant) — the
+   * verdict badge then carries a transparency note.
+   */
+  get verdictSolelyFromOverride(): boolean {
+    if (this.normalizeShariahStatus(this.internalVerdict) !== 'compliant') return false;
+    const otherCompliant = this.sourceOpinionsList.some(
+      (o) => !o.noOpinion && !this.isHalalBourseCard(o) && this.isCompliant(o.effectiveStatus)
+    );
+    return !otherCompliant && this.halalBourseUpgraded;
   }
 
   openStandardsDialog(event?: Event): void {

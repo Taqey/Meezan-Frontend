@@ -213,3 +213,97 @@ export function shouldUpgradeDoubtfulToCompliant(
 ): boolean {
   return isDoubtful && evaluation.totalCount > 0 && evaluation.passedCount > 0;
 }
+
+// ── Effective per-source status (single place) ─────────────────────────
+// Every consumer — the opinion cards, the internal-verdict badge and the
+// summary counters — must read EffectiveSourceStatus.effectiveStatus and never
+// the raw stored status directly.
+
+/** Normalized status vocabulary shared by the selector and the components. */
+export type NormalizedStatus = 'compliant' | 'noncompliant' | 'doubtful' | 'pending' | 'blocked' | '';
+
+export function normalizeStatusValue(status?: string | null): NormalizedStatus {
+  const s = (status || '').toLowerCase().replace(/[-_ ]/g, '');
+  if (s === 'compliant') return 'compliant';
+  if (s === 'noncompliant') return 'noncompliant';
+  if (s === 'doubtful') return 'doubtful';
+  if (s === 'pending') return 'pending';
+  if (s === 'blocked') return 'blocked';
+  return '';
+}
+
+/** Raw per-source input for effective-status resolution. */
+export interface SourceStatusInput {
+  sourceKey: number;
+  status?: string | null;
+  percentage?: number | null;
+  noOpinion: boolean;
+}
+
+export interface EffectiveSourceStatus {
+  /** Display status before the standards upgrade (HalalBourse pct rule applied). */
+  rawDisplayStatus: string | null;
+  /** Status every consumer (cards, verdict, counters) must read. */
+  effectiveStatus: string | null;
+  /** True when the standards upgrade flipped this source to compliant. */
+  upgraded: boolean;
+}
+
+/**
+ * Bourse Halal display status: a stored "compliant" with percentage < 100
+ * (or missing) is shown as doubtful (مشكوك). Anything else passes through.
+ */
+export function halalBourseDisplayStatus(
+  status?: string | null,
+  percentage?: number | null
+): string | null {
+  if (normalizeStatusValue(status) === 'compliant') {
+    const pct = percentage == null ? null : Number(percentage);
+    if (pct == null || isNaN(pct) || pct < 100) return 'doubtful';
+  }
+  return status ?? null;
+}
+
+/**
+ * ONE effective status per source. For Bourse Halal: a doubtful display status
+ * that passes at least one quantitative standard becomes "Compliant";
+ * otherwise it equals the display status. All other sources keep their raw
+ * status. Extra fields on the input objects (notes, dates, pdf urls) are
+ * preserved untouched.
+ */
+export function getEffectiveSourceStatuses<T extends SourceStatusInput>(
+  sources: readonly T[],
+  evaluation: StandardsEvaluation,
+  halalBourseKey: number
+): Array<T & EffectiveSourceStatus> {
+  return sources.map((src) => {
+    if (src.noOpinion) {
+      return { ...src, rawDisplayStatus: null, effectiveStatus: null, upgraded: false };
+    }
+    const isHalalBourse = Number(src.sourceKey) === halalBourseKey;
+    const raw = isHalalBourse
+      ? halalBourseDisplayStatus(src.status, src.percentage)
+      : (src.status ?? null);
+    const upgraded = isHalalBourse
+      && shouldUpgradeDoubtfulToCompliant(normalizeStatusValue(raw) === 'doubtful', evaluation);
+    return {
+      ...src,
+      rawDisplayStatus: raw,
+      effectiveStatus: upgraded ? 'Compliant' : raw,
+      upgraded
+    };
+  });
+}
+
+/**
+ * Internal verdict from effective statuses: at least one effective "compliant"
+ * → 'Compliant'; otherwise the stored fallback (existing behavior for every
+ * other case: all red, pending, no data, …).
+ */
+export function resolveInternalVerdict(
+  effectiveStatuses: ReadonlyArray<string | null | undefined>,
+  fallback: string | null | undefined
+): string | null {
+  if (effectiveStatuses.some((s) => normalizeStatusValue(s) === 'compliant')) return 'Compliant';
+  return fallback ?? null;
+}

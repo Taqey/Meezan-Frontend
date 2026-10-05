@@ -2180,6 +2180,20 @@ footer {
   line-height: 1.9;
 }
 
+/* Transparency note next to the internal verdict when compliance comes solely
+   from the standards-based Bourse Halal override. */
+.verdict-override-note {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--warn);
+  background: var(--warn-soft);
+  border-radius: 999px;
+  padding: 3px 10px;
+  margin-right: 6px;
+  white-space: nowrap;
+}
+
 /* Upgraded Bourse Halal card extras (rendered on the green compliant card). */
 .source-card .upgrade-note {
   color: #fff;

@@ -1,9 +1,12 @@
 import {
   evaluateStandards,
+  getEffectiveSourceStatuses,
+  resolveInternalVerdict,
   shouldUpgradeDoubtfulToCompliant,
   SHARIAH_STANDARDS,
   scholarsDebtMax,
-  CRITERION_ORDER
+  CRITERION_ORDER,
+  type SourceStatusInput
 } from './shariah-standards';
 
 describe('shariah-standards config', () => {
@@ -146,5 +149,94 @@ describe('evaluateStandards', () => {
     const egx33 = r.standards.find((s) => s.standard.id === 'egx33')!;
     expect(egx33.criteria['prohibitedRevenue']).toEqual({ value: 8.5, max: 10, passed: true, hasData: true });
     expect(egx33.criteria['debt']).toEqual({ value: 0, max: 33, passed: true, hasData: true });
+  });
+});
+
+describe('getEffectiveSourceStatuses', () => {
+  const HB = 1;
+  const MUS = 2;
+
+  function abukSources(): SourceStatusInput[] {
+    return [
+      { sourceKey: HB, status: 'Compliant', percentage: 50, noOpinion: false },
+      { sourceKey: MUS, status: 'NonCompliant', percentage: null, noOpinion: false },
+      { sourceKey: 3, status: null, percentage: null, noOpinion: true }
+    ];
+  }
+
+  const abukEval = evaluateStandards({ prohibitedRevenue: 8.5, debt: 0 });
+
+  it('upgrades a doubtful Bourse Halal card that passes standards', () => {
+    const out = getEffectiveSourceStatuses(abukSources(), abukEval, HB);
+    const hb = out.find((s) => s.sourceKey === HB)!;
+    expect(hb.rawDisplayStatus).toBe('doubtful');
+    expect(hb.effectiveStatus).toBe('Compliant');
+    expect(hb.upgraded).toBeTrue();
+    // Other sources are untouched.
+    const mus = out.find((s) => s.sourceKey === MUS)!;
+    expect(mus.effectiveStatus).toBe('NonCompliant');
+    expect(mus.upgraded).toBeFalse();
+    // No-opinion stays null.
+    expect(out.find((s) => s.sourceKey === 3)!.effectiveStatus).toBeNull();
+  });
+
+  it('does not apply the upgrade when Bourse Halal is already compliant', () => {
+    const sources: SourceStatusInput[] = [
+      { sourceKey: HB, status: 'Compliant', percentage: 100, noOpinion: false }
+    ];
+    const out = getEffectiveSourceStatuses(sources, abukEval, HB);
+    expect(out[0].rawDisplayStatus).toBe('Compliant');
+    expect(out[0].effectiveStatus).toBe('Compliant');
+    expect(out[0].upgraded).toBeFalse();
+  });
+
+  it('keeps a doubtful card doubtful when no standard passes', () => {
+    const failing = evaluateStandards({ prohibitedRevenue: 60, debt: 80 });
+    const out = getEffectiveSourceStatuses(abukSources(), failing, HB);
+    const hb = out.find((s) => s.sourceKey === HB)!;
+    expect(hb.rawDisplayStatus).toBe('doubtful');
+    expect(hb.effectiveStatus).toBe('doubtful');
+    expect(hb.upgraded).toBeFalse();
+  });
+
+  it('keeps a non-compliant Bourse Halal card as is', () => {
+    const sources: SourceStatusInput[] = [
+      { sourceKey: HB, status: 'NonCompliant', percentage: null, noOpinion: false }
+    ];
+    const out = getEffectiveSourceStatuses(sources, abukEval, HB);
+    expect(out[0].effectiveStatus).toBe('NonCompliant');
+    expect(out[0].upgraded).toBeFalse();
+  });
+
+  it('upgrades an explicitly stored doubtful status too', () => {
+    const sources: SourceStatusInput[] = [
+      { sourceKey: HB, status: 'Doubtful', percentage: null, noOpinion: false }
+    ];
+    const out = getEffectiveSourceStatuses(sources, abukEval, HB);
+    expect(out[0].effectiveStatus).toBe('Compliant');
+    expect(out[0].upgraded).toBeTrue();
+  });
+});
+
+describe('resolveInternalVerdict', () => {
+  it('is compliant when the override is the only compliant source', () => {
+    expect(resolveInternalVerdict(['Compliant', 'NonCompliant', null], 'NonCompliant')).toBe('Compliant');
+  });
+
+  it('matches previous behavior when Bourse Halal was already compliant', () => {
+    expect(resolveInternalVerdict(['Compliant', 'NonCompliant'], 'NonCompliant')).toBe('Compliant');
+  });
+
+  it('falls back to the stored verdict when everything is red', () => {
+    expect(resolveInternalVerdict(['NonCompliant', 'doubtful', null], 'NonCompliant')).toBe('NonCompliant');
+    expect(resolveInternalVerdict(['Pending', null], 'Pending')).toBe('Pending');
+  });
+
+  it('is compliant in the mixed case via the other source', () => {
+    expect(resolveInternalVerdict(['doubtful', 'Compliant'], 'NonCompliant')).toBe('Compliant');
+  });
+
+  it('returns null when nothing is compliant and there is no fallback', () => {
+    expect(resolveInternalVerdict([null, null], null)).toBeNull();
   });
 });

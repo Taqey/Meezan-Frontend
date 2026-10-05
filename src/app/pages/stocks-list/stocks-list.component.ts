@@ -15,13 +15,12 @@ import {
 } from 'lucide-angular';
 import { ApiService } from '../../services/api.service';
 import { StockCardComponent } from '../../components/stock-card/stock-card.component';
-import { FavoriteToggleComponent } from '../../components/favorite-toggle/favorite-toggle.component';
 import { IndexSummaryDto, PagedResult, StockListItemDto } from '../../models/api.models';
 
 @Component({
   selector: 'app-stocks-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, StockCardComponent, FavoriteToggleComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, StockCardComponent],
   template: `
     <div class="page-intro">
       <div>
@@ -254,23 +253,22 @@ import { IndexSummaryDto, PagedResult, StockListItemDto } from '../../models/api
 
     <!-- Stock Cards Grid -->
     <div class="stock-grid" *ngIf="!loading && stocks.length">
-      <div class="stock-card-wrap" *ngFor="let s of stocks">
-        <app-stock-card
-          [ticker]="s.ticker"
-          [nameAr]="s.nameAr"
-          [nameEn]="s.nameEn"
-          [closingPrice]="s.closingPrice"
-          [changePct]="s.changePct"
-          [fairValue]="s.fairValue"
-          [priceComparison]="s.priceComparison"
-          [fairValueDiffPct]="s.fairValueDiffPct"
-          [shariahStatus]="s.shariahStatus"
-          [indices]="s.indices"
-          [currency]="s.currency"
-          [sectorNameAr]="s.sectorNameAr">
-        </app-stock-card>
-        <app-favorite-toggle [symbol]="s.ticker"></app-favorite-toggle>
-      </div>
+      <app-stock-card
+        *ngFor="let s of stocks"
+        [ticker]="s.ticker"
+        [nameAr]="s.nameAr"
+        [nameEn]="s.nameEn"
+        [closingPrice]="s.closingPrice"
+        [changePct]="s.changePct"
+        [fairValue]="s.fairValue"
+        [priceComparison]="s.priceComparison"
+        [fairValueDiffPct]="s.fairValueDiffPct"
+        [shariahStatus]="s.shariahStatus"
+        [indices]="s.indices"
+        [currency]="s.currency"
+        [sectorNameAr]="s.sectorNameAr"
+        [showFavorite]="true">
+      </app-stock-card>
     </div>
 
     <!-- Empty State -->

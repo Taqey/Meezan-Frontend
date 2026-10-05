@@ -7,13 +7,12 @@ import { EMPTY, Observable, expand, map, reduce } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import { FavoritesService } from '../../services/favorites.service';
 import { StockCardComponent } from '../../components/stock-card/stock-card.component';
-import { FavoriteToggleComponent } from '../../components/favorite-toggle/favorite-toggle.component';
 import { StockListItemDto } from '../../models/api.models';
 
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, StockCardComponent, FavoriteToggleComponent],
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, StockCardComponent],
   template: `
     <div class="page-intro">
       <div>
@@ -83,23 +82,22 @@ import { StockListItemDto } from '../../models/api.models';
 
       <!-- Cards -->
       <div class="stock-grid" *ngIf="!loading && !loadError && visibleStocks.length">
-        <div class="stock-card-wrap" *ngFor="let s of visibleStocks">
-          <app-stock-card
-            [ticker]="s.ticker"
-            [nameAr]="s.nameAr"
-            [nameEn]="s.nameEn"
-            [closingPrice]="s.closingPrice"
-            [changePct]="s.changePct"
-            [fairValue]="s.fairValue"
-            [priceComparison]="s.priceComparison"
-            [fairValueDiffPct]="s.fairValueDiffPct"
-            [shariahStatus]="s.shariahStatus"
-            [indices]="s.indices"
-            [currency]="s.currency"
-            [sectorNameAr]="s.sectorNameAr">
-          </app-stock-card>
-          <app-favorite-toggle [symbol]="s.ticker"></app-favorite-toggle>
-        </div>
+        <app-stock-card
+          *ngFor="let s of visibleStocks"
+          [ticker]="s.ticker"
+          [nameAr]="s.nameAr"
+          [nameEn]="s.nameEn"
+          [closingPrice]="s.closingPrice"
+          [changePct]="s.changePct"
+          [fairValue]="s.fairValue"
+          [priceComparison]="s.priceComparison"
+          [fairValueDiffPct]="s.fairValueDiffPct"
+          [shariahStatus]="s.shariahStatus"
+          [indices]="s.indices"
+          [currency]="s.currency"
+          [sectorNameAr]="s.sectorNameAr"
+          [showFavorite]="true">
+        </app-stock-card>
       </div>
 
       <!-- No search match -->

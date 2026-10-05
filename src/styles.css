@@ -2069,20 +2069,35 @@ footer {
 }
 
 /* ── Favorites ───────────────────────────────────────────────────────── */
-.stock-card-wrap {
-  position: relative;
+/* Star + percentage share a flex row in the card header (RTL: the percentage
+   sits to the right of the star with a gap) — nothing overlaps, nothing clips. */
+.stock-card .stock-top {
+  gap: 8px;
 }
 
-.stock-card-wrap > app-favorite-toggle {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 2;
+.stock-card .ticker {
+  min-width: 0;
+}
+.stock-top-side {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.stock-top-side .change {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.stock-top-side app-favorite-toggle {
+  display: inline-grid;
+  flex-shrink: 0;
 }
 
 .fav-toggle {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   display: inline-grid;
   place-items: center;
   border-radius: 50%;
@@ -2091,6 +2106,7 @@ footer {
   color: var(--muted-foreground);
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(23, 35, 31, .1);
+  flex-shrink: 0;
 }
 
 .fav-toggle:hover {
@@ -2121,8 +2137,6 @@ footer {
 }
 
 .ticker.large app-favorite-toggle .fav-toggle {
-  width: 30px;
-  height: 30px;
   box-shadow: none;
 }
 

@@ -23,15 +23,17 @@ import {
   imports: [CommonModule, FormsModule, LucideAngularModule],
   template: `
     <div class="page-intro">
-      <div>
+      <div class="intro-main">
         <span class="eyebrow">التطهير · دليل عملي</span>
-        <h1>ما هو التطهير؟</h1>
+        <div class="title-row">
+          <h1>ما هو التطهير؟</h1>
+          <div class="intro-note">
+            <lucide-icon [img]="ShieldCheckIcon" size="17"></lucide-icon>
+            <span>محتوى تعليمي فقط وليس فتوى</span>
+          </div>
+        </div>
         <p>التطهير أن تُخرج جزءاً صغيراً من عوائد استثمارك للفقراء، لتنقية مكسبك من أثر يسير من الإيرادات غير الجائزة التي قد تختلط بأرباح الشركة، مثل الفوائد.</p>
         <p>التوافق يجيب عن سؤال: هل يجوز شراء السهم أصلاً؟ أما التطهير فيجيب عن سؤال آخر: كم أُخرج من العائد بعد تحققه؟</p>
-      </div>
-      <div class="intro-note">
-        <lucide-icon [img]="ShieldCheckIcon" size="17"></lucide-icon>
-        <span>محتوى تعليمي فقط وليس فتوى</span>
       </div>
     </div>
 

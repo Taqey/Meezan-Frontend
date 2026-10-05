@@ -2068,277 +2068,114 @@ footer {
   }
 }
 
-/* ── Purification page ─────────────────────────────────────────────────── */
-.reasons-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 16px;
+/* ── Info pages (Shariah standards + Purification) ─────────────────────────
+   Spacing scale for these pages: 8 / 12 / 16 / 24 / 32.
+   Same tokens as the stock detail page (colors, font, radii). */
+
+app-shariah-standards,
+app-purification {
+  display: block;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 56px;
 }
 
-.reason-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--cream);
-  border: 1px solid #e4dfd0;
-  border-radius: 10px;
-  padding: 12px 14px;
-  font-size: 13px;
-  line-height: 1.8;
+/* Intro: badge sits next to the title, text kept in a readable measure. */
+app-shariah-standards .page-intro,
+app-purification .page-intro {
+  display: block;
+  padding: 48px 0 8px;
 }
 
-.reason-icon {
-  flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border-radius: 10px;
-  background: var(--secondary);
-  color: var(--secondary-foreground);
-}
-
-.reasons-note {
-  margin-top: 14px;
-  font-size: 12px;
-}
-
-.approach-accordion {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 16px;
-}
-
-.approach-item {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.approach-toggle {
-  width: 100%;
+app-shariah-standards .title-row,
+app-purification .title-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 13px 15px;
-  background: var(--card);
-  border: none;
-  cursor: pointer;
-  text-align: right;
-  color: var(--ink);
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 4px 0 12px;
 }
 
-.approach-toggle:hover {
-  background: var(--muted);
+app-shariah-standards .title-row h1,
+app-purification .title-row h1 {
+  margin: 0;
 }
 
-.approach-letter {
-  flex-shrink: 0;
-  width: 30px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  border-radius: 10px;
-  background: var(--primary);
-  color: #fff;
-  font-weight: 700;
-  font-size: 14px;
+app-shariah-standards .intro-note,
+app-purification .intro-note {
+  padding-bottom: 0;
 }
 
-.approach-toggle-text {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.approach-toggle-text strong {
-  font-size: 14px;
-}
-
-.approach-toggle-text small {
-  font-size: 11px;
-  color: var(--muted-foreground);
-}
-
-.approach-toggle lucide-icon {
-  transition: transform .2s;
-  color: var(--muted-foreground);
-  flex-shrink: 0;
-}
-
-.approach-toggle lucide-icon.open {
-  transform: rotate(180deg);
-}
-
-.approach-panel {
-  border-top: 1px solid var(--border);
-  padding: 13px 15px;
-  font-size: 13px;
+app-shariah-standards .intro-main p,
+app-purification .intro-main p {
+  max-width: 70ch;
+  font-size: 15px;
   line-height: 1.9;
-  background: var(--cream);
+  color: #37423c;
+  margin: 0 0 12px;
 }
 
-.approach-panel p {
-  margin: 0 0 8px;
-}
-
-.approach-panel p:last-child {
+app-shariah-standards .intro-main p:last-child,
+app-purification .intro-main p:last-child {
   margin-bottom: 0;
 }
 
-.approach-formula span {
-  font-weight: 700;
-  color: var(--primary);
+/* Cards: light — thin border, soft shadow, generous airy padding. */
+app-shariah-standards .detail-card,
+app-purification .detail-card {
+  margin: 24px 0 0;
+  padding: 28px;
+  border: 1px solid #e6ece8;
+  box-shadow: 0 1px 4px rgba(23, 35, 31, .05);
 }
 
-.approach-faisal-note {
-  border-top: 1px dashed var(--border);
-  padding-top: 8px;
+app-shariah-standards .card-heading,
+app-purification .card-heading {
+  margin-bottom: 20px;
 }
 
-.yes-no {
-  display: inline-block;
-  font-size: 12px;
-  font-weight: 700;
-  border-radius: 999px;
-  padding: 3px 12px;
-  white-space: nowrap;
+/* Muted copy with enough contrast on these pages. */
+app-shariah-standards .muted,
+app-purification .muted {
+  color: #5c6c63;
 }
 
-.yes-no.yes {
-  color: var(--good);
-  background: var(--good-soft);
-}
-
-.yes-no.no {
-  color: var(--muted-foreground);
-  background: var(--muted);
-}
-
-.sub-row td:first-child {
-  padding-right: 26px;
-}
-
-.calc-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.calc-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--muted-foreground);
-}
-
-.calc-field input[type="number"] {
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 12px;
-  background: var(--input);
-  color: var(--ink);
-  width: 100%;
-}
-
-.calc-field input[type="number"]:focus {
+/* Visible keyboard focus for all interactive elements on these pages. */
+app-shariah-standards button:focus-visible,
+app-purification button:focus-visible,
+app-shariah-standards input:focus-visible,
+app-purification input:focus-visible {
   outline: 2px solid var(--ring);
-  outline-offset: -1px;
+  outline-offset: 2px;
 }
 
-.calc-approaches {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 12px 14px;
-  margin: 14px 0 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+app-purification .calc-radio:focus-within {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
 }
 
-.calc-approaches legend {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--muted-foreground);
-  padding: 0 6px;
-}
-
-.calc-radio {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.calc-radio input[type="radio"] {
-  accent-color: var(--primary);
-  margin-top: 4px;
-}
-
-.calc-radio small {
-  display: block;
-  margin-top: 2px;
-}
-
-.calc-actions {
-  margin-top: 14px;
-}
-
-.calc-result {
-  margin-top: 14px;
-  background: var(--secondary);
-  border-radius: 12px;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 13px;
-}
-
-.calc-result strong {
-  font-size: 24px;
-  color: var(--secondary-foreground);
-}
-
-.page-footnote {
-  margin: 18px 4px 0;
-  font-size: 12px;
-  line-height: 1.9;
-}
-
-/* ── Shariah standards (comparison page + Bourse Halal dialog) ────────── */
+/* ── Shared comparison table ─────────────────────────────────────────── */
 .table-scroll {
   overflow-x: auto;
-  margin: 8px -4px 0;
-  padding: 0 4px;
+  max-width: 100%;
+  margin: 4px 0 0;
+  padding-bottom: 4px;
 }
 
 .standards-table {
   width: 100%;
-  min-width: 660px;
   border-collapse: collapse;
-  font-size: 13px;
-}
-
-.standards-table th, .standards-table td {
-  padding: 12px 14px;
-  text-align: right;
-  border-bottom: 1px solid var(--border);
-  vertical-align: top;
+  font-size: 13.5px;
+  line-height: 1.8;
 }
 
 .standards-table th {
-  background: var(--muted);
-  color: var(--muted-foreground);
+  background: #f1f6f2;
+  color: #43524b;
   font-weight: 600;
-  font-size: 12px;
-  white-space: nowrap;
+  font-size: 12.5px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
 }
 
 .standards-table th small {
@@ -2346,9 +2183,16 @@ footer {
   opacity: .85;
 }
 
-.standards-table td:not(:first-child) {
-  font-weight: 600;
-  white-space: nowrap;
+.standards-table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.standards-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.standards-table tbody tr:hover {
+  background: #f4f9f5;
 }
 
 .std-name {
@@ -2363,7 +2207,6 @@ footer {
   font-weight: 600;
   color: var(--primary);
   direction: ltr;
-  text-align: right;
 }
 
 .std-sub {
@@ -2372,55 +2215,425 @@ footer {
   color: var(--muted-foreground);
 }
 
-.scholars-row {
-  background: var(--cream);
+/* ── Standards page table: equal columns, centered values ────────────── */
+app-shariah-standards .standards-table {
+  table-layout: fixed;
+  min-width: 640px;
 }
 
-.scholars-note {
-  margin: 14px 0 0;
-  font-size: 12px;
+app-shariah-standards .standards-table th,
+app-shariah-standards .standards-table td {
+  width: 20%;
+  padding: 16px 12px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+app-shariah-standards .standards-table th small {
+  display: block;
+  margin-top: 2px;
+}
+
+app-shariah-standards .standards-table td {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+app-shariah-standards .standards-table td:not(:first-child) {
+  white-space: nowrap;
+}
+
+app-shariah-standards .std-en {
+  text-align: center;
+}
+
+/* Fatwa row + notes: clearly visible soft tinted box. */
+app-shariah-standards .scholars-row {
+  background: #fff7e6;
+}
+
+app-shariah-standards .scholars-note,
+app-shariah-standards .explainer-note {
+  background: #fff7e6;
+  border: 1px solid #f0e3c4;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 20px 0 0;
+  font-size: 12.5px;
   line-height: 1.9;
-  color: var(--muted-foreground);
-  border-top: 1px dashed var(--border);
-  padding-top: 12px;
+  color: #6b5d3f;
 }
 
+/* Explainer cards: equal size, even rhythm, aligned lines. */
 .explainer-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin-top: 16px;
+  gap: 16px;
+  margin-top: 4px;
 }
 
 .explainer-cell {
-  background: var(--cream);
-  border: 1px solid #e4dfd0;
-  border-radius: 10px;
-  padding: 12px 14px;
+  background: #fbfdfb;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .explainer-cell strong {
   display: block;
-  font-size: 14px;
+  font-size: 15px;
   color: var(--ink);
 }
 
 .explainer-cell span {
-  font-size: 11px;
+  display: block;
+  font-size: 12px;
   color: var(--primary);
   direction: ltr;
-  display: inline-block;
+  text-align: right;
 }
 
 .explainer-cell p {
-  margin: 6px 0 0;
-  font-size: 12px;
-  color: var(--muted-foreground);
+  margin: 8px 0 0;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  font-size: 13px;
+  color: #43524b;
   line-height: 1.8;
 }
 
-.explainer-note {
+/* ── Purification page ───────────────────────────────────────────────── */
+.reasons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.reason-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fbfdfb;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.reason-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.reasons-note {
   margin-top: 16px;
+  font-size: 12.5px;
+}
+
+.approach-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.approach-item {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.approach-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px;
+  background: var(--card);
+  border: none;
+  cursor: pointer;
+  text-align: right;
+  color: var(--ink);
+}
+
+.approach-toggle:hover {
+  background: #f6faf7;
+}
+
+.approach-letter {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.approach-toggle-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.approach-toggle-text strong {
+  font-size: 16px;
+}
+
+.approach-toggle-text small {
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.approach-toggle lucide-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--muted);
+  color: var(--ink);
+  transition: transform .2s, background-color .2s;
+}
+
+.approach-toggle:hover lucide-icon {
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.approach-toggle lucide-icon.open {
+  transform: rotate(180deg);
+}
+
+.approach-panel {
+  border-top: 1px solid var(--border);
+  padding: 18px;
+  font-size: 14px;
+  line-height: 1.9;
+  background: #fbfdfb;
+}
+
+.approach-panel p {
+  margin: 0 0 12px;
+}
+
+.approach-panel p:last-child {
+  margin-bottom: 0;
+}
+
+.approach-formula {
+  background: var(--secondary);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--ink);
+}
+
+.approach-formula span {
+  font-weight: 700;
+  color: var(--secondary-foreground);
+}
+
+.approach-faisal-note {
+  border-top: 1px dashed var(--border);
+  padding-top: 12px;
+}
+
+/* Purification comparison table: narrower value columns, centered values. */
+app-purification .standards-table {
+  table-layout: fixed;
+  min-width: 600px;
+}
+
+app-purification .standards-table th,
+app-purification .standards-table td {
+  padding: 15px 12px;
+  vertical-align: middle;
+}
+
+app-purification .standards-table th:nth-child(1),
+app-purification .standards-table td:nth-child(1) {
+  width: 30%;
+  text-align: right;
+}
+
+app-purification .standards-table th:nth-child(2),
+app-purification .standards-table td:nth-child(2) {
+  width: 20%;
+  text-align: center;
+}
+
+app-purification .standards-table th:nth-child(3),
+app-purification .standards-table td:nth-child(3) {
+  width: 24%;
+  text-align: center;
+}
+
+app-purification .standards-table th:nth-child(4),
+app-purification .standards-table td:nth-child(4) {
+  width: 26%;
+  text-align: center;
+}
+
+app-purification .standards-table td:last-child {
+  white-space: normal;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.yes-no {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 5px 18px;
+  white-space: nowrap;
+}
+
+.yes-no.yes {
+  color: var(--good);
+  background: var(--good-soft);
+}
+
+.yes-no.no {
+  color: var(--muted-foreground);
+  background: var(--muted);
+}
+
+/* Calculator: one row on desktop, stacked on mobile (RTL order kept). */
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.calc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #43524b;
+  min-width: 0;
+}
+
+.calc-field input[type="number"] {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 13px 14px;
+  font-size: 15px;
+  background: var(--input);
+  color: var(--ink);
+  width: 100%;
+}
+
+.calc-field input[type="number"]:focus {
+  outline: 2px solid var(--ring);
+  outline-offset: -1px;
+}
+
+.calc-approaches {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin: 16px 0 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.calc-approaches legend {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #43524b;
+  padding: 0 6px;
+}
+
+.calc-radio {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.calc-radio:hover {
+  border-color: #b9d4c7;
+}
+
+.calc-radio:has(input:checked) {
+  border-color: var(--primary);
+  background: var(--secondary);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.calc-radio input[type="radio"] {
+  accent-color: var(--primary);
+  width: 18px;
+  height: 18px;
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.calc-radio small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.calc-actions {
+  margin-top: 16px;
+}
+
+.calc-result {
+  margin-top: 16px;
+  background: var(--good-soft);
+  border: 1px solid #cde8d8;
+  border-radius: 16px;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: #0c5c40;
+}
+
+.calc-result strong {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--good);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.calc-result .muted {
+  color: #3f7d60;
+}
+
+.page-footnote {
+  margin: 20px 4px 0;
+  font-size: 12.5px;
   line-height: 1.9;
 }
 
@@ -2631,5 +2844,32 @@ footer {
   }
   .calc-grid {
     grid-template-columns: 1fr;
+  }
+  app-shariah-standards,
+  app-purification {
+    padding: 0 16px 40px;
+  }
+  app-shariah-standards .page-intro,
+  app-purification .page-intro {
+    padding: 36px 0 4px;
+  }
+  app-shariah-standards .title-row h1,
+  app-purification .title-row h1 {
+    font-size: 32px;
+  }
+  app-shariah-standards .title-row,
+  app-purification .title-row {
+    gap: 10px;
+  }
+  app-shariah-standards .detail-card,
+  app-purification .detail-card {
+    padding: 20px;
+    margin-top: 16px;
+  }
+  .approach-toggle {
+    padding: 14px;
+  }
+  .calc-result strong {
+    font-size: 26px;
   }
 }

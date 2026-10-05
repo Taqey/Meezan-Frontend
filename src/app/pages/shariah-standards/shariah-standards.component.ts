@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { LucideAngularModule, ShieldCheck, ArrowLeft } from 'lucide-angular';
+import { LucideAngularModule, ShieldCheck } from 'lucide-angular';
 import {
   CRITERION_LABELS,
   CRITERION_ORDER,
@@ -13,17 +12,19 @@ import {
 @Component({
   selector: 'app-shariah-standards',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule],
   template: `
     <div class="page-intro">
-      <div>
+      <div class="intro-main">
         <span class="eyebrow">الشريعة والامتثال · مقارنة كمية</span>
-        <h1>المعايير الشرعية</h1>
+        <div class="title-row">
+          <h1>المعايير الشرعية</h1>
+          <div class="intro-note">
+            <lucide-icon [img]="ShieldCheckIcon" size="17"></lucide-icon>
+            <span>{{ standards.length }} معايير مؤسسية + فتاوى علماء أفراد</span>
+          </div>
+        </div>
         <p>حدود الفحص المالي الكمي لأبرز معايير الشريعة المعتمدة، وكيف تُقيَّم نسب كل سهم مقابلها.</p>
-      </div>
-      <div class="intro-note">
-        <lucide-icon [img]="ShieldCheckIcon" size="17"></lucide-icon>
-        <span>{{ standards.length }} معايير مؤسسية + فتاوى علماء أفراد</span>
       </div>
     </div>
 
@@ -33,9 +34,6 @@ import {
           <span class="eyebrow">جدول المقارنة</span>
           <h2>حدود المعايير الشرعية الخمسة</h2>
         </div>
-        <a routerLink="/stocks" class="back-link">
-          <lucide-icon [img]="ArrowLeftIcon" size="15"></lucide-icon> العودة إلى الأسهم
-        </a>
       </div>
 
       <div class="table-scroll">
@@ -55,10 +53,10 @@ import {
                 <span class="std-en">{{ s.nameEn }}</span>
                 <span class="std-sub">{{ s.subtitleAr }}</span>
               </td>
-              <td>≤ {{ s.prohibitedRevenueMax }}%</td>
-              <td>≤ {{ s.debtMax }}%</td>
-              <td>≤ {{ s.prohibitedInvestmentsMax }}%</td>
-              <td>≤ {{ s.cashMax }}%</td>
+              <td><bdi dir="ltr">≤ {{ s.prohibitedRevenueMax }}%</bdi></td>
+              <td><bdi dir="ltr">≤ {{ s.debtMax }}%</bdi></td>
+              <td><bdi dir="ltr">≤ {{ s.prohibitedInvestmentsMax }}%</bdi></td>
+              <td><bdi dir="ltr">≤ {{ s.cashMax }}%</bdi></td>
             </tr>
             <tr class="scholars-row">
               <td>
@@ -67,7 +65,7 @@ import {
                 <span class="std-sub">اجتهادات فردية — غير معتمدة لدى معظم المؤسسات</span>
               </td>
               <td>—</td>
-              <td>≤ {{ scholarsMax }}%</td>
+              <td><bdi dir="ltr">≤ {{ scholarsMax }}%</bdi></td>
               <td>—</td>
               <td>—</td>
             </tr>
@@ -122,7 +120,6 @@ import {
 })
 export class ShariahStandardsComponent {
   readonly ShieldCheckIcon = ShieldCheck;
-  readonly ArrowLeftIcon = ArrowLeft;
 
   readonly standards = SHARIAH_STANDARDS;
   readonly criterionOrder: readonly ShariahCriterionKey[] = CRITERION_ORDER;

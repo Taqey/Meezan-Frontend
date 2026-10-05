@@ -79,6 +79,10 @@ export interface StockListItemDto {
   sectorNameAr?: string | null;
   peRatio?: number | null;
   pbRatio?: number | null;
+  /** Weight within weightIndexCode (null when absent). Shown on sector cards + sortable. */
+  weight?: number | null;
+  /** Index code the weight belongs to: the single selected index, else "SECTORAL-INDICES". */
+  weightIndexCode?: string | null;
 }
 
 export interface IndexSummaryDto {

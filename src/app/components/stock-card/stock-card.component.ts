@@ -28,7 +28,7 @@ import { INDEX_ARABIC_NAMES } from '../../models/api.models';
       <div class="stock-price">
         <strong>{{ closingPrice !== null && closingPrice !== undefined ? (closingPrice | number:'1.2-2') : '—' }}</strong>
         <span>{{ currencyLabel }}</span>
-        <em *ngIf="weight && weight > 0">الوزن {{ weight | number:'1.2-2' }}%</em>
+        <em *ngIf="weight && weight > 0" class="neutral-pill">الوزن {{ weight | number:'1.2-2' }}%</em>
       </div>
 
       <div class="stock-bottom">

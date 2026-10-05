@@ -191,6 +191,7 @@ import { IndexSummaryDto, PagedResult, SectorSummaryDto, StockListItemDto } from
           <!-- Separate Sort Controls: Field + Direction -->
           <div class="sort-group">
             <select [(ngModel)]="sortBy" (change)="onSortFieldChange()" aria-label="حقل الترتيب">
+              <option value="weight">الوزن النسبي</option>
               <option value="changePct">نسبة التغير</option>
               <option value="closingPrice">السعر</option>
               <option value="fairValueDiffPct">فارق العادلة</option>
@@ -275,6 +276,7 @@ import { IndexSummaryDto, PagedResult, SectorSummaryDto, StockListItemDto } from
           [fairValueDiffPct]="s.fairValueDiffPct"
           [shariahStatus]="s.shariahStatus"
           [indices]="s.indices"
+          [weight]="s.weight"
           [currency]="s.currency"
           [sectorNameAr]="s.sectorNameAr || sector?.nameAr">
         </app-stock-card>

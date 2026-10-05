@@ -7,7 +7,8 @@ import {
   BookOpen,
   Calendar,
   Info,
-  ChevronDown
+  ChevronDown,
+  TrendingUp
 } from 'lucide-angular';
 import {
   FAISAL_SUB_ROW,
@@ -93,35 +94,30 @@ import {
     <div class="detail-card">
       <div class="card-heading">
         <div>
-          <span class="eyebrow">مقارنة سريعة</span>
-          <h2>المداخل الثلاثة في جدول</h2>
+          <span class="eyebrow">الخلاصة</span>
+          <h2>باختصار</h2>
         </div>
       </div>
-      <div class="table-scroll">
-        <table class="standards-table" aria-label="جدول مقارنة مداخل التطهير">
-          <thead>
-            <tr>
-              <th scope="col">الأسلوب</th>
-              <th scope="col">يشمل التوزيعات</th>
-              <th scope="col">يشمل الربح الرأسمالي</th>
-              <th scope="col">من يتبعه</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let a of approaches">
-              <td><strong class="std-name">{{ a.titleAr }}</strong></td>
-              <td><span class="yes-no" [class.yes]="a.includesDividends" [class.no]="!a.includesDividends">{{ a.includesDividends ? 'نعم' : 'لا' }}</span></td>
-              <td><span class="yes-no" [class.yes]="a.includesCapitalGain" [class.no]="!a.includesCapitalGain">{{ a.includesCapitalGain ? 'نعم' : 'لا' }}</span></td>
-              <td>{{ a.bodies.join('، ') }}</td>
-            </tr>
-            <tr class="scholars-row sub-row">
-              <td><strong class="std-name">{{ faisal.titleAr }}</strong></td>
-              <td><span class="yes-no yes">نعم</span></td>
-              <td><span class="yes-no yes">نعم</span></td>
-              <td>{{ faisal.bodies.join('، ') }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="summary-grid">
+        <div class="summary-card">
+          <span class="summary-icon"><lucide-icon [img]="TrendingUpIcon" size="17"></lucide-icon></span>
+          <h3>التوزيعات + الربح الرأسمالي</h3>
+          <p>يُطبَّق التطهير على التوزيعات وعلى أي ربح يتحقق من بيع الأسهم.</p>
+          <div class="chip-row">
+            <span class="body-chip">أيوفي (AAOIFI)</span>
+            <span class="body-chip">إس آند بي (S&P)</span>
+            <span class="body-chip">بورصة حلال</span>
+            <span class="body-chip">بنك فيصل الإسلامي</span>
+          </div>
+        </div>
+        <div class="summary-card">
+          <span class="summary-icon"><lucide-icon [img]="InfoIcon" size="17"></lucide-icon></span>
+          <h3>التوزيعات فقط</h3>
+          <p>يُطبَّق التطهير على التوزيعات وحدها دون أرباح البيع.</p>
+          <div class="chip-row">
+            <span class="body-chip">مصفّى</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -180,6 +176,7 @@ export class PurificationComponent {
   readonly CalendarIcon = Calendar;
   readonly InfoIcon = Info;
   readonly ChevronDownIcon = ChevronDown;
+  readonly TrendingUpIcon = TrendingUp;
 
   readonly approaches = PURIFICATION_APPROACHES;
   readonly faisal = FAISAL_SUB_ROW;

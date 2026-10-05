@@ -2455,65 +2455,63 @@ app-shariah-standards .explainer-note {
   padding-top: 12px;
 }
 
-/* Purification comparison table: narrower value columns, centered values. */
-app-purification .standards-table {
-  table-layout: fixed;
-  min-width: 600px;
+/* Summary cards ("باختصار"): two side by side on desktop, stacked on mobile. */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 4px;
 }
 
-app-purification .standards-table th,
-app-purification .standards-table td {
-  padding: 15px 12px;
-  vertical-align: middle;
+.summary-card {
+  background: #fbfdfb;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-app-purification .standards-table th:nth-child(1),
-app-purification .standards-table td:nth-child(1) {
-  width: 30%;
-  text-align: right;
+.summary-icon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--secondary);
+  color: var(--secondary-foreground);
 }
 
-app-purification .standards-table th:nth-child(2),
-app-purification .standards-table td:nth-child(2) {
-  width: 20%;
-  text-align: center;
+.summary-card h3 {
+  margin: 0;
+  font-size: 15px;
+  color: var(--ink);
 }
 
-app-purification .standards-table th:nth-child(3),
-app-purification .standards-table td:nth-child(3) {
-  width: 24%;
-  text-align: center;
-}
-
-app-purification .standards-table th:nth-child(4),
-app-purification .standards-table td:nth-child(4) {
-  width: 26%;
-  text-align: center;
-}
-
-app-purification .standards-table td:last-child {
-  white-space: normal;
-  font-weight: 500;
+.summary-card p {
+  margin: 0;
   font-size: 13px;
+  line-height: 1.8;
+  color: #43524b;
 }
 
-.yes-no {
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.body-chip {
   display: inline-block;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--secondary-foreground);
+  background: var(--secondary);
   border-radius: 999px;
-  padding: 5px 18px;
+  padding: 4px 12px;
   white-space: nowrap;
-}
-
-.yes-no.yes {
-  color: var(--good);
-  background: var(--good-soft);
-}
-
-.yes-no.no {
-  color: var(--muted-foreground);
-  background: var(--muted);
 }
 
 /* Calculator: one row on desktop, stacked on mobile (RTL order kept). */
@@ -2843,6 +2841,9 @@ app-purification .standards-table td:last-child {
     grid-template-columns: 1fr;
   }
   .calc-grid {
+    grid-template-columns: 1fr;
+  }
+  .summary-grid {
     grid-template-columns: 1fr;
   }
   app-shariah-standards,

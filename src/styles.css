@@ -2068,6 +2068,250 @@ footer {
   }
 }
 
+/* ── Purification page ─────────────────────────────────────────────────── */
+.reasons-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.reason-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--cream);
+  border: 1px solid #e4dfd0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.reason-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+.reasons-note {
+  margin-top: 14px;
+  font-size: 12px;
+}
+
+.approach-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.approach-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.approach-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 15px;
+  background: var(--card);
+  border: none;
+  cursor: pointer;
+  text-align: right;
+  color: var(--ink);
+}
+
+.approach-toggle:hover {
+  background: var(--muted);
+}
+
+.approach-letter {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.approach-toggle-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.approach-toggle-text strong {
+  font-size: 14px;
+}
+
+.approach-toggle-text small {
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+.approach-toggle lucide-icon {
+  transition: transform .2s;
+  color: var(--muted-foreground);
+  flex-shrink: 0;
+}
+
+.approach-toggle lucide-icon.open {
+  transform: rotate(180deg);
+}
+
+.approach-panel {
+  border-top: 1px solid var(--border);
+  padding: 13px 15px;
+  font-size: 13px;
+  line-height: 1.9;
+  background: var(--cream);
+}
+
+.approach-panel p {
+  margin: 0 0 8px;
+}
+
+.approach-panel p:last-child {
+  margin-bottom: 0;
+}
+
+.approach-formula span {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.approach-faisal-note {
+  border-top: 1px dashed var(--border);
+  padding-top: 8px;
+}
+
+.yes-no {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 3px 12px;
+  white-space: nowrap;
+}
+
+.yes-no.yes {
+  color: var(--good);
+  background: var(--good-soft);
+}
+
+.yes-no.no {
+  color: var(--muted-foreground);
+  background: var(--muted);
+}
+
+.sub-row td:first-child {
+  padding-right: 26px;
+}
+
+.calc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.calc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+.calc-field input[type="number"] {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--input);
+  color: var(--ink);
+  width: 100%;
+}
+
+.calc-field input[type="number"]:focus {
+  outline: 2px solid var(--ring);
+  outline-offset: -1px;
+}
+
+.calc-approaches {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 14px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.calc-approaches legend {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted-foreground);
+  padding: 0 6px;
+}
+
+.calc-radio {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.calc-radio input[type="radio"] {
+  accent-color: var(--primary);
+  margin-top: 4px;
+}
+
+.calc-radio small {
+  display: block;
+  margin-top: 2px;
+}
+
+.calc-actions {
+  margin-top: 14px;
+}
+
+.calc-result {
+  margin-top: 14px;
+  background: var(--secondary);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.calc-result strong {
+  font-size: 24px;
+  color: var(--secondary-foreground);
+}
+
+.page-footnote {
+  margin: 18px 4px 0;
+  font-size: 12px;
+  line-height: 1.9;
+}
+
 /* ── Shariah standards (comparison page + Bourse Halal dialog) ────────── */
 .table-scroll {
   overflow-x: auto;
@@ -2383,6 +2627,9 @@ footer {
     border-radius: 16px;
   }
   .explainer-grid {
+    grid-template-columns: 1fr;
+  }
+  .calc-grid {
     grid-template-columns: 1fr;
   }
 }

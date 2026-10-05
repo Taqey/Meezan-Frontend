@@ -42,6 +42,7 @@ import {
           <a routerLink="/stocks" routerLinkActive="active" (click)="closeMenu()">الأسهم</a>
           <a routerLink="/indices" routerLinkActive="active" (click)="closeMenu()">المؤشرات</a>
           <a routerLink="/shariah-standards" routerLinkActive="active" (click)="closeMenu()">المعايير الشرعية</a>
+          <a routerLink="/purification" routerLinkActive="active" (click)="closeMenu()">التطهير</a>
         </nav>
 
         <div class="header-meta">

@@ -18,6 +18,7 @@ import {
 import { ApiService } from '../../services/api.service';
 import { ComparisonBadgeComponent } from '../../components/comparison-badge/comparison-badge.component';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
+import { FavoriteToggleComponent } from '../../components/favorite-toggle/favorite-toggle.component';
 import {
   MarketDataDto,
   SHARIAH_SOURCE_NAMES,
@@ -49,7 +50,7 @@ type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
 @Component({
   selector: 'app-stock-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, ComparisonBadgeComponent, StatusBadgeComponent],
+  imports: [CommonModule, RouterLink, LucideAngularModule, ComparisonBadgeComponent, StatusBadgeComponent, FavoriteToggleComponent],
   template: `
     <div *ngIf="loading" class="empty-state">
       <p>جارٍ تحميل بيانات السهم والتقييمات من قاعدة البيانات...</p>
@@ -71,6 +72,7 @@ type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
           <div>
             <div class="ticker large">
               {{ marketData.ticker }}
+              <app-favorite-toggle [symbol]="marketData.ticker"></app-favorite-toggle>
               <span *ngIf="marketData.nameEn">{{ marketData.nameEn }}</span>
             </div>
             <h1>{{ marketData.nameAr || marketData.ticker }}</h1>

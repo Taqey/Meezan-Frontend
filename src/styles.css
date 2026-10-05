@@ -2068,6 +2068,167 @@ footer {
   }
 }
 
+/* ── Favorites ───────────────────────────────────────────────────────── */
+.stock-card-wrap {
+  position: relative;
+}
+
+.stock-card-wrap > app-favorite-toggle {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+}
+
+.fav-toggle {
+  width: 34px;
+  height: 34px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, .94);
+  color: var(--muted-foreground);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(23, 35, 31, .1);
+}
+
+.fav-toggle:hover {
+  color: var(--warn);
+  border-color: #e3cf9d;
+}
+
+.fav-toggle.active {
+  color: var(--warn);
+  border-color: #e3cf9d;
+  background: var(--warn-soft);
+}
+
+.fav-toggle.active lucide-icon svg,
+.fav-toggle.active svg {
+  fill: currentColor;
+}
+
+.fav-toggle:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.ticker.large app-favorite-toggle {
+  display: inline-grid;
+  vertical-align: middle;
+  margin-inline-start: 8px;
+}
+
+.ticker.large app-favorite-toggle .fav-toggle {
+  width: 30px;
+  height: 30px;
+  box-shadow: none;
+}
+
+.nav-count {
+  display: inline-block;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 8px;
+  margin-inline-start: 4px;
+}
+
+.toast-host {
+  position: fixed;
+  bottom: 20px;
+  right: 50%;
+  transform: translateX(50%);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+  max-width: calc(100vw - 32px);
+}
+
+.toast-item {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  box-shadow: 0 10px 30px rgba(23, 35, 31, .3);
+  animation: toast-in .2s ease-out;
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  color: inherit;
+  opacity: .7;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 4px;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.fav-controls {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.fav-controls .search-wrap {
+  flex: 1 1 220px;
+}
+
+.fav-controls select {
+  height: 40px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #fbfcfb;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.clear-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--bad);
+  font-weight: 600;
+}
+
+.storage-note {
+  margin: 0 24px 16px;
+  background: var(--warn-soft);
+  color: var(--warn);
+  border: 1px solid #f0e3c4;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+}
+
 /* ── Info pages (Shariah standards + Purification) ─────────────────────────
    Spacing scale for these pages: 8 / 12 / 16 / 24 / 32.
    Same tokens as the stock detail page (colors, font, radii). */
@@ -2872,5 +3033,11 @@ app-shariah-standards .explainer-note {
   }
   .calc-result strong {
     font-size: 26px;
+  }
+  .storage-note {
+    margin: 0 16px 12px;
+  }
+  .fav-controls select {
+    flex: 1 1 160px;
   }
 }

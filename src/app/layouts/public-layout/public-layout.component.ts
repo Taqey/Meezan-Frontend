@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { FavoritesService } from '../../services/favorites.service';
+import { ToastHostComponent } from '../../components/toast-host/toast-host.component';
 import {
   LucideAngularModule,
   LineChart,
@@ -23,7 +25,8 @@ import {
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
-    LucideAngularModule
+    LucideAngularModule,
+    ToastHostComponent
   ],
   template: `
     <header class="site-header">
@@ -43,6 +46,7 @@ import {
           <a routerLink="/indices" routerLinkActive="active" (click)="closeMenu()">المؤشرات</a>
           <a routerLink="/shariah-standards" routerLinkActive="active" (click)="closeMenu()">المعايير الشرعية</a>
           <a routerLink="/purification" routerLinkActive="active" (click)="closeMenu()">التطهير</a>
+          <a routerLink="/favorites" routerLinkActive="active" (click)="closeMenu()">المفضلة <span class="nav-count" *ngIf="favCount > 0">{{ favCount }}</span></a>
         </nav>
 
         <div class="header-meta">
@@ -59,6 +63,8 @@ import {
     <main>
       <router-outlet></router-outlet>
     </main>
+
+    <app-toast-host></app-toast-host>
 
     <footer>
       <div class="footer-shell">
@@ -85,6 +91,12 @@ export class PublicLayoutComponent {
   readonly ShieldCheckIcon = ShieldCheck;
 
   isMenuOpen = false;
+
+  constructor(readonly favorites: FavoritesService) {}
+
+  get favCount(): number {
+    return this.favorites.count();
+  }
 
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;

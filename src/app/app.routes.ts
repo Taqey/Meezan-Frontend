@@ -10,6 +10,7 @@ import { SectorDetailComponent } from './pages/sector-detail/sector-detail.compo
 import { AdminLoginComponent } from './pages/admin-login/admin-login.component';
 import { ShariahStandardsComponent } from './pages/shariah-standards/shariah-standards.component';
 import { PurificationComponent } from './pages/purification/purification.component';
+import { FavoritesComponent } from './pages/favorites/favorites.component';
 import { adminAuthGuard } from './guards/admin-auth.guard';
 
 export const routes: Routes = [
@@ -23,6 +24,7 @@ export const routes: Routes = [
       { path: 'stocks/:code', component: StockDetailComponent },
       { path: 'shariah-standards', component: ShariahStandardsComponent },
       { path: 'purification', component: PurificationComponent },
+      { path: 'favorites', component: FavoritesComponent },
       { path: 'indices', component: IndicesListComponent },
       { path: 'indices/Sectoral-Indices', component: SectorsListComponent },
       { path: 'indices/Sectoral-Indices/:id', component: SectorDetailComponent },

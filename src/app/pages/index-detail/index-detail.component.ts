@@ -234,7 +234,8 @@ import { ConstituentItemDto, IndexConstituentsPagedResultDto } from '../../model
       <!-- Constituents Grid -->
       <div class="stock-grid" *ngIf="result.items && result.items.length">
         <app-stock-card
-          *ngFor="let item of result.items"
+          *ngFor="let item of result.items; let i = index"
+          [style.--item-index]="i"
           [ticker]="item.ticker"
           [nameAr]="item.nameAr"
           [nameEn]="item.nameEn"

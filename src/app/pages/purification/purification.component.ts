@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RevealDirective } from '../../directives/reveal.directive';
 import {
   LucideAngularModule,
   ShieldCheck,
@@ -21,7 +22,7 @@ import {
 @Component({
   selector: 'app-purification',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, RevealDirective],
   template: `
     <div class="page-intro">
       <div class="intro-main">
@@ -38,7 +39,7 @@ import {
       </div>
     </div>
 
-    <div class="detail-card">
+    <div class="detail-card" appReveal>
       <div class="card-heading">
         <div>
           <span class="eyebrow">فروق مشروعة</span>
@@ -62,7 +63,7 @@ import {
       <p class="muted reasons-note">نعرض هذه المناهج كما هي دون ترجيح منهج على غيره.</p>
     </div>
 
-    <div class="detail-card">
+    <div class="detail-card" appReveal>
       <div class="card-heading">
         <div>
           <span class="eyebrow">ثلاثة مداخل</span>
@@ -91,7 +92,7 @@ import {
       </div>
     </div>
 
-    <div class="detail-card">
+    <div class="detail-card" appReveal>
       <div class="card-heading">
         <div>
           <span class="eyebrow">الخلاصة</span>
@@ -121,7 +122,7 @@ import {
       </div>
     </div>
 
-    <div class="detail-card">
+    <div class="detail-card" appReveal>
       <div class="card-heading">
         <div>
           <span class="eyebrow">احسب بنفسك</span>

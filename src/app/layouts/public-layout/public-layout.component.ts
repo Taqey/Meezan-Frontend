@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
 import { FavoritesService } from '../../services/favorites.service';
 import { ToastHostComponent } from '../../components/toast-host/toast-host.component';
 import {
@@ -42,6 +43,7 @@ import {
         </a>
 
         <nav class="nav-links" [class.is-open]="isMenuOpen" aria-label="التنقل الرئيسي">
+          <span class="nav-indicator" aria-hidden="true"></span>
           <a routerLink="/stocks" routerLinkActive="active" (click)="closeMenu()">الأسهم</a>
           <a routerLink="/indices" routerLinkActive="active" (click)="closeMenu()">المؤشرات</a>
           <a routerLink="/shariah-standards" routerLinkActive="active" (click)="closeMenu()">المعايير الشرعية</a>
@@ -83,7 +85,7 @@ import {
     </footer>
   `
 })
-export class PublicLayoutComponent {
+export class PublicLayoutComponent implements AfterViewInit, OnDestroy {
   readonly LineChartIcon = LineChart;
   readonly MenuIcon = Menu;
   readonly XIcon = X;
@@ -92,17 +94,87 @@ export class PublicLayoutComponent {
 
   isMenuOpen = false;
 
-  constructor(readonly favorites: FavoritesService) {}
+  private routerSub: Subscription | null = null;
+  private resizeHandler: (() => void) | null = null;
+  private remeasureTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor(
+    readonly favorites: FavoritesService,
+    private readonly router: Router,
+    private readonly host: ElementRef<HTMLElement>
+  ) {}
 
   get favCount(): number {
     return this.favorites.count();
   }
 
+  ngAfterViewInit(): void {
+    this.routerSub = this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.scheduleIndicatorUpdate());
+    this.resizeHandler = () => this.scheduleIndicatorUpdate();
+    window.addEventListener('resize', this.resizeHandler);
+    // Re-measure after fonts/layout settle so the indicator lands exactly.
+    this.scheduleIndicatorUpdate();
+    if (typeof document !== 'undefined' && document.fonts) {
+      document.fonts.ready.then(() => this.scheduleIndicatorUpdate()).catch(() => {});
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
+    this.routerSub = null;
+    if (this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
+      this.resizeHandler = null;
+    }
+    if (this.remeasureTimer !== null) {
+      clearTimeout(this.remeasureTimer);
+      this.remeasureTimer = null;
+    }
+  }
+
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
+    this.scheduleIndicatorUpdate();
   }
 
   closeMenu(): void {
     this.isMenuOpen = false;
+  }
+
+  private scheduleIndicatorUpdate(): void {
+    if (this.remeasureTimer !== null) clearTimeout(this.remeasureTimer);
+    // Wait a frame (active link class + menu layout applied) before measuring.
+    requestAnimationFrame(() => {
+      this.updateIndicator();
+      this.remeasureTimer = setTimeout(() => this.updateIndicator(), 250);
+    });
+  }
+
+  /**
+   * Slides the underline indicator under the active tab (transform/width only).
+   * Physical pixels work in both directions, so RTL needs no special casing.
+   */
+  private updateIndicator(): void {
+    const root = this.host.nativeElement;
+    const bar = root.querySelector<HTMLElement>('.nav-indicator');
+    const nav = root.querySelector<HTMLElement>('.nav-links');
+    const active = root.querySelector<HTMLElement>('.nav-links a.active');
+    if (!bar || !nav || !active) {
+      bar?.classList.remove('on');
+      return;
+    }
+    const navRect = nav.getBoundingClientRect();
+    const linkRect = active.getBoundingClientRect();
+    if (linkRect.width <= 0) {
+      bar.classList.remove('on');
+      return;
+    }
+    const x = linkRect.left - navRect.left;
+    const y = linkRect.bottom - navRect.top - 2;
+    bar.style.transform = `translate(${x}px, ${y}px)`;
+    bar.style.width = `${linkRect.width}px`;
+    bar.classList.add('on');
   }
 }

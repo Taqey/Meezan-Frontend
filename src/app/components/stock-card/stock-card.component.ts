@@ -5,12 +5,13 @@ import { LucideAngularModule, ShieldCheck } from 'lucide-angular';
 import { ComparisonBadgeComponent } from '../comparison-badge/comparison-badge.component';
 import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import { FavoriteToggleComponent } from '../favorite-toggle/favorite-toggle.component';
+import { PriceFlashDirective } from '../../directives/price-flash.directive';
 import { INDEX_ARABIC_NAMES } from '../../models/api.models';
 
 @Component({
   selector: 'app-stock-card',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, ComparisonBadgeComponent, StatusBadgeComponent, FavoriteToggleComponent],
+  imports: [CommonModule, RouterLink, LucideAngularModule, ComparisonBadgeComponent, StatusBadgeComponent, FavoriteToggleComponent, PriceFlashDirective],
   template: `
     <a [routerLink]="['/stocks', ticker]" class="stock-card">
       <div class="stock-top">
@@ -30,7 +31,7 @@ import { INDEX_ARABIC_NAMES } from '../../models/api.models';
       <div class="stock-name">{{ nameAr || ticker }}</div>
 
       <div class="stock-price">
-        <strong>{{ closingPrice !== null && closingPrice !== undefined ? (closingPrice | number:'1.2-2') : '—' }}</strong>
+        <strong [appPriceFlash]="closingPrice">{{ closingPrice !== null && closingPrice !== undefined ? (closingPrice | number:'1.2-2') : '—' }}</strong>
         <span>{{ currencyLabel }}</span>
         <em *ngIf="weight && weight > 0" class="neutral-pill">الوزن {{ weight | number:'1.2-2' }}%</em>
       </div>

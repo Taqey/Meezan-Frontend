@@ -1,6 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
 
 :root {
+  /* Motion tokens: one easing + one duration scale for the whole site. */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 150ms;
+  --dur-med: 250ms;
+  --dur-slow: 400ms;
+  --stagger-step: 55ms;
+  --reveal-y: 16px;
   color-scheme: light;
   --background: #f7f8f6;
   --foreground: #17231f;
@@ -240,7 +247,7 @@ button, input, select, textarea {
   font-weight: 600;
   font-size: 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--dur-med) var(--ease-out);
   border: none;
 }
 
@@ -448,7 +455,7 @@ button, input, select, textarea {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 19px;
-  transition: transform .2s, box-shadow .2s, border-color .2s;
+  transition: transform var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out);
   cursor: pointer;
 }
 
@@ -1024,7 +1031,7 @@ button, input, select, textarea {
   border: 1px solid var(--border);
   border-radius: 17px;
   padding: 22px;
-  transition: transform .2s, border-color .2s;
+  transition: transform var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out);
   cursor: pointer;
 }
 
@@ -1998,7 +2005,7 @@ footer {
     margin-right: auto;
   }
   .nav-links {
-    display: none;
+    display: flex;
     position: absolute;
     top: 73px;
     right: 16px;
@@ -2010,9 +2017,22 @@ footer {
     box-shadow: 0 10px 30px #19382a12;
     flex-direction: column;
     gap: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition:
+      opacity var(--dur-med) var(--ease-out),
+      transform var(--dur-med) var(--ease-out),
+      visibility 0s linear var(--dur-med);
   }
   .nav-links.is-open {
-    display: flex;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition:
+      opacity var(--dur-med) var(--ease-out),
+      transform var(--dur-med) var(--ease-out),
+      visibility 0s;
   }
   .nav-links a {
     padding: 12px 0;
@@ -2350,8 +2370,15 @@ app-purification .calc-radio:focus-within {
 }
 
 /* ── Shared comparison table ─────────────────────────────────────────── */
+/* NOTE (phantom-scrollbar fix): overflow-x other than visible forces
+   overflow-y:visible to compute as auto, so this container also scrolls
+   vertically. The rows' entrance animation (translateY) briefly extends the
+   scrollable overflow and flashes a vertical scrollbar. Height here is
+   always content-sized, so vertical scrolling is never legitimate:
+   keep overflow-y hidden. Same for .table-scroll-x below. */
 .table-scroll {
   overflow-x: auto;
+  overflow-y: hidden;
   max-width: 100%;
   margin: 4px 0 0;
   padding-bottom: 4px;
@@ -3076,6 +3103,310 @@ app-shariah-standards .explainer-note {
   }
 }
 
+/* ── Motion system ───────────────────────────────────────────────────────
+   GPU-friendly only (transform + opacity, never width/height/top/left).
+   Directions are RTL-neutral (vertical slides, scales, fades). */
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes dialog-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(.97);
+  }
+}
+
+@keyframes pop-menu {
+  from {
+    opacity: 0;
+    transform: scale(.98) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes logo-in {
+  from {
+    opacity: 0;
+    transform: scale(.8);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ladder-pop {
+  from {
+    opacity: 0;
+    transform: translateX(50%) scale(.6);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(50%) scale(1);
+  }
+}
+
+@keyframes draw-line {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes flash-up {
+  0% {
+    color: var(--good);
+  }
+  100% {
+    color: inherit;
+  }
+}
+
+@keyframes flash-down {
+  0% {
+    color: var(--bad);
+  }
+  100% {
+    color: inherit;
+  }
+}
+
+/* Page-load entrances: short, no interaction blocking (fill both). */
+.page-intro,
+.detail-hero,
+.hero {
+  animation: rise-in var(--dur-slow) var(--ease-out) both;
+}
+
+.filters {
+  animation: rise-in var(--dur-slow) var(--ease-out) both;
+  animation-delay: 60ms;
+}
+
+/* Staggered grid children + table rows (delay via --item-index, capped). */
+.stock-grid > *,
+.index-grid > *,
+.leader-grid > *,
+.opinion-grid > * {
+  animation: card-in var(--dur-slow) var(--ease-out) both;
+  animation-delay: calc(min(var(--item-index, 0), 8) * var(--stagger-step));
+}
+
+.standards-table tbody tr {
+  animation: card-in var(--dur-med) var(--ease-out) both;
+  animation-delay: calc(min(var(--item-index, 0), 9) * 40ms);
+}
+
+/* Scroll reveal (driven by the appReveal directive, once only). */
+.reveal {
+  opacity: 0;
+  transform: translateY(var(--reveal-y));
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* Press feedback (touch + mouse), lift stays hover-only. */
+.btn:active,
+.stock-card:active,
+.index-card:active,
+.fav-toggle:active,
+.approach-toggle:active,
+.pagination-wrap button:active,
+.details-button:active,
+.calc-radio:active {
+  transform: scale(.97);
+}
+
+/* Sliding nav indicator (positioned by PublicLayout, transform only). */
+.nav-links {
+  position: relative;
+}
+
+.nav-links a,
+.nav-links a.active,
+.nav-links a:hover {
+  border-bottom-color: transparent;
+}
+
+.nav-links a {
+  transition: color var(--dur-fast) var(--ease-out);
+}
+
+.nav-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  border-radius: 2px;
+  background: var(--primary);
+  opacity: 0;
+  transition:
+    transform var(--dur-med) var(--ease-out),
+    width var(--dur-med) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
+  pointer-events: none;
+}
+
+.nav-indicator.on {
+  opacity: 1;
+}
+
+/* Header logo: load pop + subtle hover. */
+.brand-mark {
+  animation: logo-in .6s var(--ease-out) both;
+  transition: transform var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out);
+}
+
+.brand:hover .brand-mark {
+  transform: scale(1.06) rotate(-4deg);
+  box-shadow: 0 6px 18px rgba(8, 127, 91, .35);
+}
+
+/* Support/resistance ladder draws on load (origin on the right for RTL). */
+.ladder-line {
+  transform-origin: right center;
+  animation: draw-line .9s var(--ease-out) both;
+}
+
+.ladder-point {
+  animation: ladder-pop .45s var(--ease-out) both;
+  animation-delay: 200ms;
+}
+
+/* Skeleton shimmer placeholders (loading grids). */
+.skeleton-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 19px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 190px;
+}
+
+.sk-line {
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--muted) 25%, #f8fbf9 50%, var(--muted) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s linear infinite;
+}
+
+.sk-title {
+  height: 18px;
+  width: 45%;
+}
+
+.sk-text {
+  height: 12px;
+  width: 70%;
+}
+
+.sk-price {
+  height: 26px;
+  width: 55%;
+}
+
+.sk-badges {
+  height: 22px;
+  width: 90%;
+}
+
+/* Price flash on live updates (wired by the appPriceFlash directive). */
+.flash-up {
+  animation: flash-up .65s ease-out;
+}
+
+.flash-down {
+  animation: flash-down .65s ease-out;
+}
+
+/* Standards dialog open/close motion. */
+.standards-dialog-backdrop {
+  animation: fade-in var(--dur-med) var(--ease-out);
+}
+
+.standards-dialog {
+  animation: dialog-in var(--dur-slow) var(--ease-out) both;
+}
+
+.standards-dialog-backdrop.closing {
+  animation: fade-in var(--dur-fast) var(--ease-out) reverse both;
+}
+
+.standards-dialog-backdrop.closing .standards-dialog {
+  animation: dialog-out var(--dur-fast) var(--ease-out) both;
+}
+
+/* Filter dropdown pop (plays on insertion). */
+.multi-dropdown-panel {
+  animation: pop-menu var(--dur-med) var(--ease-out);
+  transform-origin: top center;
+}
+
 /* ── Responsive audit: touch, type, layout, safe areas ────────────────── */
 
 /* Coarse pointers (phones/tablets): 44px touch targets, no sticky hovers. */
@@ -3131,13 +3462,20 @@ app-shariah-standards .explainer-note {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
+    transition-delay: 0ms !important;
   }
 }
 
 /* Phones: stack intro/hero headers, comfortable padding, 16px inputs. */
 @media (max-width: 600px) {
+  :root {
+    --stagger-step: 30ms;
+    --reveal-y: 10px;
+    --dur-slow: 300ms;
+  }
   .page-intro {
     flex-direction: column;
     align-items: stretch;
@@ -3299,9 +3637,11 @@ app-shariah-standards .explainer-note {
   }
 }
 
-/* Scrollable wrapper for wide admin tables on small screens. */
+/* Scrollable wrapper for wide admin tables on small screens.
+   overflow-y is hidden for the same phantom-scrollbar reason as .table-scroll. */
 .table-scroll-x {
   overflow-x: auto;
+  overflow-y: hidden;
   max-width: 100%;
 }
 

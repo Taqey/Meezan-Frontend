@@ -13,12 +13,14 @@ import {
 import { ApiService } from '../../services/api.service';
 import { StockCardComponent } from '../../components/stock-card/stock-card.component';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
+import { CountUpDirective } from '../../directives/count-up.directive';
+import { RevealDirective } from '../../directives/reveal.directive';
 import { IndexSummaryDto, StockListItemDto } from '../../models/api.models';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, StockCardComponent, StatusBadgeComponent],
+  imports: [CommonModule, RouterLink, LucideAngularModule, StockCardComponent, StatusBadgeComponent, CountUpDirective, RevealDirective],
   template: `
     <section class="hero">
       <div class="hero-copy">
@@ -44,14 +46,14 @@ import { IndexSummaryDto, StockListItemDto } from '../../models/api.models';
         </div>
 
         <div class="market-number">
-          <strong>{{ totalStocksCount }}</strong>
+          <strong [appCountUp]="totalStocksCount"></strong>
           <span>سهم مُسجل ومُحدث</span>
         </div>
 
         <div class="panel-grid">
           <div>
             <small>المؤشرات الرسمية</small>
-            <b>{{ indicesCount }} مؤشرات</b>
+            <b><span [appCountUp]="indicesCount"></span> مؤشرات</b>
           </div>
           <div>
             <small>المصادر الشرعية</small>
@@ -65,13 +67,13 @@ import { IndexSummaryDto, StockListItemDto } from '../../models/api.models';
       </div>
     </section>
 
-    <section class="stats-strip">
+    <section class="stats-strip" appReveal>
       <div class="stat">
-        <strong>{{ totalStocksCount }}</strong>
+        <strong [appCountUp]="totalStocksCount"></strong>
         <span>سهم تتم متابعته</span>
       </div>
       <div class="stat">
-        <strong>{{ indicesCount }}</strong>
+        <strong [appCountUp]="indicesCount"></strong>
         <span>مؤشرات رسمية للبورصة</span>
       </div>
       <div class="stat">
@@ -85,7 +87,7 @@ import { IndexSummaryDto, StockListItemDto } from '../../models/api.models';
     </section>
 
     <!-- Market Leaders -->
-    <section class="home-section">
+    <section class="home-section" appReveal>
       <div class="section-heading">
         <div>
           <span class="eyebrow">تحرك السوق</span>
@@ -97,7 +99,8 @@ import { IndexSummaryDto, StockListItemDto } from '../../models/api.models';
 
       <div class="leader-grid" *ngIf="topStocks.length">
         <app-stock-card
-          *ngFor="let s of topStocks"
+          *ngFor="let s of topStocks; let i = index"
+          [style.--item-index]="i"
           [ticker]="s.ticker"
           [nameAr]="s.nameAr"
           [nameEn]="s.nameEn"
@@ -119,7 +122,7 @@ import { IndexSummaryDto, StockListItemDto } from '../../models/api.models';
     </section>
 
     <!-- Multi-source Shariah Preview Section -->
-    <section class="home-section feature-section">
+    <section class="home-section feature-section" appReveal>
       <div class="feature-copy">
         <span class="eyebrow">شفافية كاملة</span>
         <h2>لا نختصر الرأي الشرعي في إجابة واحدة.</h2>

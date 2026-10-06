@@ -265,7 +265,8 @@ import { IndexSummaryDto, PagedResult, SectorSummaryDto, StockListItemDto } from
       <!-- Stock Grid -->
       <div class="stock-grid" *ngIf="!stocksLoading && stocks.length">
         <app-stock-card
-          *ngFor="let s of stocks"
+          *ngFor="let s of stocks; let i = index"
+          [style.--item-index]="i"
           [ticker]="s.ticker"
           [nameAr]="s.nameAr"
           [nameEn]="s.nameEn"

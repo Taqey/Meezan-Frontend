@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, ShieldCheck } from 'lucide-angular';
+import { RevealDirective } from '../../directives/reveal.directive';
 import {
   CRITERION_LABELS,
   CRITERION_ORDER,
@@ -12,7 +13,7 @@ import {
 @Component({
   selector: 'app-shariah-standards',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, RevealDirective],
   template: `
     <div class="page-intro">
       <div class="intro-main">
@@ -28,7 +29,7 @@ import {
       </div>
     </div>
 
-    <div class="detail-card">
+    <div class="detail-card" appReveal>
       <div class="card-heading">
         <div>
           <span class="eyebrow">جدول المقارنة</span>
@@ -47,7 +48,7 @@ import {
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let s of standards">
+            <tr *ngFor="let s of standards; let i = index" [style.--item-index]="i">
               <td>
                 <strong class="std-name">{{ s.nameAr }}</strong>
                 <span class="std-en">{{ s.nameEn }}</span>
@@ -79,7 +80,7 @@ import {
       </p>
     </div>
 
-    <div class="detail-card">
+    <div class="detail-card" appReveal>
       <div class="card-heading">
         <div>
           <span class="eyebrow">دليل القراءة</span>

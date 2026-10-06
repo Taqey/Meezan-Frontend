@@ -33,7 +33,8 @@ import { SectorSummaryDto } from '../../models/api.models';
 
     <div class="index-grid" *ngIf="!loading && sectors.length">
       <a
-        *ngFor="let sector of sectors"
+        *ngFor="let sector of sectors; let i = index"
+        [style.--item-index]="i"
         [routerLink]="['/indices/Sectoral-Indices', sector.id]"
         class="index-card sector-card"
       >

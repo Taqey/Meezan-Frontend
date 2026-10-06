@@ -246,15 +246,21 @@ import { IndexSummaryDto, PagedResult, StockListItemDto } from '../../models/api
       </div>
     </div>
 
-    <!-- Loading Spinner -->
-    <div *ngIf="loading" class="empty-state">
-      <p>جارٍ تحميل بيانات الأسهم من الخادم...</p>
+    <!-- Loading skeletons -->
+    <div *ngIf="loading" class="stock-grid" aria-hidden="true">
+      <div class="skeleton-card" *ngFor="let n of [1, 2, 3, 4, 5, 6]">
+        <div class="sk-line sk-title"></div>
+        <div class="sk-line sk-text"></div>
+        <div class="sk-line sk-price"></div>
+        <div class="sk-line sk-badges"></div>
+      </div>
     </div>
 
     <!-- Stock Cards Grid -->
     <div class="stock-grid" *ngIf="!loading && stocks.length">
       <app-stock-card
-        *ngFor="let s of stocks"
+        *ngFor="let s of stocks; let i = index"
+        [style.--item-index]="i"
         [ticker]="s.ticker"
         [nameAr]="s.nameAr"
         [nameEn]="s.nameEn"

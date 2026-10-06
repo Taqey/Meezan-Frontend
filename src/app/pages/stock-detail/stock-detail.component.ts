@@ -19,6 +19,7 @@ import { ApiService } from '../../services/api.service';
 import { ComparisonBadgeComponent } from '../../components/comparison-badge/comparison-badge.component';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { FavoriteToggleComponent } from '../../components/favorite-toggle/favorite-toggle.component';
+import { RevealDirective } from '../../directives/reveal.directive';
 import {
   MarketDataDto,
   SHARIAH_SOURCE_NAMES,
@@ -50,7 +51,7 @@ type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
 @Component({
   selector: 'app-stock-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, ComparisonBadgeComponent, StatusBadgeComponent, FavoriteToggleComponent],
+  imports: [CommonModule, RouterLink, LucideAngularModule, ComparisonBadgeComponent, StatusBadgeComponent, FavoriteToggleComponent, RevealDirective],
   template: `
     <div *ngIf="loading" class="empty-state">
       <p>جارٍ تحميل بيانات السهم والتقييمات من قاعدة البيانات...</p>
@@ -216,7 +217,7 @@ type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
       <!-- Shariah Opinions Grid: Multi-source evaluators.
            Hidden entirely when نشاط الشركة is غير متوافق: the activity is a standalone,
            automatic disqualification, so no board opinion grid and no ratio panel apply. -->
-      <section class="detail-card shariah-card" *ngIf="!isActivityNonCompliant">
+      <section class="detail-card shariah-card" *ngIf="!isActivityNonCompliant" appReveal>
         <!-- Permanent display-layer override for frozen ticker group:
              ADIB, SAUD, FAIT, FAITA, ATLC, AMIA.
              Shows only a single green "يوجد لجنة شرعية" badge.
@@ -296,7 +297,8 @@ type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
                [class.compliant]="!op.noOpinion && isCompliant(getCardStatus(op))"
                [class.non-compliant]="!op.noOpinion && !isCompliant(getCardStatus(op)) && !isDoubtful(getCardStatus(op))"
                [class.doubtful]="!op.noOpinion && isDoubtful(getCardStatus(op))"
-               *ngFor="let op of sourceOpinionsList">
+               *ngFor="let op of sourceOpinionsList; let i = index; trackBy: trackOpinionByKey"
+               [style.--item-index]="i">
             <div class="source-top">
               <strong>{{ getSourceName(op.sourceKey) }}</strong>
               <!-- No recorded opinion on this stock: say so explicitly instead of
@@ -413,7 +415,7 @@ type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
       <!-- Activity hard gate: when the company's own line of business is prohibited the
            stock is out at the first screening gate. Single verdict with the activity as
            the only reason — no 7-source opinion grid and no AAOIFI/S&P ratio panel. -->
-      <section class="detail-card shariah-card activity-verdict-card" *ngIf="isActivityNonCompliant">
+      <section class="detail-card shariah-card activity-verdict-card" *ngIf="isActivityNonCompliant" appReveal>
         <div class="card-heading">
           <div>
             <span class="eyebrow">حُكم النشاط</span>
@@ -432,7 +434,7 @@ type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
       <!-- Quantitative standards dialog (Bourse Halal card "عرض التفاصيل").
            Accessible: role=dialog + aria-modal, focus trap, ESC/backdrop close,
            RTL, scrollable panel on mobile. -->
-      <div class="standards-dialog-backdrop" *ngIf="showStandardsDialog" (click)="onStandardsBackdropClick($event)">
+      <div class="standards-dialog-backdrop" *ngIf="showStandardsDialog" [class.closing]="dialogClosing" (click)="onStandardsBackdropClick($event)">
         <div class="standards-dialog" role="dialog" aria-modal="true" aria-labelledby="std-dialog-title"
              tabindex="-1" (keydown)="onStandardsDialogKeydown($event)">
           <div class="standards-dialog-head">
@@ -483,7 +485,7 @@ type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
       </div>
 
       <!-- Market Data Fundamentals (Only if stock has market data) -->
-      <section class="detail-card market-card" *ngIf="marketData.hasMarketData !== false">
+      <section class="detail-card market-card" *ngIf="marketData.hasMarketData !== false" appReveal>
         <div class="card-heading">
           <div>
             <span class="eyebrow">بيانات التداول والقوائم</span>
@@ -543,7 +545,9 @@ export class StockDetailComponent implements OnInit, OnDestroy {
 
   /** Quantitative-standards dialog state (Bourse Halal card). */
   showStandardsDialog = false;
+  dialogClosing = false;
   private standardsDialogTrigger: HTMLElement | null = null;
+  private dialogCloseTimer: ReturnType<typeof setTimeout> | null = null;
 
   readonly CheckIcon = Check;
   readonly XIcon = X;
@@ -584,6 +588,10 @@ export class StockDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     // Never leave the page scroll locked if navigation happens with the dialog open.
     document.body.style.overflow = '';
+    if (this.dialogCloseTimer !== null) {
+      clearTimeout(this.dialogCloseTimer);
+      this.dialogCloseTimer = null;
+    }
   }
 
   loadStockData(): void {
@@ -755,6 +763,16 @@ export class StockDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Stable identity for opinion cards. sourceOpinionsList is a getter that
+   * builds a fresh array every change-detection cycle; without trackBy,
+   * Angular would destroy/recreate every card (replaying its entrance
+   * animation) whenever any unrelated async event fires.
+   */
+  trackOpinionByKey(_index: number, op: EffectiveOpinionView): number {
+    return Number(op.sourceKey);
+  }
+
+  /**
    * Internal verdict from EFFECTIVE statuses: at least one effective compliant
    * → "Compliant"; otherwise the API verdict (existing behavior preserved for
    * every other case).
@@ -781,6 +799,11 @@ export class StockDetailComponent implements OnInit, OnDestroy {
 
   openStandardsDialog(event?: Event): void {
     this.standardsDialogTrigger = (event?.currentTarget as HTMLElement | null) ?? null;
+    if (this.dialogCloseTimer !== null) {
+      clearTimeout(this.dialogCloseTimer);
+      this.dialogCloseTimer = null;
+    }
+    this.dialogClosing = false;
     this.showStandardsDialog = true;
     document.body.style.overflow = 'hidden';
     setTimeout(() => {
@@ -789,10 +812,17 @@ export class StockDetailComponent implements OnInit, OnDestroy {
   }
 
   closeStandardsDialog(): void {
-    this.showStandardsDialog = false;
-    document.body.style.overflow = '';
-    this.standardsDialogTrigger?.focus();
-    this.standardsDialogTrigger = null;
+    if (!this.showStandardsDialog || this.dialogClosing) return;
+    // Play the fade/scale-out animation before detaching the dialog.
+    this.dialogClosing = true;
+    this.dialogCloseTimer = setTimeout(() => {
+      this.showStandardsDialog = false;
+      this.dialogClosing = false;
+      this.dialogCloseTimer = null;
+      document.body.style.overflow = '';
+      this.standardsDialogTrigger?.focus();
+      this.standardsDialogTrigger = null;
+    }, 180);
   }
 
   onStandardsBackdropClick(event: MouseEvent): void {

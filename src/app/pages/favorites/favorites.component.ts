@@ -67,9 +67,14 @@ import { StockListItemDto } from '../../models/api.models';
         </span>
       </div>
 
-      <!-- Loading -->
-      <div *ngIf="loading" class="empty-state">
-        <p>جارٍ تحميل بيانات الأسهم المفضلة...</p>
+      <!-- Loading skeletons -->
+      <div *ngIf="loading" class="stock-grid" aria-hidden="true">
+        <div class="skeleton-card" *ngFor="let n of [1, 2, 3]">
+          <div class="sk-line sk-title"></div>
+          <div class="sk-line sk-text"></div>
+          <div class="sk-line sk-price"></div>
+          <div class="sk-line sk-badges"></div>
+        </div>
       </div>
 
       <!-- Error -->
@@ -83,7 +88,8 @@ import { StockListItemDto } from '../../models/api.models';
       <!-- Cards -->
       <div class="stock-grid" *ngIf="!loading && !loadError && visibleStocks.length">
         <app-stock-card
-          *ngFor="let s of visibleStocks"
+          *ngFor="let s of visibleStocks; let i = index; trackBy: trackStockByTicker"
+          [style.--item-index]="i"
           [ticker]="s.ticker"
           [nameAr]="s.nameAr"
           [nameEn]="s.nameEn"
@@ -181,6 +187,15 @@ export class FavoritesComponent implements OnInit {
   clearAll(): void {
     this.favorites.clear();
     this.confirmingClear = false;
+  }
+
+  /**
+   * Stable identity for favorite cards. visibleStocks is a getter returning a
+   * fresh array every change-detection cycle; without trackBy, each cycle
+   * would remount every card and replay its entrance animation.
+   */
+  trackStockByTicker(_index: number, s: StockListItemDto): string {
+    return s.ticker;
   }
 
   private verdictRank(status?: string | null): number {

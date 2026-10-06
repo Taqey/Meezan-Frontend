@@ -32,7 +32,7 @@ import { IndexSummaryDto } from '../../models/api.models';
     </div>
 
     <div class="index-grid" *ngIf="!loading">
-      <a *ngFor="let index of indices" [routerLink]="['/indices', index.code]" class="index-card">
+      <a *ngFor="let index of indices; let i = index" [style.--item-index]="i" [routerLink]="['/indices', index.code]" class="index-card">
         <div class="index-card-top">
           <span class="index-icon">
             <lucide-icon [img]="BarChart3Icon" size="20"></lucide-icon>

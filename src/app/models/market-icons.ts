@@ -97,6 +97,21 @@ export function indexIconFor(code?: string | null): LucideIconData {
 }
 
 /**
+ * Per-index card behavior, keyed by normalized code. `showAggregates: false`
+ * marks an umbrella entry whose members are already covered one level down
+ * (Sectoral-Indices → the 16 sectors): no performance/compliance is
+ * calculated or shown for it anywhere (cards, table, heatmap, KPIs, sorts).
+ */
+const INDEX_CARD_CONFIG: Record<string, { showAggregates: boolean }> = {
+  'SECTORAL-INDICES': { showAggregates: false }
+};
+
+/** False only for umbrella entries like Sectoral-Indices (default true). */
+export function indexShowsAggregates(code?: string | null): boolean {
+  return INDEX_CARD_CONFIG[normalizeIndexCode(code)]?.showAggregates ?? true;
+}
+
+/**
  * Normalized sector key: lowercase STABLE English name, spaces/commas
  * collapsed ('IT , Media & Communication Services' → 'itmedia&communicationservices').
  * Matched on nameEn (never on the Arabic display text).

@@ -6,7 +6,7 @@ import { EMPTY, Observable, expand, forkJoin, map, reduce } from 'rxjs';
 import { navigateQueryParams } from '../../utils/navigation-utils';
 import { ApiService } from '../../services/api.service';
 import { ConstituentItemDto, IndexSummaryDto, MarketSnapshotDto } from '../../models/api.models';
-import { indexAccentFor, indexIconFor, isFeaturedIndex } from '../../models/market-icons';
+import { indexAccentFor, indexIconFor, indexShowsAggregates, isFeaturedIndex } from '../../models/market-icons';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { ViewSwitcherComponent, type EntityView } from '../../components/view-switcher/view-switcher.component';
 import { KpiStripComponent, type KpiData } from '../../components/kpi-strip/kpi-strip.component';
@@ -158,6 +158,9 @@ export class IndicesListComponent implements OnInit {
   statsLoading = true;
   private indexStats = new Map<string, IndexStats>();
 
+  /** Sector count for the umbrella card's plain stat (0 = hidden). */
+  sectorCount = 0;
+
   /**
    * Official published quotes (Mubasher), cached once. Official values win
    * wherever present; computed aggregates are the fallback — never the
@@ -189,11 +192,25 @@ export class IndicesListComponent implements OnInit {
         this.refreshDerived();
         this.loadIndexStats();
         this.loadSnapshots();
+        this.loadSectorCount();
       },
       error: () => {
         this.indices = [];
         this.loading = false;
         this.loadError = true;
+      }
+    });
+  }
+
+  /** Plain sector count for the umbrella card (no aggregation involved). */
+  private loadSectorCount(): void {
+    this.api.getSectors().subscribe({
+      next: (sectors) => {
+        this.sectorCount = (sectors || []).length;
+        this.refreshDerived();
+      },
+      error: () => {
+        this.sectorCount = 0;
       }
     });
   }
@@ -229,13 +246,18 @@ export class IndicesListComponent implements OnInit {
   }
 
   linkFor(idx: IndexSummaryDto): string[] {
-    return idx.code === 'Sectoral-Indices' ? ['/indices/Sectoral-Indices'] : ['/indices', idx.code];
+    return indexShowsAggregates(idx.code) ? ['/indices', idx.code] : ['/sectors'];
   }
 
   footerFor(idx: IndexSummaryDto): string {
-    return idx.code === 'Sectoral-Indices'
-      ? 'استعرض القطاعات'
-      : `استعرض الـ ${idx.constituentsCount} سهم`;
+    return indexShowsAggregates(idx.code)
+      ? `استعرض الـ ${idx.constituentsCount} سهم`
+      : 'استعرض القطاعات';
+  }
+
+  /** Umbrella entries (Sectoral-Indices) show no aggregated stats anywhere. */
+  showsAggregates(code: string): boolean {
+    return indexShowsAggregates(code);
   }
 
   // ── View / print ────────────────────────────────────────────────────
@@ -306,7 +328,7 @@ export class IndicesListComponent implements OnInit {
     ];
     this.displayedIndices = this.sortIndices([...this.indices], this.sortKey);
     this.tableRows = this.sortTable([...this.indices]).map((idx) => this.toTableRow(idx));
-    this.heatTiles = [...this.indices].map((idx) => this.toHeatTile(idx));
+    this.heatTiles = this.heatTilesFor([...this.indices]);
     this.kpiList = this.buildKpis();
   }
 
@@ -414,6 +436,18 @@ export class IndicesListComponent implements OnInit {
   }
 
   private toTableRow(idx: IndexSummaryDto): EntityTableRow {
+    // Umbrella rows keep only identity cells; aggregates show "—".
+    if (!indexShowsAggregates(idx.code)) {
+      return {
+        id: idx.code,
+        cells: {
+          name: { text: idx.nameAr, sub: idx.nameEn, link: this.linkFor(idx) },
+          stocks: { text: String(idx.constituentsCount), ltr: true },
+          compliance: { text: '—', tone: 'muted' },
+          performance: { text: '—', tone: 'muted' }
+        }
+      };
+    }
     const rate = this.rateOf(idx);
     const change = this.changeOf(idx);
     return {
@@ -429,6 +463,11 @@ export class IndicesListComponent implements OnInit {
           : { text: '—', tone: 'muted' }
       }
     };
+  }
+
+  /** Heat tiles skip umbrella entries (no tile at all). */
+  private heatTilesFor(list: IndexSummaryDto[]): HeatTileData[] {
+    return list.filter((idx) => indexShowsAggregates(idx.code)).map((idx) => this.toHeatTile(idx));
   }
 
   private toHeatTile(idx: IndexSummaryDto): HeatTileData {
@@ -470,6 +509,7 @@ export class IndicesListComponent implements OnInit {
   private bestPerformer(): { code: string; change: number } | null {
     let best: { code: string; change: number } | null = null;
     for (const idx of this.indices) {
+      if (!indexShowsAggregates(idx.code)) continue;
       const change = this.changeOf(idx);
       if (change === null) continue;
       if (!best || change > best.change) best = { code: idx.code, change };
@@ -484,12 +524,20 @@ export class IndicesListComponent implements OnInit {
       return;
     }
     this.statsLoading = true;
-    const jobs = this.indices.map((idx) => this.fetchConstituents(idx.code));
+    // Umbrella entries are skipped entirely: nothing is calculated for them.
+    const targets = this.indices.filter((idx) => indexShowsAggregates(idx.code));
+    if (!targets.length) {
+      this.indexStats = new Map();
+      this.statsLoading = false;
+      this.refreshDerived();
+      return;
+    }
+    const jobs = targets.map((idx) => this.fetchConstituents(idx.code));
     forkJoin(jobs).subscribe({
       next: (results) => {
         const stats = new Map<string, IndexStats>();
         results.forEach((items, i) => {
-          const key = (this.indices[i]?.code || '').trim();
+          const key = (targets[i]?.code || '').trim();
           const row: IndexStats = { total: 0, compliant: 0, changeSum: 0, changeN: 0, weightedSum: 0, weightedDen: 0 };
           for (const it of items) {
             row.total++;
@@ -540,6 +588,12 @@ export class IndicesListComponent implements OnInit {
 
   // ── Card stats ──────────────────────────────────────────────────────
   cardStats(idx: IndexSummaryDto): EntityStat[] {
+    // Umbrella entries show a plain sector count instead of aggregates.
+    if (!indexShowsAggregates(idx.code)) {
+      return this.sectorCount > 0
+        ? [{ label: 'عدد القطاعات', value: String(this.sectorCount) }]
+        : [];
+    }
     const rate = this.rateOf(idx);
     const change = this.changeOf(idx);
     return [

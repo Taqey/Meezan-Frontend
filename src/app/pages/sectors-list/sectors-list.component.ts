@@ -44,7 +44,7 @@ type Chip = 'all' | 'compliance' | 'performance' | 'pe' | 'name';
         </ng-container>
       </app-page-header>
 
-      <app-kpi-strip [kpis]="kpiList" [loading]="loading || marketLoading"></app-kpi-strip>
+      <app-kpi-strip [kpis]="kpiList" [loading]="loading || dataPending"></app-kpi-strip>
 
       <app-filter-chips
         *ngIf="!loading && !loadError"
@@ -77,8 +77,8 @@ type Chip = 'all' | 'compliance' | 'performance' | 'pe' | 'name';
         message="يتم استخراج القطاعات تلقائياً عند رفع كشوف المؤشرات من البورصة المصرية.">
       </app-empty-state>
 
-      <!-- Grid view -->
-      <div class="entity-grid" *ngIf="!loading && !loadError && sectors.length && view === 'grid'">
+      <!-- Grid view (waits for both data passes: skeletons, never "—") -->
+      <div class="entity-grid" *ngIf="!loading && !loadError && sectors.length && view === 'grid' && !dataPending">
         <app-entity-card
           *ngFor="let s of displayedSectors; let i = index; trackBy: trackSector"
           [itemIndex]="i"
@@ -95,15 +95,15 @@ type Chip = 'all' | 'compliance' | 'performance' | 'pe' | 'name';
         </app-entity-card>
       </div>
 
-      <!-- Table + heatmap wait for the market stats (never flash "—" while loading) -->
+      <!-- Waiting skeletons for any view while data settles -->
       <app-loading-skeletons
-        *ngIf="!loading && !loadError && sectors.length && view !== 'grid' && marketLoading"
+        *ngIf="!loading && !loadError && sectors.length && dataPending"
         variant="card"
         [count]="6">
       </app-loading-skeletons>
 
       <app-entity-table
-        *ngIf="!loading && !loadError && sectors.length && view === 'table' && !marketLoading"
+        *ngIf="!loading && !loadError && sectors.length && view === 'table' && !dataPending"
         [columns]="tableColumns"
         [rows]="tableRows"
         [sortKey]="tableSortKey"
@@ -113,7 +113,7 @@ type Chip = 'all' | 'compliance' | 'performance' | 'pe' | 'name';
       </app-entity-table>
 
       <app-entity-heatmap
-        *ngIf="!loading && !loadError && sectors.length && view === 'heatmap' && !marketLoading"
+        *ngIf="!loading && !loadError && sectors.length && view === 'heatmap' && !dataPending"
         [tiles]="heatTiles"
         [sizeNote]="hasAnyMarketCap ? 'حجم المربع يعكس القيمة السوقية للقطاع' : null">
       </app-entity-heatmap>
@@ -154,6 +154,12 @@ export class SectorsListComponent implements OnInit {
   marketLoading = true;
   private marketStats = new Map<string, { total: number; compliant: number; changeSum: number; changeN: number; peSum: number; peN: number }>();
   lastSessionDate: string | null = null;
+  snapshotsLoading = true;
+
+  /** Cards/table/heatmap render only after both data passes settle — never a flashing "—". */
+  get dataPending(): boolean {
+    return this.marketLoading || this.snapshotsLoading;
+  }
 
   /**
    * Official published quotes (Mubasher), cached once. Official sector %
@@ -230,13 +236,17 @@ export class SectorsListComponent implements OnInit {
 
   /** Official quotes, cached once per page load; silent fallback when absent. */
   private loadSnapshots(): void {
+    this.snapshotsLoading = true;
     this.api.getMarketSnapshots().subscribe({
       next: (rows) => {
         this.snapshots = rows || [];
+        this.snapshotsLoading = false;
         this.refreshDerived();
       },
       error: () => {
         this.snapshots = [];
+        this.snapshotsLoading = false;
+        this.refreshDerived();
       }
     });
   }
@@ -360,15 +370,15 @@ export class SectorsListComponent implements OnInit {
   private withMarketStats(s: SectorSummaryDto): SectorSummaryDto {
     const row = this.marketStats.get((s.nameAr || '').trim());
     if (!row || row.total === 0) return s;
-    // Official published % wins when present; otherwise the computed mean.
+    // Daily performance is the official scraped figure, directly — no
+    // computed fallback. Missing official figure means "—", never a number.
     const official = this.officialForSector(s.id)?.changePct;
-    const computed = row.changeN > 0 ? row.changeSum / row.changeN : null;
     return {
       ...s,
       stocksCount: row.total,
       compliantStocksCount: row.compliant,
       complianceRatePct: Math.round((100 * row.compliant) / row.total * 10) / 10,
-      averageChangePct: official !== null && official !== undefined ? Number(official) : computed,
+      averageChangePct: official !== null && official !== undefined ? Number(official) : null,
       averagePeRatio: row.peN > 0 ? row.peSum / row.peN : null
     };
   }

@@ -38,7 +38,7 @@ export interface EntityStat {
       <h2>{{ title }}</h2>
       <p class="entity-en">{{ subtitle }}</p>
 
-      <div class="entity-stats">
+      <div class="entity-stats" *ngIf="stats.length">
         <div class="entity-stat" *ngFor="let st of stats">
           <span>{{ st.label }}</span>
           <strong [ngClass]="st.value == null ? 'muted' : st.tone">{{ st.value ?? '—' }}</strong>

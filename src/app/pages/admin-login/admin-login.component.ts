@@ -53,10 +53,12 @@ import { AdminAuthService } from '../../services/admin-auth.service';
     :host {
       display: block;
       min-height: 100vh;
+      min-height: 100dvh;
       background: var(--background, #f4f6f4);
     }
     .portal-login {
       min-height: 100vh;
+      min-height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;

@@ -181,6 +181,7 @@ interface EditableMarketForm {
           <div style="font-weight: 600; margin-bottom: 8px; color: var(--muted-foreground);">
             <lucide-icon [img]="HistoryIcon" size="14"></lucide-icon> سجل آخر عملية سحب مسجلة:
           </div>
+          <div class="table-scroll-x">
           <table class="admin-table">
             <thead>
               <tr>
@@ -207,6 +208,7 @@ interface EditableMarketForm {
               </tr>
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 
@@ -588,6 +590,7 @@ interface EditableMarketForm {
 
           <div *ngIf="uploadResult.skippedDetails && uploadResult.skippedDetails.length" style="margin-top: 14px;">
             <strong>تفاصيل الصفوف المستبعدة:</strong>
+            <div class="table-scroll-x">
             <table class="admin-table">
               <thead>
                 <tr>
@@ -604,6 +607,7 @@ interface EditableMarketForm {
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       </div>
@@ -817,7 +821,7 @@ interface EditableMarketForm {
           لا توجد أسهم مرشحة للمراجعة حالياً.
         </div>
 
-        <div *ngIf="removalCandidates.length" style="overflow-x: auto;">
+        <div *ngIf="removalCandidates.length" class="table-scroll-x">
           <table class="admin-table">
             <thead>
               <tr>

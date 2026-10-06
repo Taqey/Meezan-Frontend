@@ -121,6 +121,7 @@ interface AdminNavItem {
     .admin-shell {
       display: flex;
       min-height: 100vh;
+      min-height: 100dvh;
       background: var(--background, #f4f6f4);
     }
     .admin-sidebar {
@@ -133,6 +134,7 @@ interface AdminNavItem {
       position: sticky;
       top: 0;
       height: 100vh;
+      height: 100dvh;
       z-index: 40;
     }
     .sidebar-brand {
@@ -257,8 +259,8 @@ interface AdminNavItem {
       display: none;
       align-items: center;
       justify-content: center;
-      width: 38px;
-      height: 38px;
+      width: 44px;
+      height: 44px;
       border-radius: 10px;
       border: 1px solid var(--border, #e2e9e5);
       background: var(--card, #ffffff);
@@ -281,6 +283,14 @@ interface AdminNavItem {
       flex: 1;
       overflow-y: auto;
       padding: 24px;
+    }
+    @media (max-width: 600px) {
+      .admin-content {
+        padding: 16px;
+      }
+      .admin-topbar {
+        padding: 12px 16px;
+      }
     }
     .admin-content-inner {
       max-width: 1200px;

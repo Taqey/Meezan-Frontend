@@ -14,6 +14,7 @@ import {
   ChevronDown
 } from 'lucide-angular';
 import { ApiService } from '../../services/api.service';
+import { navigateQueryParams } from '../../utils/navigation-utils';
 import { StockCardComponent } from '../../components/stock-card/stock-card.component';
 import { IndexSummaryDto, PagedResult, StockListItemDto } from '../../models/api.models';
 
@@ -621,11 +622,8 @@ export class StocksListComponent implements OnInit {
       sortDir: this.sortDir !== 'desc' ? this.sortDir : null
     };
 
-    // Clean null fields from route
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams,
-      queryParamsHandling: ''
-    });
+    // Clean null fields from route. replaceUrl + equality guard live in
+    // the helper so Back always leaves the page instead of looping params.
+    navigateQueryParams(this.router, this.route, queryParams);
   }
 }

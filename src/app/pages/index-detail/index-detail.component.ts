@@ -10,6 +10,7 @@ import {
   ChevronDown
 } from 'lucide-angular';
 import { ApiService } from '../../services/api.service';
+import { navigateQueryParams } from '../../utils/navigation-utils';
 import { StockCardComponent } from '../../components/stock-card/stock-card.component';
 import { ConstituentItemDto, IndexConstituentsPagedResultDto } from '../../models/api.models';
 
@@ -173,7 +174,7 @@ import { ConstituentItemDto, IndexConstituentsPagedResultDto } from '../../model
           <!-- Separate Sort Controls: Field + Direction -->
           <div class="sort-group">
             <select [(ngModel)]="sortBy" (change)="onSortFieldChange()" aria-label="حقل الترتيب">
-              <option value="weight">الوزن النسبي</option>
+              <option value="weight" *ngIf="hasWeights">الوزن النسبي</option>
               <option value="changePct">نسبة التغير</option>
               <option value="closingPrice">السعر</option>
               <option value="fairValueDiffPct">فارق العادلة</option>
@@ -421,12 +422,33 @@ export class IndexDetailComponent implements OnInit {
       next: (data) => {
         this.result = data;
         this.loading = false;
+        // A "weight" sort is meaningless for indices without weight data
+        // (all weights null/zero): fall back to alphabetical so the list is
+        // never left on a broken sort. Runs once per response — no loop,
+        // because sortBy is already 'ticker' on the reloaded request.
+        if (!this.hasWeights && this.sortBy === 'weight') {
+          this.sortBy = 'ticker';
+          this.sortDir = 'asc';
+          this.page = 1;
+          this.updateUrl();
+        }
       },
       error: () => {
         this.result = null;
         this.loading = false;
       }
     });
+  }
+
+  /**
+   * True when the loaded constituents carry real weight data (non-null and
+   * non-zero for at least some stocks). Decided per index from the actual API
+   * response — never from a hardcoded index list. Unknown until data arrives,
+   * and re-evaluated on every load (index switch, filter, page).
+   */
+  get hasWeights(): boolean {
+    const items = this.result?.items;
+    return !!items && items.some((it) => it.weight != null && it.weight !== 0);
   }
 
   onSearchChange(): void {
@@ -544,10 +566,8 @@ export class IndexDetailComponent implements OnInit {
       sortDir: this.sortDir !== 'desc' ? this.sortDir : null
     };
 
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams,
-      queryParamsHandling: ''
-    });
+    // replaceUrl + equality guard live in the helper: automatic resets
+    // (e.g. the weight-sort fallback) must not trap the Back button.
+    navigateQueryParams(this.router, this.route, queryParams);
   }
 }

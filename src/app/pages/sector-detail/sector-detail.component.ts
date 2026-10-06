@@ -11,6 +11,7 @@ import {
   ChevronDown
 } from 'lucide-angular';
 import { ApiService } from '../../services/api.service';
+import { navigateQueryParams } from '../../utils/navigation-utils';
 import { StockCardComponent } from '../../components/stock-card/stock-card.component';
 import { IndexSummaryDto, PagedResult, SectorSummaryDto, StockListItemDto } from '../../models/api.models';
 
@@ -649,10 +650,8 @@ export class SectorDetailComponent implements OnInit {
       sortDir: this.sortDir !== 'desc' ? this.sortDir : null
     };
 
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams,
-      queryParamsHandling: ''
-    });
+    // replaceUrl + equality guard live in the helper so Back always
+    // leaves the page instead of stepping through param states.
+    navigateQueryParams(this.router, this.route, queryParams);
   }
 }

@@ -321,8 +321,10 @@ type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
                 <span *ngIf="!op.sourceLastUpdated && op.fetchedAt">جُلب: {{ op.fetchedAt | date:'yyyy-MM-dd' }}</span>
               </div>
               <p class="verdict-note">{{ op.note || 'لا توجد ملاحظات تفصيلية مسجلة من المصدر.' }}</p>
-              <!-- PDF link for manual sources (FaisalBank, Ostoul) when stored -->
-              <a *ngIf="isManualSource(op) && op.pdfUrl" [href]="op.pdfUrl" target="_blank" rel="noopener noreferrer" class="verdict-pdf-link">
+              <!-- PDF link for manual sources (FaisalBank, Ostoul) when stored.
+                   Absolute backend URL via the shared helper: the stored path is
+                   backend-relative and would resolve to the SPA (home page) here. -->
+              <a *ngIf="isManualSource(op) && pdfUrlFor(op)" [href]="pdfUrlFor(op)" target="_blank" rel="noopener noreferrer" class="verdict-pdf-link">
                 <lucide-icon [img]="FileTextIcon" size="14"></lucide-icon> View PDF
               </a>
               <!-- Smarter Bourse Halal card: a doubtful verdict upgraded by the
@@ -700,6 +702,16 @@ export class StockDetailComponent implements OnInit, OnDestroy {
   /** SourceKeys 5 (FaisalBank) and 6 (Ostoul) come from the manual JSON import, verdict-only. */
   isManualSource(op: ShariahSourceOpinionView): boolean {
     return op.sourceKey === 5 || op.sourceKey === 6;
+  }
+
+  /**
+   * Absolute backend URL for this opinion's stored PDF (or null). Goes through
+   * the shared ApiService helper so the link always hits the backend file
+   * route instead of the frontend SPA catch-all.
+   */
+  pdfUrlFor(op: ShariahSourceOpinionView): string | null {
+    if (!op.pdfUrl) return null;
+    return this.api.sourcePdfUrlFor(op.sourceKey);
   }
 
   isCompliant(status?: string | null): boolean {

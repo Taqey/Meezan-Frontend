@@ -219,6 +219,17 @@ export class ApiService {
     return `${this.baseUrl}/api/shariah/source-pdf/${encodeURIComponent(sourceKey)}`;
   }
 
+  /**
+   * Absolute backend URL for a board's stored PDF report, or null when the
+   * source has none. THE single helper for Sharia document links: stored
+   * `pdfUrl` values are backend-relative paths that must never be used as-is
+   * on the frontend origin (the SPA catch-all would serve the app instead).
+   */
+  sourcePdfUrlFor(sourceKey: number | null | undefined): string | null {
+    const key = sourceKey === 5 ? 'FaisalBank' : sourceKey === 6 ? 'Ostoul' : null;
+    return key ? this.getSourcePdfUrl(key) : null;
+  }
+
   seedShariah(payload?: any): Observable<SeedShariahResultDto> {
     return this.http.post<SeedShariahResultDto>(`${this.baseUrl}/api/shariah/seed`, payload || null);
   }

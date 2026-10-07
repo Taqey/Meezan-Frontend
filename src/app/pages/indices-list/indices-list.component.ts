@@ -70,7 +70,7 @@ interface IndexStats {
         [sourceNote]="sourceNote">
       </app-section-header>
 
-      <app-loading-skeletons *ngIf="loading" variant="card" [count]="6"></app-loading-skeletons>
+      <app-loading-skeletons *ngIf="(loading || statsLoading) && !loadError" variant="card" [count]="6"></app-loading-skeletons>
 
       <app-empty-state
         *ngIf="!loading && loadError"
@@ -87,7 +87,7 @@ interface IndexStats {
       </app-empty-state>
 
       <!-- Grid view -->
-      <div class="entity-grid" *ngIf="!loading && !loadError && indices.length && view === 'grid'">
+      <div class="entity-grid" *ngIf="!loading && !loadError && indices.length && view === 'grid' && !statsLoading">
         <app-entity-card
           *ngFor="let idx of displayedIndices; let i = index; trackBy: trackIndex"
           [itemIndex]="i"
@@ -105,13 +105,6 @@ interface IndexStats {
           [featured]="isFeatured(idx.code)">
         </app-entity-card>
       </div>
-
-      <!-- Table + heatmap wait for the per-index stats (never flash "—" while loading) -->
-      <app-loading-skeletons
-        *ngIf="!loading && !loadError && indices.length && view !== 'grid' && statsLoading"
-        variant="card"
-        [count]="6">
-      </app-loading-skeletons>
 
       <app-entity-table
         *ngIf="!loading && !loadError && indices.length && view === 'table' && !statsLoading"
@@ -198,6 +191,7 @@ export class IndicesListComponent implements OnInit {
         this.indices = [];
         this.loading = false;
         this.loadError = true;
+        this.statsLoading = false;
       }
     });
   }

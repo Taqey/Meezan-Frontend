@@ -4144,3 +4144,190 @@ app-shariah-standards .explainer-note {
 .table-scroll-x > .admin-table {
   min-width: 680px;
 }
+
+/* ── Shariah Standards responsive table-to-cards (≤ 768px) ───────────── */
+@media (max-width: 768px) {
+  app-shariah-standards .table-scroll {
+    overflow-x: visible;
+  }
+
+  app-shariah-standards .standards-table thead {
+    display: none;
+  }
+
+  app-shariah-standards .standards-table tbody {
+    display: block;
+  }
+
+  app-shariah-standards .standards-table tbody tr {
+    display: block;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(23, 35, 31, 0.06);
+  }
+
+  app-shariah-standards .standards-table tbody tr:last-child {
+    border-bottom: 1px solid var(--border);
+  }
+
+  app-shariah-standards .standards-table tbody tr .std-name {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  app-shariah-standards .standards-table tbody tr .std-en {
+    font-size: 11px;
+    color: var(--primary);
+    margin-bottom: 4px;
+  }
+
+  app-shariah-standards .standards-table tbody tr .std-sub {
+    font-size: 11px;
+    color: var(--muted-foreground);
+    margin-bottom: 12px;
+  }
+
+  app-shariah-standards .standards-table tbody tr td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    white-space: normal;
+  }
+
+  app-shariah-standards .standards-table tbody tr td:last-child {
+    border-bottom: none;
+  }
+
+  app-shariah-standards .standards-table tbody tr td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--muted-foreground);
+    font-size: 12px;
+  }
+
+  app-shariah-standards .standards-table tbody tr td:first-child {
+    border-bottom: none;
+    padding-bottom: 12px;
+    margin-bottom: 8px;
+  }
+
+  app-shariah-standards .standards-table tbody tr td:first-child::before {
+    display: none;
+  }
+
+  app-shariah-standards .standards-table tbody tr td:not(:first-child) {
+    white-space: nowrap;
+  }
+
+  app-shariah-standards .scholars-row td {
+    border-bottom: none.
+  }
+
+  app-shariah-standards .scholars-row td:first-child {
+    padding-bottom: 12px;
+    margin-bottom: 8px.
+  }
+
+  app-shariah-standards .scholars-row td:first-child::before {
+    display: none.
+  }
+
+  app-shariah-standards .standards-table tbody tr td:not(:first-child) {
+    white-space: nowrap.
+  }
+
+  app-shariah-standards .scholars-row td {
+    border-bottom: none.
+  }
+
+  app-shariah-standards .scholars-row td:first-child {
+    padding-bottom: 12px.
+    margin-bottom: 8px.
+  }
+
+  app-shariah-standards .scholars-row td:first-child::before {
+    display: none.
+  }
+
+  app-shariah-standards .standards-table tbody tr td:not(:first-child) {
+    white-space: nowrap.
+  }
+
+  app-shariah-standards .scholars-row td {
+    border-bottom: none.
+  }
+
+  app-shariah-standards .scholars-row td:first-child {
+    padding-bottom: 12px.
+    margin-bottom: 8px.
+  }
+
+  app-shariah-standards .scholars-row td:first-child::before {
+    display: none.
+  }
+
+  app-shariah-standards .standards-table tbody tr td:not(:first-child) {
+    white-space: nowrap.
+  }
+
+  app-shariah-standards .scholars-row td {
+    border-bottom: none.
+  }
+
+  app-shariah-standards .scholars-row td:first-child {
+    padding-bottom: 12px.
+    margin-bottom: 8px.
+  }
+
+  app-shariah-standards .scholars-row td:first-child::before {
+    display: none.
+  }
+
+  app-shariah-standards .standards-table tbody tr td:not(:first-child) {
+    white-space: nowrap.
+  }
+
+  /* Explainer cards stack on mobile */
+  .explainer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .explainer-cell {
+    text-align: right.
+  }
+}
+
+/* Page header responsiveness */
+@media (max-width: 768px) {
+  .page-intro .title-row {
+    flex-direction: column.
+    align-items: flex-start.
+    gap: 8px.
+  }
+
+  .page-intro h1 {
+    font-size: clamp(24px, 7vw, 32px).
+  }
+
+  .page-intro .title-row {
+    flex-direction: column.
+    align-items: flex-start.
+    gap: 8px.
+  }
+
+  .page-intro .eyebrow {
+    font-size: 11px.
+  }
+
+  .page-intro .intro-note {
+    flex-direction: column.
+    align-items: flex-start.
+    gap: 8px.
+  }
+}

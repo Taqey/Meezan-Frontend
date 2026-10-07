@@ -183,19 +183,19 @@ import {
     }
 
     .menu-button {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: rgba(255, 255, 255, 0.94);
-      color: var(--foreground);
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(23, 35, 31, 0.1);
-      transition: all 0.2s ease;
-    }
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--foreground);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(23, 35, 31, 0.1);
+  transition: all 0.2s ease;
+}
 
     .menu-button:hover {
       background: var(--secondary);
@@ -282,7 +282,7 @@ import {
       min-height: 100vh;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
       .nav-links {
         display: none;
       }
@@ -291,6 +291,20 @@ import {
       }
       .menu-button {
         display: inline-flex;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .nav-shell {
+        gap: 8px;
+        padding: 0 12px;
+      }
+      .brand strong {
+        font-size: 15px;
+      }
+      .menu-button {
+        width: 36px;
+        height: 36px;
       }
     }
   `]

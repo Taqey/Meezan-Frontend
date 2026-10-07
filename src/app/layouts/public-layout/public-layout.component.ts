@@ -54,15 +54,15 @@ import {
           <span>بيانات السوق مباشرة من البورصة المصرية</span>
         </div>
 
-        <button class="menu-button" (click)="toggleMenu()" aria-label="فتح القائمة">
-          <lucide-icon [img]="isMenuOpen ? XIcon : MenuIcon" size="20"></lucide-icon>
+        <button class="menu-button" (click)="toggleDrawer()" aria-label="فتح القائمة" [attr.aria-expanded]="isDrawerOpen">
+          <lucide-icon [img]="isDrawerOpen ? XIcon : MenuIcon" size="20"></lucide-icon>
         </button>
       </div>
     </header>
 
-    <button class="drawer-scrim" *ngIf="isDrawerOpen" (click)="closeDrawer()" aria-hidden="true"></button>
+    <button class="drawer-scrim" *ngIf="isDrawerOpen" (click)="closeDrawer()" aria-hidden="true" aria-label="إغلاق القائمة" [class.visible]="isDrawerOpen"></button>
 
-    <aside class="drawer" [class.open]="isDrawerOpen" aria-label="القائمة الجانبية">
+    <aside class="drawer" [class.open]="isDrawerOpen" aria-label="القائمة الجانبية" role="dialog" aria-modal="true">
       <nav class="drawer-nav" aria-label="القائمة الجانبية">
         <a routerLink="/stocks" routerLinkActive="active" (click)="closeDrawer()">الأسهم</a>
         <a routerLink="/indices" routerLinkActive="active" (click)="closeDrawer()">المؤشرات</a>
@@ -347,20 +347,21 @@ export class PublicLayoutComponent implements AfterViewInit, OnDestroy {
   }
 
   toggleMenu(): void {
-    this.isMenuOpen = !this.isMenuOpen;
-    this.scheduleIndicatorUpdate();
+    this.toggleDrawer();
   }
 
   closeMenu(): void {
-    this.isMenuOpen = false;
+    this.closeDrawer();
   }
 
   toggleDrawer(): void {
     this.isDrawerOpen = !this.isDrawerOpen;
+    this.isMenuOpen = this.isDrawerOpen;
   }
 
   closeDrawer(): void {
     this.isDrawerOpen = false;
+    this.isMenuOpen = false;
   }
 
   private scheduleIndicatorUpdate(): void {

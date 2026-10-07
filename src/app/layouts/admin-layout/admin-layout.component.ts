@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ActivatedRoute,
@@ -88,6 +88,8 @@ interface AdminNavItem {
           </button>
         </div>
       </aside>
+
+      <div class="drawer-scrim" [class.visible]="drawerOpen" *ngIf="drawerOpen" (click)="closeDrawer()" aria-hidden="true" aria-label="إغلاق القائمة"></div>
 
       <div class="admin-main">
         <div class="admin-topbar">
@@ -279,6 +281,23 @@ interface AdminNavItem {
       cursor: pointer;
       color: var(--muted-foreground, #708078);
     }
+
+    /* Mobile sidebar drawer */
+    .drawer-scrim {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 35;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+
+    .drawer-scrim.visible {
+      opacity: 1;
+      visibility: visible;
+    }
     .admin-content {
       flex: 1;
       overflow-y: auto;
@@ -314,7 +333,7 @@ interface AdminNavItem {
     .admin-shell.sidebar-collapsed .sidebar-link {
       justify-content: center;
     }
-    @media (max-width: 900px) {
+    @media (max-width: 1024px) {
       .menu-button {
         display: inline-flex;
       }
@@ -338,12 +357,19 @@ interface AdminNavItem {
       .admin-shell.sidebar-collapsed .admin-sidebar {
         width: 264px;
       }
+      .admin-shell.sidebar-collapsed .admin-sidebar {
+        width: 264px;
+      }
+      .admin-shell.sidebar-collapsed .sidebar-brand {
+        justify-content: center;
+        padding: 20px 10px;
+      }
       .admin-shell.sidebar-collapsed .brand-text,
       .admin-shell.sidebar-collapsed .sidebar-link span {
-        display: inline;
+        display: none;
       }
       .admin-shell.sidebar-collapsed .sidebar-link {
-        justify-content: flex-start;
+        justify-content: center;
       }
       .admin-shell.sidebar-collapsed .sidebar-brand {
         justify-content: flex-start;
@@ -355,6 +381,13 @@ interface AdminNavItem {
         inset: 0;
         background: rgba(0, 0, 0, 0.35);
         z-index: 35;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+      }
+      .drawer-scrim.visible {
+        opacity: 1;
+        visibility: visible;
       }
       .admin-content {
         padding: 16px;
@@ -389,12 +422,13 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   drawerOpen = false;
 
   private routerSub?: Subscription;
+  private resizeHandler: (() => void) | null = null;
 
   constructor(
-    private auth: AdminAuthService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private meta: Meta
+    private readonly auth: AdminAuthService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly meta: Meta
   ) {}
 
   ngOnInit(): void {
@@ -406,15 +440,28 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
         this.updateTitles();
         this.closeDrawer();
       });
+    this.resizeHandler = () => this.updateDrawerState();
+    window.addEventListener('resize', this.resizeHandler);
+    this.updateDrawerState();
   }
 
   ngOnDestroy(): void {
     this.meta.removeTag("name='robots'");
     this.routerSub?.unsubscribe();
+    if (this.resizeHandler) {
+      window.removeEventListener('resize', this.resizeHandler);
+      this.resizeHandler = null;
+    }
   }
 
-  logout(): void {
-    this.auth.logout();
+  private updateDrawerState(): void {
+    const width = window.innerWidth;
+    const wasOpen = this.drawerOpen;
+    this.drawerOpen = window.innerWidth <= 1024 ? false : this.drawerOpen;
+    // Auto-close drawer on resize to mobile
+    if (window.innerWidth <= 1024 && wasOpen) {
+      this.closeDrawer();
+    }
   }
 
   toggleSidebar(): void {
@@ -423,10 +470,20 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
 
   toggleDrawer(): void {
     this.drawerOpen = !this.drawerOpen;
+    if (this.drawerOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
   }
 
   closeDrawer(): void {
     this.drawerOpen = false;
+    document.body.style.overflow = '';
+  }
+
+  logout(): void {
+    this.auth.logout();
   }
 
   private updateTitles(): void {

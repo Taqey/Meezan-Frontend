@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+﻿import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ActivatedRoute,
@@ -23,7 +23,6 @@ import {
   ShieldCheck,
   FileText,
   ClipboardCheck,
-  ChevronRight,
   type LucideIconData
 } from 'lucide-angular';
 import { AdminAuthService } from '../../services/admin-auth.service';
@@ -35,11 +34,10 @@ interface AdminNavItem {
 }
 
 /**
- * Standalone admin portal shell: sidebar + top bar + content outlet.
- * Contains NO public header and NO public footer.
- * Rendered via the lazy-loaded 'admin' route tree (guarded), one child route
- * per operations section. Adds a robots=noindex tag while mounted so admin
- * pages are never indexed.
+ * Standalone admin portal shell: hamburger drawer + top bar + content outlet.
+ * The sidebar is always a hidden drawer revealed via the hamburger button --
+ * identical mechanism to the public layout. Adds a robots=noindex tag while
+ * mounted so admin pages are never indexed.
  */
 @Component({
   selector: 'app-admin-layout',
@@ -52,10 +50,13 @@ interface AdminNavItem {
     LucideAngularModule
   ],
   template: `
-    <div class="admin-shell" [class.sidebar-collapsed]="sidebarCollapsed">
-      <div class="drawer-scrim" *ngIf="drawerOpen" (click)="closeDrawer()"></div>
+    <div class="admin-shell">
 
-      <aside class="admin-sidebar" [class.drawer-open]="drawerOpen" aria-label="لوحة الإدارة">
+      <!-- Scrim -->
+      <div class="drawer-scrim" [class.visible]="drawerOpen" (click)="closeDrawer()" aria-hidden="true"></div>
+
+      <!-- Sidebar drawer -->
+      <aside class="admin-sidebar" [class.drawer-open]="drawerOpen" aria-label="لوحة الإدارة" role="dialog" [attr.aria-modal]="drawerOpen || null">
         <div class="sidebar-brand">
           <span class="brand-mark">
             <lucide-icon [img]="LineChartIcon" size="20"></lucide-icon>
@@ -78,7 +79,7 @@ interface AdminNavItem {
         </nav>
 
         <div class="sidebar-footer">
-          <a routerLink="/" class="sidebar-link back-link">
+          <a routerLink="/" class="sidebar-link back-link" (click)="closeDrawer()">
             <lucide-icon [img]="BackIcon" size="17"></lucide-icon>
             <span>Back to site</span>
           </a>
@@ -89,15 +90,11 @@ interface AdminNavItem {
         </div>
       </aside>
 
-      <div class="drawer-scrim" [class.visible]="drawerOpen" *ngIf="drawerOpen" (click)="closeDrawer()" aria-hidden="true" aria-label="إغلاق القائمة"></div>
-
+      <!-- Main area: always full-width -->
       <div class="admin-main">
         <div class="admin-topbar">
-          <button class="menu-button" (click)="toggleDrawer()" aria-label="فتح قائمة الإدارة">
+          <button class="menu-button" (click)="toggleDrawer()" aria-label="فتح قائمة الإدارة" [attr.aria-expanded]="drawerOpen">
             <lucide-icon [img]="drawerOpen ? XIcon : MenuIcon" size="20"></lucide-icon>
-          </button>
-          <button class="collapse-button" (click)="toggleSidebar()" aria-label="طي القائمة الجانبية">
-            <lucide-icon [img]="CollapseIcon" size="18"></lucide-icon>
           </button>
           <div class="topbar-titles">
             <strong>{{ pageTitle }}</strong>
@@ -126,19 +123,51 @@ interface AdminNavItem {
       min-height: 100dvh;
       background: var(--background, #f4f6f4);
     }
+
+    /* Sidebar: always a fixed drawer */
     .admin-sidebar {
-      width: 264px;
-      flex-shrink: 0;
+      position: fixed;
+      inset-block: 0;
+      inset-inline-end: 0;
+      width: 280px;
+      max-width: 85vw;
       background: var(--card, #ffffff);
-      border-inline-end: 1px solid var(--border, #e2e9e5);
+      border-inline-start: 1px solid var(--border, #e2e9e5);
       display: flex;
       flex-direction: column;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      height: 100dvh;
-      z-index: 40;
+      z-index: 100;
+      box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
+      transform: translateX(105%);
+      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
     }
+
+    [dir="ltr"] .admin-sidebar {
+      inset-inline-end: auto;
+      inset-inline-start: 0;
+      transform: translateX(-105%);
+    }
+
+    .admin-sidebar.drawer-open {
+      transform: translateX(0);
+    }
+
+    /* Scrim */
+    .drawer-scrim {
+      position: fixed;
+      inset: 0;
+      background: rgba(23, 35, 31, 0.35);
+      z-index: 90;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+
+    .drawer-scrim.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Sidebar internals */
     .sidebar-brand {
       display: flex;
       align-items: center;
@@ -146,6 +175,7 @@ interface AdminNavItem {
       padding: 20px 18px;
       border-bottom: 1px solid var(--border, #e2e9e5);
     }
+
     .sidebar-brand .brand-mark {
       display: inline-flex;
       align-items: center;
@@ -157,19 +187,23 @@ interface AdminNavItem {
       color: #fff;
       flex-shrink: 0;
     }
+
     .sidebar-brand .brand-text {
       display: flex;
       flex-direction: column;
       line-height: 1.3;
     }
+
     .sidebar-brand strong {
       font-size: 15px;
       color: var(--foreground, #17231f);
     }
+
     .sidebar-brand small {
       font-size: 11px;
       color: var(--muted-foreground, #708078);
     }
+
     .sidebar-nav {
       display: flex;
       flex-direction: column;
@@ -178,6 +212,7 @@ interface AdminNavItem {
       overflow-y: auto;
       flex: 1;
     }
+
     .sidebar-link {
       display: flex;
       align-items: center;
@@ -194,16 +229,20 @@ interface AdminNavItem {
       width: 100%;
       font-family: inherit;
       text-align: start;
+      transition: background 0.15s ease, color 0.15s ease;
     }
+
     .sidebar-link:hover {
       background: #f2f6f3;
     }
+
     .sidebar-link.active {
       background: var(--good-soft, #e4f4ed);
       color: var(--primary, #087f5b);
       border-color: var(--border, #e2e9e5);
       font-weight: 700;
     }
+
     .sidebar-footer {
       border-top: 1px solid var(--border, #e2e9e5);
       padding: 12px;
@@ -211,21 +250,27 @@ interface AdminNavItem {
       flex-direction: column;
       gap: 4px;
     }
+
     .back-link {
       color: var(--muted-foreground, #708078);
     }
+
     .logout-link {
       color: var(--bad, #c8443d);
     }
+
     .logout-link:hover {
       background: var(--bad-soft, #f9e9e7);
     }
+
+    /* Main area: always full-width */
     .admin-main {
       flex: 1;
       min-width: 0;
       display: flex;
       flex-direction: column;
     }
+
     .admin-topbar {
       display: flex;
       align-items: center;
@@ -237,6 +282,29 @@ interface AdminNavItem {
       top: 0;
       z-index: 30;
     }
+
+    .menu-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--border, #e2e9e5);
+      background: rgba(255, 255, 255, 0.94);
+      color: var(--foreground, #17231f);
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(23, 35, 31, 0.08);
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .menu-button:hover {
+      background: var(--secondary, #f2f6f3);
+      border-color: var(--primary, #087f5b);
+      color: var(--primary, #087f5b);
+    }
+
     .topbar-titles {
       display: flex;
       flex-direction: column;
@@ -244,153 +312,40 @@ interface AdminNavItem {
       flex: 1;
       min-width: 0;
     }
+
     .topbar-titles strong {
       font-size: 16px;
       color: var(--foreground, #17231f);
     }
+
     .topbar-titles small {
       font-size: 12px;
       color: var(--muted-foreground, #708078);
     }
+
     .topbar-actions {
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .menu-button {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      border: 1px solid var(--border, #e2e9e5);
-      background: var(--card, #ffffff);
-      cursor: pointer;
-      color: var(--foreground, #17231f);
-    }
-    .collapse-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
-      border: 1px solid var(--border, #e2e9e5);
-      background: var(--card, #ffffff);
-      cursor: pointer;
-      color: var(--muted-foreground, #708078);
-    }
 
-    /* Mobile sidebar drawer */
-    .drawer-scrim {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.35);
-      z-index: 35;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.2s ease, visibility 0.2s ease;
-    }
-
-    .drawer-scrim.visible {
-      opacity: 1;
-      visibility: visible;
-    }
     .admin-content {
       flex: 1;
       overflow-y: auto;
       padding: 24px;
     }
+
+    .admin-content-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
     @media (max-width: 600px) {
       .admin-content {
         padding: 16px;
       }
       .admin-topbar {
         padding: 12px 16px;
-      }
-    }
-    .admin-content-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .drawer-scrim {
-      display: none;
-    }
-    /* Collapsed (desktop icon rail) */
-    .admin-shell.sidebar-collapsed .admin-sidebar {
-      width: 76px;
-    }
-    .admin-shell.sidebar-collapsed .sidebar-brand {
-      justify-content: center;
-      padding: 20px 10px;
-    }
-    .admin-shell.sidebar-collapsed .brand-text,
-    .admin-shell.sidebar-collapsed .sidebar-link span {
-      display: none;
-    }
-    .admin-shell.sidebar-collapsed .sidebar-link {
-      justify-content: center;
-    }
-    @media (max-width: 1024px) {
-      .menu-button {
-        display: inline-flex;
-      }
-      .collapse-button {
-        display: none;
-      }
-      .admin-sidebar {
-        position: fixed;
-        inset-block: 0;
-        inset-inline-end: 0;
-        transform: translateX(105%);
-        transition: transform 0.25s ease;
-        box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
-      }
-      [dir="ltr"] .admin-sidebar {
-        transform: translateX(-105%);
-      }
-      .admin-sidebar.drawer-open {
-        transform: translateX(0);
-      }
-      .admin-shell.sidebar-collapsed .admin-sidebar {
-        width: 264px;
-      }
-      .admin-shell.sidebar-collapsed .admin-sidebar {
-        width: 264px;
-      }
-      .admin-shell.sidebar-collapsed .sidebar-brand {
-        justify-content: center;
-        padding: 20px 10px;
-      }
-      .admin-shell.sidebar-collapsed .brand-text,
-      .admin-shell.sidebar-collapsed .sidebar-link span {
-        display: none;
-      }
-      .admin-shell.sidebar-collapsed .sidebar-link {
-        justify-content: center;
-      }
-      .admin-shell.sidebar-collapsed .sidebar-brand {
-        justify-content: flex-start;
-        padding: 20px 18px;
-      }
-      .drawer-scrim {
-        display: block;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.35);
-        z-index: 35;
-        opacity: 0;
-        visibility: hidden;
-        transition: opacity 0.2s ease, visibility 0.2s ease;
-      }
-      .drawer-scrim.visible {
-        opacity: 1;
-        visibility: visible;
-      }
-      .admin-content {
-        padding: 16px;
       }
       .topbar-actions .btn {
         padding: 8px 12px;
@@ -405,7 +360,6 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   readonly XIcon = X;
   readonly LogOutIcon = LogOut;
   readonly BackIcon = ArrowLeft;
-  readonly CollapseIcon = ChevronRight;
 
   readonly navItems: AdminNavItem[] = [
     { path: 'market-data', label: 'سحب بيانات السوق (Live & Quarterly)', icon: Database },
@@ -418,7 +372,6 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
 
   pageTitle = 'لوحة الإدارة';
   pageSubtitle = '';
-  sidebarCollapsed = false;
   drawerOpen = false;
 
   private routerSub?: Subscription;
@@ -440,9 +393,12 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
         this.updateTitles();
         this.closeDrawer();
       });
-    this.resizeHandler = () => this.updateDrawerState();
+    this.resizeHandler = () => {
+      if (this.drawerOpen) {
+        this.closeDrawer();
+      }
+    };
     window.addEventListener('resize', this.resizeHandler);
-    this.updateDrawerState();
   }
 
   ngOnDestroy(): void {
@@ -454,23 +410,9 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     }
   }
 
-  private updateDrawerState(): void {
-    if (this.drawerOpen) {
-      this.closeDrawer();
-    }
-  }
-
-  toggleSidebar(): void {
-    this.sidebarCollapsed = !this.sidebarCollapsed;
-  }
-
   toggleDrawer(): void {
     this.drawerOpen = !this.drawerOpen;
-    if (this.drawerOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    document.body.style.overflow = this.drawerOpen ? 'hidden' : '';
   }
 
   closeDrawer(): void {

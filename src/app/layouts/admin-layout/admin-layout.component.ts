@@ -23,6 +23,7 @@ import {
   ShieldCheck,
   FileText,
   ClipboardCheck,
+  Layers,
   type LucideIconData
 } from 'lucide-angular';
 import { AdminAuthService } from '../../services/admin-auth.service';
@@ -402,7 +403,8 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     { path: 'index-files', label: 'رفع ملفات المؤشرات (Excel)', icon: Upload },
     { path: 'shariah-seed', label: 'تحديث وبذر بيانات الشريعة', icon: ShieldCheck },
     { path: 'shariah-reports', label: 'رفع تقارير فيصل/أسطول (PDF)', icon: FileText },
-    { path: 'review-queue', label: 'قائمة المراجعة', icon: ClipboardCheck }
+    { path: 'review-queue', label: 'قائمة المراجعة', icon: ClipboardCheck },
+    { path: 'stocks', label: 'إدارة الأسهم والقطاعات والمؤشرات', icon: Layers }
   ];
 
   pageTitle = 'لوحة الإدارة';

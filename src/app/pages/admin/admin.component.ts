@@ -37,7 +37,10 @@ import {
   StockListItemDto,
   UploadIndexFileResultDto,
   RemovalCandidateDto,
-  RefreshSelectedStocksResult
+  RefreshSelectedStocksResult,
+  StockManagementItem,
+  SectorPickerItem,
+  IndexPickerItem
 } from '../../models/api.models';
 
 interface EditableMarketForm {
@@ -947,6 +950,132 @@ interface EditableMarketForm {
           </table>
         </div>
       </div>
+
+      <!-- TAB 7: STOCKS / SECTORS / INDICES MANAGEMENT -->
+      <div *ngIf="activeTab === 'stocks'" class="admin-card" style="padding: 0;">
+        <div style="padding: 24px 28px 16px;">
+          <h2 style="margin: 0 0 6px;">إدارة الأسهم والقطاعات والمؤشرات</h2>
+          <p class="muted" style="margin: 0;">ابحث عن سهم لتعيينه لقطاع أو مؤشر أو لإنشاء سهم جديد. التعيين اليدوي لا يُستبدل بالرفع التلقائي.</p>
+        </div>
+
+        <!-- Search bar + create button -->
+        <div style="padding: 0 28px 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+          <div style="flex: 1; min-width: 220px;">
+            <label style="font-size: 12px; font-weight: 600; color: var(--muted-foreground); display: block; margin-bottom: 4px;">بحث بالرمز أو الاسم</label>
+            <div style="position: relative;">
+              <lucide-icon [img]="SearchIcon" size="15" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--muted-foreground);"></lucide-icon>
+              <input type="text" class="form-input" style="padding-right: 32px; width: 100%; box-sizing: border-box;"
+                     [(ngModel)]="mgmtSearch" (ngModelChange)="onMgmtSearchChange($event)"
+                     placeholder="مثال: COMI أو التجاري الدولي" />
+            </div>
+          </div>
+          <button class="btn btn-primary" (click)="showCreateStockModal = true" style="flex-shrink: 0;">+ سهم جديد</button>
+          <button class="btn btn-outline" (click)="loadMgmtData()" [disabled]="mgmtLoading" style="flex-shrink: 0;">
+            <lucide-icon [img]="RefreshCwIcon" size="15"></lucide-icon>
+            تحديث
+          </button>
+        </div>
+
+        <!-- Status message -->
+        <div *ngIf="mgmtMessage" style="margin: 0 28px 16px; padding: 12px 16px; border-radius: 10px; font-size: 13px;"
+             [style.background]="mgmtError ? '#fff5f5' : '#f0fdf4'"
+             [style.border]="mgmtError ? '1px solid #fecaca' : '1px solid #bbf7d0'"
+             [style.color]="mgmtError ? 'var(--bad)' : 'var(--good)'">{{ mgmtMessage }}</div>
+
+        <!-- Create stock modal (inline) -->
+        <div *ngIf="showCreateStockModal" style="margin: 0 28px 20px; padding: 20px; background: #f8faff; border: 1px solid var(--border); border-radius: 14px;">
+          <h3 style="margin: 0 0 14px; font-size: 15px;">إنشاء سهم جديد</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+            <div>
+              <label style="font-size: 11px; font-weight: 600; color: var(--muted-foreground); display: block; margin-bottom: 4px;">الرمز (Ticker) *</label>
+              <input type="text" class="form-input" [(ngModel)]="newStock.ticker" placeholder="COMI" style="width: 100%; box-sizing: border-box;" />
+            </div>
+            <div>
+              <label style="font-size: 11px; font-weight: 600; color: var(--muted-foreground); display: block; margin-bottom: 4px;">الاسم بالعربية</label>
+              <input type="text" class="form-input" [(ngModel)]="newStock.nameAr" placeholder="البنك التجاري" style="width: 100%; box-sizing: border-box;" />
+            </div>
+            <div>
+              <label style="font-size: 11px; font-weight: 600; color: var(--muted-foreground); display: block; margin-bottom: 4px;">الاسم بالإنجليزية</label>
+              <input type="text" class="form-input" [(ngModel)]="newStock.nameEn" placeholder="Commercial Bank" style="width: 100%; box-sizing: border-box;" />
+            </div>
+            <div>
+              <label style="font-size: 11px; font-weight: 600; color: var(--muted-foreground); display: block; margin-bottom: 4px;">القطاع (اختياري)</label>
+              <select class="form-input" [(ngModel)]="newStock.sectorId" style="width: 100%; box-sizing: border-box;">
+                <option [ngValue]="null">— بدون قطاع —</option>
+                <option *ngFor="let s of mgmtSectors" [ngValue]="s.id">{{ s.nameAr }} ({{ s.nameEn }})</option>
+              </select>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 14px;">
+            <button class="btn btn-primary" (click)="createStock()" [disabled]="mgmtBusy">إنشاء</button>
+            <button class="btn btn-outline" (click)="showCreateStockModal = false">إلغاء</button>
+          </div>
+        </div>
+
+        <!-- Stocks table -->
+        <div class="table-scroll-x" style="padding: 0 28px 28px;">
+          <div *ngIf="mgmtLoading" class="muted" style="padding: 24px 0; text-align: center;">جارٍ التحميل...</div>
+          <div *ngIf="!mgmtLoading && mgmtStocks.length === 0" class="muted" style="padding: 24px 0; text-align: center;">لا توجد نتائج. ابحث بالرمز أو الاسم أعلاه.</div>
+          <table *ngIf="mgmtStocks.length > 0" class="admin-table" style="width: 100%;">
+            <thead>
+              <tr>
+                <th>الرمز</th>
+                <th>الاسم</th>
+                <th>القطاع الحالي</th>
+                <th>يدوي؟</th>
+                <th>تعيين قطاع</th>
+                <th>مؤشرات</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of mgmtStocks">
+                <td><strong style="font-family: monospace;">{{ s.ticker }}</strong>
+                  <span *ngIf="!s.isActive" style="font-size: 10px; background: #fee2e2; color: #b91c1c; padding: 1px 6px; border-radius: 999px; margin-right: 4px;">معطَّل</span>
+                </td>
+                <td style="font-size: 13px;">{{ s.nameAr || s.nameEn || '—' }}</td>
+                <td style="font-size: 13px;">
+                  <span *ngIf="s.sectorNameAr">{{ s.sectorNameAr }}</span>
+                  <span *ngIf="!s.sectorNameAr" class="muted">—</span>
+                </td>
+                <td style="text-align: center;">
+                  <span *ngIf="s.isManual" style="font-size: 11px; background: #ede9fe; color: #5b21b6; padding: 2px 8px; border-radius: 999px;">يدوي ✦</span>
+                  <span *ngIf="!s.isManual" style="font-size: 11px; color: var(--muted-foreground);">آلي</span>
+                </td>
+                <td>
+                  <div style="display: flex; gap: 6px; align-items: center;">
+                    <select class="form-input" style="font-size: 12px; padding: 4px 8px; min-width: 140px;"
+                            [(ngModel)]="mgmtPickedSector[s.id]">
+                      <option [ngValue]="undefined">— اختر قطاعاً —</option>
+                      <option *ngFor="let sec of mgmtSectors" [ngValue]="sec.id">{{ sec.nameAr }}</option>
+                    </select>
+                    <button class="btn btn-outline" style="font-size: 12px; padding: 4px 10px;"
+                            (click)="assignSector(s)" [disabled]="!mgmtPickedSector[s.id] || mgmtBusy">تعيين</button>
+                    <button *ngIf="s.sectorId" class="btn btn-outline" style="font-size: 12px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
+                            (click)="removeFromSector(s)" [disabled]="mgmtBusy">إزالة</button>
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                    <select class="form-input" style="font-size: 12px; padding: 4px 8px; min-width: 130px;"
+                            [(ngModel)]="mgmtPickedIndex[s.id]">
+                      <option [ngValue]="undefined">— اختر مؤشراً —</option>
+                      <option *ngFor="let idx of mgmtIndices" [ngValue]="idx.id">{{ idx.code }}</option>
+                    </select>
+                    <button class="btn btn-outline" style="font-size: 12px; padding: 4px 10px;"
+                            (click)="addToIndex(s)" [disabled]="!mgmtPickedIndex[s.id] || mgmtBusy">إضافة</button>
+                    <button *ngIf="mgmtPickedIndex[s.id]" class="btn btn-outline" style="font-size: 12px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
+                            (click)="removeFromIndex(s)" [disabled]="mgmtBusy">إزالة من المؤشر</button>
+                  </div>
+                </td>
+                <td>
+                  <!-- placeholder for future actions -->
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   `
 })
@@ -967,7 +1096,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   readonly FileTextIcon = FileText;
   readonly UploadFileIcon = UploadIcon;
 
-  activeTab: 'scraping' | 'market-data' | 'upload' | 'shariah' | 'pdf-upload' | 'review' = 'scraping';
+  activeTab: 'scraping' | 'market-data' | 'upload' | 'shariah' | 'pdf-upload' | 'review' | 'stocks' = 'scraping';
 
   indices: IndexSummaryDto[] = [];
   allStocks: AdminStockLookupItem[] = [];
@@ -1044,6 +1173,21 @@ export class AdminComponent implements OnInit, OnDestroy {
   candidatesError = false;
   refreshSelectedResult?: RefreshSelectedStocksResult;
 
+  // Stocks management tab
+  mgmtSearch = '';
+  mgmtStocks: import('../../models/api.models').StockManagementItem[] = [];
+  mgmtSectors: import('../../models/api.models').SectorPickerItem[] = [];
+  mgmtIndices: import('../../models/api.models').IndexPickerItem[] = [];
+  mgmtLoading = false;
+  mgmtBusy = false;
+  mgmtMessage = '';
+  mgmtError = false;
+  mgmtPickedSector: Record<number, number | undefined> = {};
+  mgmtPickedIndex: Record<number, number | undefined> = {};
+  showCreateStockModal = false;
+  newStock: { ticker: string; nameAr: string; nameEn: string; sectorId: number | null } =
+    { ticker: '', nameAr: '', nameEn: '', sectorId: null };
+
   constructor(
     private api: ApiService,
     private auth: AdminAuthService,
@@ -1062,11 +1206,15 @@ export class AdminComponent implements OnInit, OnDestroy {
         tab === 'upload' ||
         tab === 'shariah' ||
         tab === 'pdf-upload' ||
-        tab === 'review'
+        tab === 'review' ||
+        tab === 'stocks'
       ) {
         this.activeTab = tab;
         if (tab === 'pdf-upload') {
           this.loadSourcePdfStatus();
+        }
+        if (tab === 'stocks') {
+          this.loadMgmtData();
         }
       }
     });
@@ -1660,4 +1808,147 @@ export class AdminComponent implements OnInit, OnDestroy {
       default: return reason;
     }
   }
+
+  // ── Stocks management ──────────────────────────────
+  loadMgmtData(): void {
+    this.mgmtLoading = true;
+    this.mgmtMessage = '';
+    this.api.getManagementSectors().subscribe({
+      next: (s) => (this.mgmtSectors = s || []),
+      error: () => {}
+    });
+    this.api.getManagementIndices().subscribe({
+      next: (i) => (this.mgmtIndices = i || []),
+      error: () => {}
+    });
+    this.api.searchStocksForManagement(this.mgmtSearch ? this.mgmtSearch.trim() : undefined).subscribe({
+      next: (stocks) => {
+        this.mgmtStocks = stocks || [];
+        this.mgmtLoading = false;
+      },
+      error: () => {
+        this.mgmtLoading = false;
+        this.mgmtError = true;
+        this.mgmtMessage = 'تعذّر تحميل الأسهم.';
+      }
+    });
+  }
+
+  onMgmtSearchChange(q: string): void {
+    this.mgmtSearch = q;
+    this.loadMgmtData();
+  }
+
+  createStock(): void {
+    if (!this.newStock.ticker.trim()) {
+      this.mgmtError = true;
+      this.mgmtMessage = 'يرجى إدخال رمز السهم (Ticker).';
+      return;
+    }
+    this.mgmtBusy = true;
+    this.mgmtMessage = '';
+    this.api.createManagedStock({
+      ticker: this.newStock.ticker.trim(),
+      nameAr: this.newStock.nameAr?.trim() || null,
+      nameEn: this.newStock.nameEn?.trim() || null,
+      sectorId: this.newStock.sectorId
+    }).subscribe({
+      next: (s) => {
+        this.mgmtBusy = false;
+        this.mgmtError = false;
+        this.mgmtMessage = `تم إنشاء سهم ${s.ticker} بنجاح.`;
+        this.showCreateStockModal = false;
+        this.newStock = { ticker: '', nameAr: '', nameEn: '', sectorId: null };
+        this.loadMgmtData();
+      },
+      error: (e) => {
+        this.mgmtBusy = false;
+        this.mgmtError = true;
+        this.mgmtMessage = e?.error?.message || e?.error?.title || 'تعذّر إنشاء السهم.';
+      }
+    });
+  }
+
+  assignSector(s: StockManagementItem): void {
+    const sectorId = this.mgmtPickedSector[s.id];
+    if (!sectorId) return;
+    this.mgmtBusy = true;
+    this.mgmtMessage = '';
+    this.api.assignStockSector(s.id, sectorId).subscribe({
+      next: (updated) => {
+        this.mgmtBusy = false;
+        this.mgmtError = false;
+        this.mgmtMessage = `تم تعيين ${updated.ticker} إلى قطاع ${updated.sectorNameAr || ''}.`;
+        const idx = this.mgmtStocks.findIndex((x) => x.id === s.id);
+        if (idx >= 0) this.mgmtStocks[idx] = updated;
+      },
+      error: (e) => {
+        this.mgmtBusy = false;
+        this.mgmtError = true;
+        this.mgmtMessage = e?.error?.message || 'تعذّر تعيين القطاع.';
+      }
+    });
+  }
+
+  removeFromSector(s: StockManagementItem): void {
+    if (!confirm(`هل أنت متأكد من إزالة السهم ${s.ticker} من قطاعه الحالي؟`)) return;
+    this.mgmtBusy = true;
+    this.mgmtMessage = '';
+    this.api.removeStockFromSector(s.id).subscribe({
+      next: (updated) => {
+        this.mgmtBusy = false;
+        this.mgmtError = false;
+        this.mgmtMessage = `تمت إزالة ${updated.ticker} من قطاعه.`;
+        const idx = this.mgmtStocks.findIndex((x) => x.id === s.id);
+        if (idx >= 0) this.mgmtStocks[idx] = updated;
+      },
+      error: (e) => {
+        this.mgmtBusy = false;
+        this.mgmtError = true;
+        this.mgmtMessage = e?.error?.message || 'تعذّر إزالة السهم من القطاع.';
+      }
+    });
+  }
+
+  addToIndex(s: StockManagementItem): void {
+    const indexId = this.mgmtPickedIndex[s.id];
+    if (!indexId) return;
+    this.mgmtBusy = true;
+    this.mgmtMessage = '';
+    this.api.addStockToIndex(s.id, indexId).subscribe({
+      next: (c) => {
+        this.mgmtBusy = false;
+        this.mgmtError = false;
+        this.mgmtMessage = `تمت إضافة ${s.ticker} إلى مؤشر ${c.indexCode}.`;
+      },
+      error: (e) => {
+        this.mgmtBusy = false;
+        this.mgmtError = true;
+        this.mgmtMessage = e?.error?.message || 'تعذّر إضافة السهم للمؤشر.';
+      }
+    });
+  }
+
+  removeFromIndex(s: StockManagementItem): void {
+    const indexId = this.mgmtPickedIndex[s.id];
+    if (!indexId) return;
+    const idx = this.mgmtIndices.find((i) => i.id === indexId);
+    if (!confirm(`هل أنت متأكد من إزالة السهم ${s.ticker} من مؤشر ${idx?.code || indexId}؟`)) return;
+    this.mgmtBusy = true;
+    this.mgmtMessage = '';
+    this.api.removeStockFromIndex(s.id, indexId).subscribe({
+      next: () => {
+        this.mgmtBusy = false;
+        this.mgmtError = false;
+        this.mgmtMessage = `تمت إزالة ${s.ticker} من المؤشر.`;
+        this.mgmtPickedIndex[s.id] = undefined;
+      },
+      error: (e) => {
+        this.mgmtBusy = false;
+        this.mgmtError = true;
+        this.mgmtMessage = e?.error?.message || 'تعذّر إزالة السهم من المؤشر.';
+      }
+    });
+  }
 }
+

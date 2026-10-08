@@ -474,4 +474,57 @@ export interface AdminStockLookupItem {
   nameEn?: string | null;
 }
 
+// ── Stock / Sector / Index Management (admin) ─────────────────────────────────
+
+export interface StockManagementItem {
+  id: number;
+  ticker: string;
+  nameAr?: string | null;
+  nameEn?: string | null;
+  sectorId?: number | null;
+  sectorNameAr?: string | null;
+  sectorNameEn?: string | null;
+  isManual: boolean;
+  isActive: boolean;
+}
+
+export interface SectorPickerItem {
+  id: number;
+  nameAr: string;
+  nameEn: string;
+}
+
+export interface IndexPickerItem {
+  id: number;
+  code: string;
+  nameAr: string;
+  nameEn: string;
+}
+
+export interface ConstituentManagementItem {
+  id: number;
+  stockId: number;
+  ticker: string;
+  nameAr?: string | null;
+  indexId: number;
+  indexCode: string;
+  weight?: number | null;
+  effectiveDate: string;
+}
+
+export interface CreateStockRequest {
+  ticker: string;
+  nameAr?: string | null;
+  nameEn?: string | null;
+  sectorId?: number | null;
+}
+
+export interface AssignSectorRequest {
+  sectorId: number;
+}
+
+export interface AddToIndexRequest {
+  weight?: number | null;
+  effectiveDate?: string | null;
+}
 

@@ -69,6 +69,15 @@ export const adminRoutes: Routes = [
           title: 'قائمة المراجعة',
           subtitle: 'مراجعة الأسهم المرشحة للإزالة أو التحديث'
         }
+      },
+      {
+        path: 'stocks',
+        component: AdminComponent,
+        data: {
+          tab: 'stocks',
+          title: 'إدارة الأسهم والقطاعات والمؤشرات',
+          subtitle: 'تعيين الأسهم للقطاعات والمؤشرات يدوياً وإنشاء أسهم جديدة'
+        }
       }
     ]
   }

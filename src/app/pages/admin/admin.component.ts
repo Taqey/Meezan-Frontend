@@ -97,6 +97,30 @@ interface EditableMarketForm {
                 <div style="margin-bottom: 6px;"><strong>الجدول التلقائي:</strong> يومياً في تمام 4:00 عصراً بتوقيت القاهرة</div>
                 <div><strong>آخر تشغيل مسجل:</strong> {{ getBucketLastRun('LiveDaily') }}</div>
               </div>
+
+              <!-- Automation Toggle -->
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; margin-bottom: 16px;"
+                   [style.background]="isJobEnabled('LiveDaily') ? '#f0fdf4' : '#fef2f2'"
+                   [style.borderColor]="isJobEnabled('LiveDaily') ? '#bbf7d0' : '#fecaca'">
+                <div>
+                  <div style="font-size: 13px; font-weight: 600;" [style.color]="isJobEnabled('LiveDaily') ? '#166534' : '#991b1b'">
+                    {{ isJobEnabled('LiveDaily') ? 'التشغيل التلقائي مُفعَّل' : 'التشغيل التلقائي مُعطَّل' }}
+                  </div>
+                  <div style="font-size: 11px; color: var(--muted-foreground);">
+                    {{ isJobEnabled('LiveDaily') ? 'يعمل مجدولاً في الساعة 4:00 عصراً' : 'لن يتم تنفيذ الجدول التلقائي' }}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  (click)="toggleJobSetting('LiveDaily')"
+                  [disabled]="togglingJobKey === 'LiveDaily'"
+                  class="btn btn-outline"
+                  style="font-size: 12px; padding: 4px 10px; border-radius: 6px;"
+                  [style.borderColor]="isJobEnabled('LiveDaily') ? '#16a34a' : '#dc2626'"
+                  [style.color]="isJobEnabled('LiveDaily') ? '#16a34a' : '#dc2626'">
+                  {{ isJobEnabled('LiveDaily') ? 'تعطيل الآلي' : 'تفعيل الآلي' }}
+                </button>
+              </div>
             </div>
 
             <button class="btn btn-primary" (click)="triggerDailyScrape()" [disabled]="isScrapingRunning" style="width: 100%; justify-content: center;">
@@ -122,12 +146,79 @@ interface EditableMarketForm {
                 <div style="margin-bottom: 6px;"><strong>الجدول التلقائي:</strong> أول يوم في (يناير/أبريل/يوليو/أكتوبر) 9:00 صباحاً</div>
                 <div><strong>آخر تشغيل مسجل:</strong> {{ getBucketLastRun('SlowQuarterly') }}</div>
               </div>
+
+              <!-- Automation Toggle -->
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; margin-bottom: 16px;"
+                   [style.background]="isJobEnabled('SlowQuarterly') ? '#eff6ff' : '#fef2f2'"
+                   [style.borderColor]="isJobEnabled('SlowQuarterly') ? '#bfdbfe' : '#fecaca'">
+                <div>
+                  <div style="font-size: 13px; font-weight: 600;" [style.color]="isJobEnabled('SlowQuarterly') ? '#1e40af' : '#991b1b'">
+                    {{ isJobEnabled('SlowQuarterly') ? 'التشغيل التلقائي مُفعَّل' : 'التشغيل التلقائي مُعطَّل' }}
+                  </div>
+                  <div style="font-size: 11px; color: var(--muted-foreground);">
+                    {{ isJobEnabled('SlowQuarterly') ? 'يعمل مجدولاً ربع سنوياً' : 'لن يتم تنفيذ الجدول التلقائي' }}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  (click)="toggleJobSetting('SlowQuarterly')"
+                  [disabled]="togglingJobKey === 'SlowQuarterly'"
+                  class="btn btn-outline"
+                  style="font-size: 12px; padding: 4px 10px; border-radius: 6px;"
+                  [style.borderColor]="isJobEnabled('SlowQuarterly') ? '#2563eb' : '#dc2626'"
+                  [style.color]="isJobEnabled('SlowQuarterly') ? '#2563eb' : '#dc2626'">
+                  {{ isJobEnabled('SlowQuarterly') ? 'تعطيل الآلي' : 'تفعيل الآلي' }}
+                </button>
+              </div>
             </div>
 
             <button class="btn btn-outline" (click)="triggerQuarterlyScrape()" [disabled]="isScrapingRunning" style="width: 100%; justify-content: center; border-color: #93c5fd; color: #1d4ed8;">
               <lucide-icon [img]="PlayIcon" size="16"></lucide-icon>
               {{ isQuarterlyRunning ? 'جارٍ السحب الربع سنوي...' : 'تشغيل السحب الربع سنوي الآن (Run Quarterly)' }}
             </button>
+          </div>
+
+          <!-- Bucket 3: Market Snapshots Background Job -->
+          <div style="background: #fbfcfb; border: 1px solid var(--border); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                <strong style="font-size: 16px; color: #047857; display: flex; align-items: center; gap: 8px;">
+                  <lucide-icon [img]="ClockIcon" size="18"></lucide-icon>
+                  لقطات السوق والمؤشرات (Market Snapshots)
+                </strong>
+              </div>
+              <p style="font-size: 13px; color: var(--muted-foreground); margin: 0 0 14px; line-height: 1.5;">
+                تحديث أسعار المؤشرات والقطاعات من مباشر كل 15 دقيقة أثناء عمل البورصة + جولة ختامية بعد الإغلاق.
+              </p>
+              <div style="font-size: 12px; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px;">
+                <div style="margin-bottom: 6px;"><strong>الجدول التلقائي:</strong> كل 15 دقيقة (الأحد–الخميس، 9:45 ص–3:30 م)</div>
+                <div><strong>نوع المهمة:</strong> خدمة خلفية مستمرة (Background Worker)</div>
+              </div>
+
+              <!-- Automation Toggle -->
+              <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; margin-bottom: 16px;"
+                   [style.background]="isJobEnabled('MarketSnapshots') ? '#ecfdf5' : '#fef2f2'"
+                   [style.borderColor]="isJobEnabled('MarketSnapshots') ? '#a7f3d0' : '#fecaca'">
+                <div>
+                  <div style="font-size: 13px; font-weight: 600;" [style.color]="isJobEnabled('MarketSnapshots') ? '#065f46' : '#991b1b'">
+                    {{ isJobEnabled('MarketSnapshots') ? 'التشغيل التلقائي مُفعَّل' : 'التشغيل التلقائي مُعطَّل' }}
+                  </div>
+                  <div style="font-size: 11px; color: var(--muted-foreground);">
+                    {{ isJobEnabled('MarketSnapshots') ? 'يعمل دورياً كل 15 دقيقة أثناء التداول' : 'موقوف مؤقتاً ولن يسحب لقطات جديدة' }}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  (click)="toggleJobSetting('MarketSnapshots')"
+                  [disabled]="togglingJobKey === 'MarketSnapshots'"
+                  class="btn btn-outline"
+                  style="font-size: 12px; padding: 4px 10px; border-radius: 6px;"
+                  [style.borderColor]="isJobEnabled('MarketSnapshots') ? '#059669' : '#dc2626'"
+                  [style.color]="isJobEnabled('MarketSnapshots') ? '#059669' : '#dc2626'">
+                  {{ isJobEnabled('MarketSnapshots') ? 'تعطيل الآلي' : 'تفعيل الآلي' }}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -913,6 +1004,14 @@ export class AdminComponent implements OnInit, OnDestroy {
   scrapeStatus?: ScrapeStatusResponse;
   private pollInterval?: any;
   activeTriggerBucket?: 'LiveDaily' | 'SlowQuarterly';
+  jobSettings: Record<string, boolean> = {
+    LiveDaily: true,
+    SlowQuarterly: true,
+    ShariahRefresh: true,
+    MarketSnapshots: true
+  };
+  jobSettingsLoading = false;
+  togglingJobKey: string | null = null;
 
   // Shariah tab
   shariahRefreshing = false;
@@ -970,6 +1069,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.loadIndices();
     this.loadStocks();
     this.fetchScrapeStatus();
+    this.loadJobSettings();
     this.pollInterval = setInterval(() => {
       if (this.activeTab === 'scraping' || this.isScrapingRunning) {
         this.fetchScrapeStatus();
@@ -980,6 +1080,40 @@ export class AdminComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.pollInterval) clearInterval(this.pollInterval);
   }
+
+  loadJobSettings(): void {
+    this.jobSettingsLoading = true;
+    this.api.getJobSettings().subscribe({
+      next: (settings) => {
+        if (settings) {
+          this.jobSettings = { ...this.jobSettings, ...settings };
+        }
+        this.jobSettingsLoading = false;
+      },
+      error: () => {
+        this.jobSettingsLoading = false;
+      }
+    });
+  }
+
+  toggleJobSetting(jobKey: string): void {
+    const nextVal = !this.isJobEnabled(jobKey);
+    this.togglingJobKey = jobKey;
+    this.api.setJobSetting(jobKey, nextVal).subscribe({
+      next: (res) => {
+        this.jobSettings = { ...this.jobSettings, [res.jobKey]: res.enabled };
+        this.togglingJobKey = null;
+      },
+      error: () => {
+        this.togglingJobKey = null;
+      }
+    });
+  }
+
+  isJobEnabled(jobKey: string): boolean {
+    return this.jobSettings[jobKey] !== false;
+  }
+
 
   logout(): void {
     this.auth.logout();

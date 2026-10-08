@@ -29,6 +29,8 @@ interface IndexStats {
   /** Index-weighted mean (only when the index publishes weights). */
   weightedSum: number;
   weightedDen: number;
+  /** Set of unique ticker codes in this index (for de-duplication). */
+  tickers: Set<string>;
 }
 
 @Component({
@@ -151,8 +153,6 @@ export class IndicesListComponent implements OnInit {
   statsLoading = true;
   private indexStats = new Map<string, IndexStats>();
 
-  /** Sector count for the umbrella card's plain stat (0 = hidden). */
-  sectorCount = 0;
 
   /**
    * Official published quotes (Mubasher), cached once. Official values win
@@ -185,7 +185,6 @@ export class IndicesListComponent implements OnInit {
         this.refreshDerived();
         this.loadIndexStats();
         this.loadSnapshots();
-        this.loadSectorCount();
       },
       error: () => {
         this.indices = [];
@@ -196,18 +195,6 @@ export class IndicesListComponent implements OnInit {
     });
   }
 
-  /** Plain sector count for the umbrella card (no aggregation involved). */
-  private loadSectorCount(): void {
-    this.api.getSectors().subscribe({
-      next: (sectors) => {
-        this.sectorCount = (sectors || []).length;
-        this.refreshDerived();
-      },
-      error: () => {
-        this.sectorCount = 0;
-      }
-    });
-  }
 
   /** Official quotes, cached once per page load; silent fallback when absent. */
   private loadSnapshots(): void {
@@ -480,12 +467,21 @@ export class IndicesListComponent implements OnInit {
 
   // ── KPIs ────────────────────────────────────────────────────────────
   private buildKpis(): KpiData[] {
+    // De-duplicate tickers across all indices so a stock in EGX30 and EGX100
+    // is counted only once.
+    const allTickers = new Set<string>();
+    this.indexStats.forEach((row) => row.tickers.forEach((t) => allTickers.add(t)));
+    const coveredCount = allTickers.size > 0
+      ? allTickers.size
+      : this.indices.filter((x) => indexShowsAggregates(x.code))
+          .reduce((n, x) => n + (x.constituentsCount || 0), 0);
+
     const list: KpiData[] = [
       { icon: Layers, value: String(this.indices.length), label: 'مؤشراً رسمياً' },
       {
         icon: ShieldCheck,
-        value: String(this.indices.reduce((n, x) => n + (x.constituentsCount || 0), 0)),
-        label: 'سهم مغطى بالمؤشرات'
+        value: String(coveredCount),
+        label: 'سهم فريد مغطى بالمؤشرات'
       }
     ];
     const best = this.bestPerformer();
@@ -532,9 +528,10 @@ export class IndicesListComponent implements OnInit {
         const stats = new Map<string, IndexStats>();
         results.forEach((items, i) => {
           const key = (targets[i]?.code || '').trim();
-          const row: IndexStats = { total: 0, compliant: 0, changeSum: 0, changeN: 0, weightedSum: 0, weightedDen: 0 };
+          const row: IndexStats = { total: 0, compliant: 0, changeSum: 0, changeN: 0, weightedSum: 0, weightedDen: 0, tickers: new Set<string>() };
           for (const it of items) {
             row.total++;
+            if (it.ticker) row.tickers.add(it.ticker);
             if (this.isCompliantStatus(it.shariahStatus)) row.compliant++;
             if (it.changePct !== null && it.changePct !== undefined) {
               const change = Number(it.changePct);
@@ -582,11 +579,13 @@ export class IndicesListComponent implements OnInit {
 
   // ── Card stats ──────────────────────────────────────────────────────
   cardStats(idx: IndexSummaryDto): EntityStat[] {
-    // Umbrella entries show a plain sector count instead of aggregates.
+    // Umbrella entries (Sectoral) show the same two stat slots but with null
+    // values so the card body keeps the identical height as every other card.
     if (!indexShowsAggregates(idx.code)) {
-      return this.sectorCount > 0
-        ? [{ label: 'عدد القطاعات', value: String(this.sectorCount) }]
-        : [];
+      return [
+        { label: 'معدل التوافق', value: null },
+        { label: 'الأداء اليومي', value: null }
+      ];
     }
     const rate = this.rateOf(idx);
     const change = this.changeOf(idx);

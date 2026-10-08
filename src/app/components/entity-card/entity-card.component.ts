@@ -27,12 +27,14 @@ export interface EntityStat {
        [style.--tint]="tint"
        [style.--ink]="ink"
        [style.--item-index]="itemIndex">
-      <span *ngIf="ribbon" class="entity-ribbon">{{ ribbon }}</span>
       <div class="entity-card-top">
         <span class="entity-icon-box">
           <lucide-icon [img]="icon" size="20"></lucide-icon>
         </span>
-        <span class="entity-pill">{{ pill }}</span>
+        <div class="entity-card-top-badges">
+          <span *ngIf="ribbon" class="entity-ribbon">{{ ribbon }}</span>
+          <span class="entity-pill">{{ pill }}</span>
+        </div>
       </div>
 
       <h2>{{ title }}</h2>

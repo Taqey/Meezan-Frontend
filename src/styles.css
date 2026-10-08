@@ -3985,7 +3985,9 @@ app-shariah-standards .explainer-note {
 }
 
 .entity-card {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   background: var(--card);
   border: 1px solid #e6ece8;
   border-top: 3px solid var(--accent, #087f5b);
@@ -3995,6 +3997,7 @@ app-shariah-standards .explainer-note {
   transition: transform var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out);
   animation: card-in var(--dur-slow) var(--ease-out) both;
   animation-delay: calc(min(var(--item-index, 0), 8) * var(--stagger-step, 55ms));
+  box-sizing: border-box;
 }
 
 .entity-card:hover {
@@ -4012,22 +4015,28 @@ app-shariah-standards .explainer-note {
 }
 
 .entity-ribbon {
-  display: block;
+  display: inline-block;
   background: var(--tint, var(--good-soft));
   color: var(--ink, var(--primary));
-  border-radius: 8px;
-  padding: 5px 10px;
-  margin: -8px -8px 10px;
-  font-size: 11.5px;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 11px;
   font-weight: 700;
-  text-align: center;
+  white-space: nowrap;
 }
 
 .entity-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
+}
+
+.entity-card-top-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .entity-icon-box {
@@ -4063,6 +4072,7 @@ app-shariah-standards .explainer-note {
   color: var(--muted-foreground);
   direction: ltr;
   text-align: right;
+  margin-bottom: auto;
 }
 
 .entity-stats {

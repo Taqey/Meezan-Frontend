@@ -237,4 +237,17 @@ export class ApiService {
   refreshShariah(): Observable<RefreshShariahDataResult> {
     return this.http.post<RefreshShariahDataResult>(`${this.baseUrl}/api/shariah/refresh`, {});
   }
+
+  // ── Job Settings (Automation toggles) ──────────────────────────────
+  getJobSettings(): Observable<Record<string, boolean>> {
+    return this.http.get<Record<string, boolean>>(`${this.baseUrl}/api/job-settings`);
+  }
+
+  setJobSetting(jobKey: string, enabled: boolean): Observable<{ jobKey: string; enabled: boolean }> {
+    return this.http.put<{ jobKey: string; enabled: boolean }>(
+      `${this.baseUrl}/api/job-settings/${encodeURIComponent(jobKey)}`,
+      { enabled }
+    );
+  }
 }
+

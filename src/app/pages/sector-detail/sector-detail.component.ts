@@ -280,7 +280,8 @@ import { IndexSummaryDto, PagedResult, SectorSummaryDto, StockListItemDto } from
           [indices]="s.indices"
           [weight]="s.weight"
           [currency]="s.currency"
-          [sectorNameAr]="s.sectorNameAr || sector?.nameAr">
+          [sectorNameAr]="s.sectorNameAr || sector?.nameAr"
+          [showFavorite]="true">
         </app-stock-card>
       </div>
 

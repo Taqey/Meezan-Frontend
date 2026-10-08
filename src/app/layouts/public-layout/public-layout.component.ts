@@ -47,6 +47,10 @@ import {
           <a routerLink="/indices" routerLinkActive="active" (click)="closeMenu()">المؤشرات</a>
           <a routerLink="/shariah-standards" routerLinkActive="active" (click)="closeMenu()">المعايير الشرعية</a>
           <a routerLink="/purification" routerLinkActive="active" (click)="closeMenu()">التطهير</a>
+          <a routerLink="/favorites" routerLinkActive="active" (click)="closeMenu()">
+            المفضلة
+            <span *ngIf="favCount > 0" class="nav-count">{{ favCount }}</span>
+          </a>
         </nav>
 
         <div class="header-meta">
@@ -68,6 +72,10 @@ import {
         <a routerLink="/indices" routerLinkActive="active" (click)="closeDrawer()">المؤشرات</a>
         <a routerLink="/shariah-standards" routerLinkActive="active" (click)="closeDrawer()">المعايير الشرعية</a>
         <a routerLink="/purification" routerLinkActive="active" (click)="closeDrawer()">التطهير</a>
+        <a routerLink="/favorites" routerLinkActive="active" (click)="closeDrawer()">
+          المفضلة
+          <span *ngIf="favCount > 0" class="nav-count">{{ favCount }}</span>
+        </a>
       </nav>
     </aside>
 

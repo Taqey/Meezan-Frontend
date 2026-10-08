@@ -112,7 +112,8 @@ import { IndexSummaryDto, StockListItemDto } from '../../models/api.models';
           [shariahStatus]="s.shariahStatus"
           [indices]="s.indices"
           [currency]="s.currency"
-          [sectorNameAr]="s.sectorNameAr">
+          [sectorNameAr]="s.sectorNameAr"
+          [showFavorite]="true">
         </app-stock-card>
       </div>
 

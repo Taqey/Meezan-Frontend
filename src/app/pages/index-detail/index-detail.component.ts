@@ -249,7 +249,8 @@ import { ConstituentItemDto, IndexConstituentsPagedResultDto } from '../../model
           [indices]="item.indices"
           [weight]="item.weight"
           [currency]="item.currency"
-          [sectorNameAr]="item.sectorNameAr">
+          [sectorNameAr]="item.sectorNameAr"
+          [showFavorite]="true">
         </app-stock-card>
       </div>
 

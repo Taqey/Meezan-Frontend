@@ -124,59 +124,29 @@ interface AdminNavItem {
       background: var(--background, #f4f6f4);
     }
 
-    /* Sidebar: always a fixed drawer — slides in from the right (RTL start side) */
+    /* ── Sidebar: persistent on desktop, drawer on mobile ─────────────── */
     .admin-sidebar {
-      position: fixed;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      width: 280px;
-      max-width: 85vw;
+      width: 264px;
+      flex-shrink: 0;
       background: var(--card, #ffffff);
       border-left: 1px solid var(--border, #e2e9e5);
       display: flex;
       flex-direction: column;
-      z-index: 100;
-      box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
-      transform: translateX(100%);
-      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      height: 100dvh;
+      z-index: 40;
+      overflow-y: auto;
     }
 
-    [dir="ltr"] .admin-sidebar {
-      right: auto;
-      left: 0;
-      border-left: none;
-      border-right: 1px solid var(--border, #e2e9e5);
-      transform: translateX(-100%);
-    }
-
-    .admin-sidebar.drawer-open {
-      transform: translateX(0);
-    }
-
-    /* Scrim */
-    .drawer-scrim {
-      position: fixed;
-      inset: 0;
-      background: rgba(23, 35, 31, 0.35);
-      z-index: 90;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.2s ease, visibility 0.2s ease;
-    }
-
-    .drawer-scrim.visible {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    /* Sidebar internals */
     .sidebar-brand {
       display: flex;
       align-items: center;
       gap: 12px;
       padding: 20px 18px;
       border-bottom: 1px solid var(--border, #e2e9e5);
+      flex-shrink: 0;
     }
 
     .sidebar-brand .brand-mark {
@@ -252,6 +222,7 @@ interface AdminNavItem {
       display: flex;
       flex-direction: column;
       gap: 4px;
+      flex-shrink: 0;
     }
 
     .back-link {
@@ -266,7 +237,24 @@ interface AdminNavItem {
       background: var(--bad-soft, #f9e9e7);
     }
 
-    /* Main area: always full-width */
+    /* ── Scrim (mobile only) ─────────────────────────────────────────────── */
+    .drawer-scrim {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(23, 35, 31, 0.35);
+      z-index: 90;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+
+    .drawer-scrim.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* ── Main area ────────────────────────────────────────────────────────── */
     .admin-main {
       flex: 1;
       min-width: 0;
@@ -286,8 +274,9 @@ interface AdminNavItem {
       z-index: 30;
     }
 
+    /* Hamburger: hidden on desktop, visible on mobile */
     .menu-button {
-      display: inline-flex;
+      display: none;
       align-items: center;
       justify-content: center;
       width: 40px;
@@ -319,6 +308,9 @@ interface AdminNavItem {
     .topbar-titles strong {
       font-size: 16px;
       color: var(--foreground, #17231f);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .topbar-titles small {
@@ -330,6 +322,7 @@ interface AdminNavItem {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-shrink: 0;
     }
 
     .admin-content {
@@ -343,6 +336,42 @@ interface AdminNavItem {
       margin: 0 auto;
     }
 
+    /* ── Mobile: sidebar becomes a drawer ────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .menu-button {
+        display: inline-flex;
+      }
+
+      .admin-sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        height: 100vh;
+        height: 100dvh;
+        transform: translateX(100%);
+        transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
+        z-index: 100;
+      }
+
+      [dir="ltr"] .admin-sidebar {
+        right: auto;
+        left: 0;
+        border-left: none;
+        border-right: 1px solid var(--border, #e2e9e5);
+        transform: translateX(-100%);
+      }
+
+      .admin-sidebar.drawer-open {
+        transform: translateX(0);
+      }
+
+      .drawer-scrim {
+        display: block;
+      }
+    }
+
     @media (max-width: 600px) {
       .admin-content {
         padding: 16px;
@@ -351,8 +380,11 @@ interface AdminNavItem {
         padding: 12px 16px;
       }
       .topbar-actions .btn {
-        padding: 8px 12px;
-        font-size: 13px;
+        padding: 8px 10px;
+        font-size: 12px;
+      }
+      .topbar-actions .btn span {
+        display: none;
       }
     }
   `]

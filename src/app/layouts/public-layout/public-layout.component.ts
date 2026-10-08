@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NavigationEnd, Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { filter, Subscription } from 'rxjs';
+import { NavigationEnd, NavigationStart, Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { FavoritesService } from '../../services/favorites.service';
 import { ToastHostComponent } from '../../components/toast-host/toast-host.component';
 import {
@@ -324,6 +324,8 @@ export class PublicLayoutComponent implements AfterViewInit, OnDestroy {
   private routerSub: Subscription | null = null;
   private resizeHandler: (() => void) | null = null;
   private remeasureTimer: ReturnType<typeof setTimeout> | null = null;
+  private scrollResetTimer: ReturnType<typeof setTimeout> | null = null;
+  private lastNavTrigger: string | null = null;
 
   constructor(
     readonly favorites: FavoritesService,
@@ -336,9 +338,25 @@ export class PublicLayoutComponent implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    this.routerSub = this.router.events
-      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe(() => this.scheduleIndicatorUpdate());
+    this.routerSub = this.router.events.subscribe((e) => {
+      if (e instanceof NavigationStart) {
+        this.lastNavTrigger = e.navigationTrigger ?? null;
+      }
+      if (e instanceof NavigationEnd) {
+        // Reset scroll AFTER the new route component has been inserted into the
+        // outlet (setTimeout defers past the current microtask/render cycle).
+        // Skip on browser Back/Forward — withInMemoryScrolling restores those.
+        if (this.lastNavTrigger !== 'popstate') {
+          if (this.scrollResetTimer !== null) clearTimeout(this.scrollResetTimer);
+          this.scrollResetTimer = setTimeout(() => {
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+            this.scrollResetTimer = null;
+          }, 0);
+        }
+        this.scheduleIndicatorUpdate();
+      }
+    });
     this.resizeHandler = () => {
       if (window.innerWidth > 1024 && this.isDrawerOpen) {
         this.closeDrawer();
@@ -362,6 +380,10 @@ export class PublicLayoutComponent implements AfterViewInit, OnDestroy {
     if (this.remeasureTimer !== null) {
       clearTimeout(this.remeasureTimer);
       this.remeasureTimer = null;
+    }
+    if (this.scrollResetTimer !== null) {
+      clearTimeout(this.scrollResetTimer);
+      this.scrollResetTimer = null;
     }
   }
 

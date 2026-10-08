@@ -63,18 +63,10 @@ interface EditableMarketForm {
   template: `
     <div class="admin-page">
       <div class="admin-heading">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%; flex-wrap: wrap; gap: 16px;">
-          <div>
-            <span class="eyebrow"><lucide-icon [img]="DatabaseIcon" size="15"></lucide-icon> العمليات وإدارة البيانات</span>
-            <h1>بوابة إدارة عمليات ميزان EGX</h1>
-            <p>إدارة كشوف المؤشرات، التحكم بمهام السحب اليومية والربع سنوية، وتعديل بيانات السوق يدوياً.</p>
-          </div>
-          <div>
-            <button class="btn btn-outline" (click)="logout()" style="color: var(--bad); border-color: var(--border);">
-              <lucide-icon [img]="LogOutIcon" size="15"></lucide-icon>
-              تسجيل الخروج
-            </button>
-          </div>
+        <div class="admin-heading-content">
+          <span class="eyebrow"><lucide-icon [img]="DatabaseIcon" size="15"></lucide-icon> العمليات وإدارة البيانات</span>
+          <h1>بوابة إدارة عمليات ميزان EGX</h1>
+          <p>إدارة كشوف المؤشرات، التحكم بمهام السحب اليومية والربع سنوية، وتعديل بيانات السوق يدوياً.</p>
         </div>
       </div>
 

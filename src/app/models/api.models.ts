@@ -440,6 +440,7 @@ export interface UploadIndexFileResultDto {
   skippedDetails: SkippedRowDetail[];
   status: string;
   message: string;
+  warning?: string | null;
 }
 
 export interface ManualMarketDataUpdateRequest {

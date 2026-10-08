@@ -339,7 +339,12 @@ export class PublicLayoutComponent implements AfterViewInit, OnDestroy {
     this.routerSub = this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe(() => this.scheduleIndicatorUpdate());
-    this.resizeHandler = () => this.scheduleIndicatorUpdate();
+    this.resizeHandler = () => {
+      if (window.innerWidth > 1024 && this.isDrawerOpen) {
+        this.closeDrawer();
+      }
+      this.scheduleIndicatorUpdate();
+    };
     window.addEventListener('resize', this.resizeHandler);
     this.scheduleIndicatorUpdate();
     if (typeof document !== 'undefined' && document.fonts) {

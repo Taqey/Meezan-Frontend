@@ -455,11 +455,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   }
 
   private updateDrawerState(): void {
-    const width = window.innerWidth;
-    const wasOpen = this.drawerOpen;
-    this.drawerOpen = window.innerWidth <= 1024 ? false : this.drawerOpen;
-    // Auto-close drawer on resize to mobile
-    if (window.innerWidth <= 1024 && wasOpen) {
+    if (this.drawerOpen) {
       this.closeDrawer();
     }
   }

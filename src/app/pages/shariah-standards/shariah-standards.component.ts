@@ -54,10 +54,10 @@ import {
                 <span class="std-en">{{ s.nameEn }}</span>
                 <span class="std-sub">{{ s.subtitleAr }}</span>
               </td>
-              <td><bdi dir="ltr">≤ {{ s.prohibitedRevenueMax }}%</bdi></td>
-              <td><bdi dir="ltr">≤ {{ s.debtMax }}%</bdi></td>
-              <td><bdi dir="ltr">≤ {{ s.prohibitedInvestmentsMax }}%</bdi></td>
-              <td><bdi dir="ltr">≤ {{ s.cashMax }}%</bdi></td>
+              <td [attr.data-label]="criterionLabels['prohibitedRevenue'].ar"><bdi dir="ltr">≤ {{ s.prohibitedRevenueMax }}%</bdi></td>
+              <td [attr.data-label]="criterionLabels['debt'].ar"><bdi dir="ltr">≤ {{ s.debtMax }}%</bdi></td>
+              <td [attr.data-label]="criterionLabels['prohibitedInvestments'].ar"><bdi dir="ltr">≤ {{ s.prohibitedInvestmentsMax }}%</bdi></td>
+              <td [attr.data-label]="criterionLabels['cash'].ar"><bdi dir="ltr">≤ {{ s.cashMax }}%</bdi></td>
             </tr>
             <tr class="scholars-row">
               <td>
@@ -65,10 +65,10 @@ import {
                 <span class="std-en">Individual scholars</span>
                 <span class="std-sub">اجتهادات فردية — غير معتمدة لدى معظم المؤسسات</span>
               </td>
-              <td>—</td>
-              <td><bdi dir="ltr">≤ {{ scholarsMax }}%</bdi></td>
-              <td>—</td>
-              <td>—</td>
+              <td [attr.data-label]="criterionLabels['prohibitedRevenue'].ar">—</td>
+              <td [attr.data-label]="criterionLabels['debt'].ar"><bdi dir="ltr">≤ {{ scholarsMax }}%</bdi></td>
+              <td [attr.data-label]="criterionLabels['prohibitedInvestments'].ar">—</td>
+              <td [attr.data-label]="criterionLabels['cash'].ar">—</td>
             </tr>
           </tbody>
         </table>

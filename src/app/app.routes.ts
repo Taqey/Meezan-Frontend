@@ -11,6 +11,7 @@ import { AdminLoginComponent } from './pages/admin-login/admin-login.component';
 import { ShariahStandardsComponent } from './pages/shariah-standards/shariah-standards.component';
 import { PurificationComponent } from './pages/purification/purification.component';
 import { FavoritesComponent } from './pages/favorites/favorites.component';
+import { PortfolioComponent } from './pages/portfolio/portfolio.component';
 import { adminAuthGuard } from './guards/admin-auth.guard';
 
 export const routes: Routes = [
@@ -22,6 +23,7 @@ export const routes: Routes = [
       { path: '', component: HomeComponent },
       { path: 'stocks', component: StocksListComponent },
       { path: 'stocks/:code', component: StockDetailComponent },
+      { path: 'portfolio', component: PortfolioComponent },
       { path: 'shariah-standards', component: ShariahStandardsComponent },
       { path: 'purification', component: PurificationComponent },
       { path: 'favorites', component: FavoritesComponent },

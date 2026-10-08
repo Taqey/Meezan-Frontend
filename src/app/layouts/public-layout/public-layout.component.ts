@@ -45,6 +45,7 @@ import {
         <nav class="nav-links" [class.is-open]="isMenuOpen" aria-label="التنقل الرئيسي">
           <a routerLink="/stocks" routerLinkActive="active" (click)="closeMenu()">الأسهم</a>
           <a routerLink="/indices" routerLinkActive="active" (click)="closeMenu()">المؤشرات</a>
+          <a routerLink="/portfolio" routerLinkActive="active" (click)="closeMenu()">تكوين محفظة استثمارية</a>
           <a routerLink="/shariah-standards" routerLinkActive="active" (click)="closeMenu()">المعايير الشرعية</a>
           <a routerLink="/purification" routerLinkActive="active" (click)="closeMenu()">التطهير</a>
           <a routerLink="/favorites" routerLinkActive="active" (click)="closeMenu()">
@@ -70,6 +71,7 @@ import {
       <nav class="drawer-nav" aria-label="القائمة الجانبية">
         <a routerLink="/stocks" routerLinkActive="active" (click)="closeDrawer()">الأسهم</a>
         <a routerLink="/indices" routerLinkActive="active" (click)="closeDrawer()">المؤشرات</a>
+        <a routerLink="/portfolio" routerLinkActive="active" (click)="closeDrawer()">تكوين محفظة استثمارية</a>
         <a routerLink="/shariah-standards" routerLinkActive="active" (click)="closeDrawer()">المعايير الشرعية</a>
         <a routerLink="/purification" routerLinkActive="active" (click)="closeDrawer()">التطهير</a>
         <a routerLink="/favorites" routerLinkActive="active" (click)="closeDrawer()">

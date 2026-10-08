@@ -435,6 +435,7 @@ export interface UploadIndexFileResultDto {
   inserted: number;
   updated: number;
   skipped: number;
+  sectorsAdded?: number;
   totalConstituents: number;
   skippedDetails: SkippedRowDetail[];
   status: string;

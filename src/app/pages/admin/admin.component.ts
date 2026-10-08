@@ -664,7 +664,8 @@ interface EditableMarketForm {
             حالة المعالجة: {{ uploadResult.status }}
           </div>
           <div>{{ uploadResult.message }}</div>
-          <div style="display: flex; gap: 20px; margin-top: 10px;">
+          <div style="display: flex; gap: 20px; margin-top: 10px; flex-wrap: wrap;">
+            <span *ngIf="uploadResult.sectorsAdded !== undefined && uploadResult.sectorsAdded !== null">القطاعات المضافة: <strong>{{ uploadResult.sectorsAdded }}</strong></span>
             <span>الأسهم المضافة: <strong>{{ uploadResult.inserted }}</strong></span>
             <span>الأسهم المحدثة: <strong>{{ uploadResult.updated }}</strong></span>
             <span>الأسهم المتخطاة: <strong>{{ uploadResult.skipped }}</strong></span>

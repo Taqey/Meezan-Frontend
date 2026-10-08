@@ -136,7 +136,9 @@ const SECTOR_ICONS: Record<string, LucideIconData> = {
   'travel&leisure': Plane,
   'educationservices': GraduationCap,
   'energy&supportservices': Zap,
-  'shipping&transportationservices': Ship
+  'shipping&transportationservices': Ship,
+  'utilities': Zap,
+  'paper&packaging': Layers
 };
 
 /** Icon for a sector card; falls back to the generic tag icon. */
@@ -175,7 +177,9 @@ const SECTOR_ACCENTS: Record<string, SectorAccent> = {
   'travel&leisure': { accent: '#db2777', tint: '#fce8f2', ink: '#be185d' },
   'educationservices': { accent: '#ca8a04', tint: '#fdf6e0', ink: '#a16207' },
   'energy&supportservices': { accent: '#dc2626', tint: '#fdeaea', ink: '#b91c1c' },
-  'shipping&transportationservices': { accent: '#0d9488', tint: '#e0f4f2', ink: '#0f766e' }
+  'shipping&transportationservices': { accent: '#0d9488', tint: '#e0f4f2', ink: '#0f766e' },
+  'utilities': { accent: '#0284c7', tint: '#e0f2fe', ink: '#0369a1' },
+  'paper&packaging': { accent: '#ca8a04', tint: '#fef9c3', ink: '#a16207' }
 };
 
 /** Accent triple for a sector card; falls back to the brand green. */

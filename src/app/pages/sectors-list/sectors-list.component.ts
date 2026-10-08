@@ -330,9 +330,9 @@ export class SectorsListComponent implements OnInit {
       { id: 'pe', label: 'الأقل مكرر ربحية' },
       { id: 'name', label: 'أبجدي' }
     ];
-    this.displayedSectors = this.sortSectors(enriched, this.sortKey);
+    this.displayedSectors = this.sortSectors([...enriched], this.sortKey);
     this.tableColumns = this.buildTableColumns();
-    this.tableRows = this.sortTable(enriched).map((s) => this.toTableRow(s));
+    this.tableRows = this.sortTable([...enriched]).map((s) => this.toTableRow(s));
     const heatBase = [...enriched].sort((a, b) => (b.marketCapTotal ?? -1) - (a.marketCapTotal ?? -1));
     this.heatTiles = heatBase.map((s) => ({
       id: s.id,

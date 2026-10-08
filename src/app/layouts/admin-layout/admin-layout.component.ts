@@ -1,4 +1,4 @@
-﻿import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ActivatedRoute,
@@ -124,27 +124,30 @@ interface AdminNavItem {
       background: var(--background, #f4f6f4);
     }
 
-    /* Sidebar: always a fixed drawer */
+    /* Sidebar: always a fixed drawer — slides in from the right (RTL start side) */
     .admin-sidebar {
       position: fixed;
-      inset-block: 0;
-      inset-inline-end: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
       width: 280px;
       max-width: 85vw;
       background: var(--card, #ffffff);
-      border-inline-start: 1px solid var(--border, #e2e9e5);
+      border-left: 1px solid var(--border, #e2e9e5);
       display: flex;
       flex-direction: column;
       z-index: 100;
       box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
-      transform: translateX(105%);
+      transform: translateX(100%);
       transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     [dir="ltr"] .admin-sidebar {
-      inset-inline-end: auto;
-      inset-inline-start: 0;
-      transform: translateX(-105%);
+      right: auto;
+      left: 0;
+      border-left: none;
+      border-right: 1px solid var(--border, #e2e9e5);
+      transform: translateX(-100%);
     }
 
     .admin-sidebar.drawer-open {

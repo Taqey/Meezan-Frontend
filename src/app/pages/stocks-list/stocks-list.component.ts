@@ -17,6 +17,7 @@ import { ApiService } from '../../services/api.service';
 import { navigateQueryParams } from '../../utils/navigation-utils';
 import { StockCardComponent } from '../../components/stock-card/stock-card.component';
 import { IndexSummaryDto, PagedResult, StockListItemDto } from '../../models/api.models';
+import { matchesNonComplianceType } from '../../models/shariah-standards';
 
 @Component({
   selector: 'app-stocks-list',
@@ -511,11 +512,24 @@ export class StocksListComponent implements OnInit {
     return list;
   }
 
+  allFetchedStocks: StockListItemDto[] = [];
+  rawTotalCount = 0;
+
+  get isNonComplianceFiltered(): boolean {
+    return !!(this.nonComplianceType && this.shariahStatuses.includes('NonCompliant'));
+  }
+
   fetchStocks(): void {
     this.loading = true;
+
+    // When client-side nonComplianceType sub-filter is active, fetch all NonCompliant items (up to 200)
+    // so filtering, totalCount, and pagination apply to the entire matching dataset.
+    const queryPageSize = this.isNonComplianceFiltered ? 200 : this.pageSize;
+    const queryPage = this.isNonComplianceFiltered ? 1 : this.page;
+
     this.api.getStocks({
-      page: this.page,
-      pageSize: this.pageSize,
+      page: queryPage,
+      pageSize: queryPageSize,
       search: this.search || undefined,
       indexCodes: this.indexCodes.length ? this.indexCodes : undefined,
       shariahStatuses: this.shariahStatuses.length ? this.shariahStatuses : undefined,
@@ -530,12 +544,26 @@ export class StocksListComponent implements OnInit {
     }).subscribe({
       next: (res) => {
         this.stocks = res.items || [];
-        this.totalCount = res.totalCount || 0;
-        this.totalPages = res.totalPages || Math.ceil(this.totalCount / this.pageSize) || 1;
+        this.rawTotalCount = res.totalCount || 0;
+
+        if (this.isNonComplianceFiltered) {
+          const filtered = this.stocks.filter((s) => matchesNonComplianceType(s, this.nonComplianceType));
+          this.totalCount = filtered.length;
+          this.totalPages = Math.max(1, Math.ceil(this.totalCount / this.pageSize));
+          if (this.page > this.totalPages) {
+            this.page = 1;
+          }
+        } else {
+          this.totalCount = res.totalCount || 0;
+          this.totalPages = res.totalPages || Math.ceil(this.totalCount / this.pageSize) || 1;
+        }
+
         this.loading = false;
       },
       error: () => {
         this.stocks = [];
+        this.totalCount = 0;
+        this.totalPages = 1;
         this.loading = false;
       }
     });
@@ -649,19 +677,11 @@ export class StocksListComponent implements OnInit {
     navigateQueryParams(this.router, this.route, queryParams);
   }
 
-  /** Client-side sub-filter: apply nonComplianceType on top of backend results. */
+  /** Displayed stocks: when nonComplianceType is active, filters and paginates client-side. */
   get displayedStocks() {
-    if (!this.nonComplianceType) return this.stocks;
-    return this.stocks.filter(s => {
-      const status = (s.shariahStatus || '').toLowerCase().replace(/[-_ ]/g, '');
-      if (status !== 'noncompliant') return true; // keep non-noncompliant stocks as-is
-      if (this.nonComplianceType === 'activity') {
-        return s.coreActivityCompliant === false;
-      }
-      if (this.nonComplianceType === 'ratios') {
-        return s.coreActivityCompliant !== false; // ratio-driven only
-      }
-      return true;
-    });
+    if (!this.isNonComplianceFiltered) return this.stocks;
+    const filtered = this.stocks.filter((s) => matchesNonComplianceType(s, this.nonComplianceType));
+    const start = (this.page - 1) * this.pageSize;
+    return filtered.slice(start, start + this.pageSize);
   }
 }

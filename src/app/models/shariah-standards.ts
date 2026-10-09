@@ -371,3 +371,51 @@ export function getNonComplianceReasons(input: NonComplianceReasonInput): string
   return reasons;
 }
 
+/**
+ * Checks whether a stock fails Shariah compliance due to impermissible core activity.
+ */
+export function hasActivityNonCompliance(input: { coreActivityCompliant?: boolean | null }): boolean {
+  return input.coreActivityCompliant === false;
+}
+
+/**
+ * Checks whether a stock fails Shariah compliance due to financial ratios exceeding
+ * maximum permissible limits (read from SHARIAH_STANDARDS, identical to the card reason badge).
+ */
+export function hasRatioNonCompliance(input: {
+  spHaramEarningPercentage?: number | null;
+  loansPercentage?: number | null;
+}): boolean {
+  const revenueMax = Math.max(...SHARIAH_STANDARDS.map((s) => s.prohibitedRevenueMax)); // 20
+  const debtMax    = Math.max(...SHARIAH_STANDARDS.map((s) => s.debtMax));              // 33
+
+  const rev = input.spHaramEarningPercentage;
+  if (rev != null && rev > revenueMax) return true;
+
+  const debt = input.loansPercentage;
+  if (debt != null && debt > debtMax) return true;
+
+  return false;
+}
+
+/**
+ * Determines whether a stock matches the selected nonComplianceType filter.
+ * - 'activity': coreActivityCompliant === false
+ * - 'ratios': at least one ratio exceeds the max limit
+ * - A stock failing both will match and appear under both options.
+ * - Empty / 'all': matches all stocks.
+ */
+export function matchesNonComplianceType(
+  stock: {
+    coreActivityCompliant?: boolean | null;
+    spHaramEarningPercentage?: number | null;
+    loansPercentage?: number | null;
+  },
+  type: string
+): boolean {
+  if (!type) return true;
+  if (type === 'activity') return hasActivityNonCompliance(stock);
+  if (type === 'ratios') return hasRatioNonCompliance(stock);
+  return true;
+}
+

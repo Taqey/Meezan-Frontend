@@ -14,6 +14,7 @@ import { ApiService } from '../../services/api.service';
 import { navigateQueryParams } from '../../utils/navigation-utils';
 import { StockCardComponent } from '../../components/stock-card/stock-card.component';
 import { IndexSummaryDto, PagedResult, SectorSummaryDto, StockListItemDto } from '../../models/api.models';
+import { matchesNonComplianceType } from '../../models/shariah-standards';
 
 @Component({
   selector: 'app-sector-detail',
@@ -535,11 +536,21 @@ export class SectorDetailComponent implements OnInit {
     this.updateUrl();
   }
 
+  get isNonComplianceFiltered(): boolean {
+    return !!(this.nonComplianceType && this.shariahStatuses.includes('NonCompliant'));
+  }
+
   loadStocks(): void {
     this.stocksLoading = true;
+
+    // When client-side nonComplianceType sub-filter is active, fetch all NonCompliant items (up to 200)
+    // so filtering, totalCount, and pagination apply to the entire matching dataset.
+    const queryPageSize = this.isNonComplianceFiltered ? 200 : this.pageSize;
+    const queryPage = this.isNonComplianceFiltered ? 1 : this.page;
+
     this.api.getStocks({
-      page: this.page,
-      pageSize: this.pageSize,
+      page: queryPage,
+      pageSize: queryPageSize,
       sectorId: this.sectorId ?? undefined,
       search: this.search || undefined,
       indexCodes: this.indexCodes.length ? this.indexCodes : undefined,
@@ -555,12 +566,23 @@ export class SectorDetailComponent implements OnInit {
     }).subscribe({
       next: (res: PagedResult<StockListItemDto>) => {
         this.stocks = res.items || [];
-        this.totalCount = res.totalCount || 0;
-        this.totalPages = res.totalPages || Math.ceil(this.totalCount / this.pageSize) || 1;
+
+        if (this.isNonComplianceFiltered) {
+          const filtered = this.stocks.filter((s) => matchesNonComplianceType(s, this.nonComplianceType));
+          this.totalCount = filtered.length;
+          this.totalPages = Math.max(1, Math.ceil(this.totalCount / this.pageSize));
+          if (this.page > this.totalPages) {
+            this.page = 1;
+          }
+        } else {
+          this.totalCount = res.totalCount || 0;
+          this.totalPages = res.totalPages || Math.ceil(this.totalCount / this.pageSize) || 1;
+        }
+
         this.stocksLoading = false;
 
         // When viewing without sub-filters that restrict the sector constituents, check weight sum:
-        if (!this.search && !this.indexCodes.length && !this.shariahStatuses.length && !this.priceComparison && !this.minCompliantSources) {
+        if (!this.search && !this.indexCodes.length && !this.shariahStatuses.length && !this.priceComparison && !this.minCompliantSources && !this.nonComplianceType) {
           const sum = this.stocks.reduce((acc, s) => acc + (s.weight || 0), 0);
           // If all stocks in sector fit on one page or we sum what's loaded
           if (this.totalCount <= this.pageSize && this.stocks.length > 0) {
@@ -578,6 +600,8 @@ export class SectorDetailComponent implements OnInit {
       },
       error: () => {
         this.stocks = [];
+        this.totalCount = 0;
+        this.totalPages = 1;
         this.stocksLoading = false;
         this.sectorWeightWarning = null;
       }
@@ -706,19 +730,11 @@ export class SectorDetailComponent implements OnInit {
     navigateQueryParams(this.router, this.route, queryParams);
   }
 
-  /** Client-side sub-filter: apply nonComplianceType on top of backend results. */
+  /** Displayed stocks: when nonComplianceType is active, filters and paginates client-side. */
   get displayedStocks() {
-    if (!this.nonComplianceType) return this.stocks;
-    return this.stocks.filter(s => {
-      const status = (s.shariahStatus || '').toLowerCase().replace(/[-_ ]/g, '');
-      if (status !== 'noncompliant') return true;
-      if (this.nonComplianceType === 'activity') {
-        return s.coreActivityCompliant === false;
-      }
-      if (this.nonComplianceType === 'ratios') {
-        return s.coreActivityCompliant !== false;
-      }
-      return true;
-    });
+    if (!this.isNonComplianceFiltered) return this.stocks;
+    const filtered = this.stocks.filter((s) => matchesNonComplianceType(s, this.nonComplianceType));
+    const start = (this.page - 1) * this.pageSize;
+    return filtered.slice(start, start + this.pageSize);
   }
 }

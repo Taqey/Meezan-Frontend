@@ -33,7 +33,11 @@ import { INDEX_ARABIC_NAMES } from '../../models/api.models';
       <div class="stock-price">
         <strong [appPriceFlash]="closingPrice">{{ closingPrice !== null && closingPrice !== undefined ? (closingPrice | number:'1.2-2') : '—' }}</strong>
         <span>{{ currencyLabel }}</span>
-        <em *ngIf="weight && weight > 0" class="neutral-pill">الوزن {{ weight | number:'1.2-2' }}%</em>
+        <em *ngIf="weight !== null && weight !== undefined && weight > 0" class="neutral-pill" [class.capped-pill]="isCapped" [title]="isCapped ? 'تم سقف الوزن عند 35% (معامل السقف: ' + (cappingFactor | number:'1.4-4') + ')' : ''">
+          الوزن {{ weight | number:'1.2-2' }}%
+          <span *ngIf="isCapped" class="capped-badge" [title]="'معامل السقف: ' + (cappingFactor | number:'1.4-4')">(مسقوف)</span>
+        </em>
+        <em *ngIf="weight === null || weight === undefined" class="neutral-pill muted-pill" title="لا توجد قيمة سوقية صالحة لحساب الوزن">الوزن —</em>
       </div>
 
       <div class="stock-bottom">
@@ -61,6 +65,8 @@ export class StockCardComponent {
   @Input() shariahStatus?: string | null;
   @Input() indices: string[] = [];
   @Input() weight?: number | null;
+  @Input() isCapped?: boolean | null;
+  @Input() cappingFactor?: number | null;
   @Input() currency?: string | null;
   @Input() sectorNameAr?: string | null;
   /** Shows the favorite star toggle next to the change percentage. */

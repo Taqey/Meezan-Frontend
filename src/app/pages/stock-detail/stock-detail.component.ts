@@ -21,6 +21,7 @@ import { StatusBadgeComponent } from '../../components/status-badge/status-badge
 import { FavoriteToggleComponent } from '../../components/favorite-toggle/favorite-toggle.component';
 import { RevealDirective } from '../../directives/reveal.directive';
 import {
+  IndexInStockDto,
   MarketDataDto,
   SHARIAH_SOURCE_NAMES,
   ShariahSourceKey,
@@ -79,7 +80,19 @@ type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
             <h1>{{ marketData.nameAr || marketData.ticker }}</h1>
             <div class="tag-row">
               <span *ngIf="marketData.sectorNameAr">{{ marketData.sectorNameAr }}</span>
-              <ng-container *ngFor="let idx of marketData.indices">
+              <span *ngIf="marketData.sectorWeight !== null && marketData.sectorWeight !== undefined && marketData.sectorWeight > 0"
+                    class="sector-weight-tag"
+                    [class.capped]="marketData.isSectorWeightCapped"
+                    [title]="marketData.isSectorWeightCapped ? 'الوزن النسبي مسقوف عند 35% (معامل السقف: ' + (marketData.sectorCappingFactor | number:'1.4-4') + ')' : 'الوزن النسبي في قطاع ' + (marketData.sectorNameAr || '')">
+                الوزن في القطاع: {{ marketData.sectorWeight | number:'1.2-2' }}%
+                <small *ngIf="marketData.isSectorWeightCapped">(مسقوف - معامل: {{ marketData.sectorCappingFactor | number:'1.4-4' }})</small>
+              </span>
+              <span *ngIf="marketData.sectorWeight === null && marketData.sectorNameAr"
+                    class="sector-weight-tag muted"
+                    title="لا توجد قيمة سوقية صالحة لحساب الوزن">
+                الوزن في القطاع: —
+              </span>
+              <ng-container *ngFor="let idx of nonSectoralIndices">
                 <a [routerLink]="['/indices', idx.code]">
                   {{ getIndexLabel(idx.code) }}<ng-container *ngIf="idx.weight && idx.weight > 0"> ({{ idx.weight | number:'1.2-2' }}%)</ng-container>
                 </a>
@@ -1168,6 +1181,12 @@ export class StockDetailComponent implements OnInit, OnDestroy {
   getSpCompliant(): boolean | null {
     const v = this.marketData?.shariahMetrics?.isCompliantSp;
     return v === true ? true : v === false ? false : null;
+  }
+
+  get nonSectoralIndices(): IndexInStockDto[] {
+    return (this.marketData?.indices || []).filter(
+      idx => idx.code !== 'Sectoral-Indices'
+    );
   }
 
   getIndexLabel(code: string): string {

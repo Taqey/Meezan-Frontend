@@ -258,6 +258,12 @@ import { IndexSummaryDto, PagedResult, SectorSummaryDto, StockListItemDto } from
         </div>
       </div>
 
+      <!-- Sector Weight Warning Banner (warns if sector weights do not sum to 100%) -->
+      <div *ngIf="sectorWeightWarning" class="weight-warning-banner" role="alert">
+        <lucide-icon [img]="FilterIcon" size="18"></lucide-icon>
+        <span>{{ sectorWeightWarning }}</span>
+      </div>
+
       <!-- Loading -->
       <div *ngIf="stocksLoading" class="empty-state">
         <p>جارٍ تحميل أسهم القطاع...</p>
@@ -279,6 +285,8 @@ import { IndexSummaryDto, PagedResult, SectorSummaryDto, StockListItemDto } from
           [shariahStatus]="s.shariahStatus"
           [indices]="s.indices"
           [weight]="s.weight"
+          [isCapped]="s.isCapped"
+          [cappingFactor]="s.cappingFactor"
           [currency]="s.currency"
           [sectorNameAr]="s.sectorNameAr || sector?.nameAr"
           [showFavorite]="true">
@@ -341,6 +349,8 @@ export class SectorDetailComponent implements OnInit {
   maxPe: number | null = null;
   minPb: number | null = null;
   maxPb: number | null = null;
+
+  sectorWeightWarning: string | null = null;
 
   // Dropdown state
   openDropdown: 'index' | 'shariah' | null = null;
@@ -528,10 +538,28 @@ export class SectorDetailComponent implements OnInit {
         this.totalCount = res.totalCount || 0;
         this.totalPages = res.totalPages || Math.ceil(this.totalCount / this.pageSize) || 1;
         this.stocksLoading = false;
+
+        // When viewing without sub-filters that restrict the sector constituents, check weight sum:
+        if (!this.search && !this.indexCodes.length && !this.shariahStatuses.length && !this.priceComparison && !this.minCompliantSources) {
+          const sum = this.stocks.reduce((acc, s) => acc + (s.weight || 0), 0);
+          // If all stocks in sector fit on one page or we sum what's loaded
+          if (this.totalCount <= this.pageSize && this.stocks.length > 0) {
+            if (Math.abs(sum - 100) > 0.5) {
+              this.sectorWeightWarning = `تنبيه: مجموع أوزان أسهم القطاع (${sum.toFixed(2)}%) لا يساوي 100%.`;
+            } else {
+              this.sectorWeightWarning = null;
+            }
+          } else {
+            this.sectorWeightWarning = null;
+          }
+        } else {
+          this.sectorWeightWarning = null;
+        }
       },
       error: () => {
         this.stocks = [];
         this.stocksLoading = false;
+        this.sectorWeightWarning = null;
       }
     });
   }

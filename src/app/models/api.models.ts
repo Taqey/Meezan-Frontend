@@ -83,6 +83,8 @@ export interface StockListItemDto {
   weight?: number | null;
   /** Index code the weight belongs to: the single selected index, else "SECTORAL-INDICES". */
   weightIndexCode?: string | null;
+  isCapped?: boolean | null;
+  cappingFactor?: number | null;
 }
 
 export interface IndexSummaryDto {
@@ -131,6 +133,8 @@ export interface IndexInStockDto {
   nameEn: string;
   /** null when the source file for this index had no weight column */
   weight: number | null;
+  isCapped?: boolean | null;
+  cappingFactor?: number | null;
 }
 
 export interface FairValueMethodDto {
@@ -222,6 +226,9 @@ export interface MarketDataDto {
    * (camelCase to match the API's camelCase JSON.)
    */
   shariahMetricsUnavailableReason?: 'MISSING_FINANCIALS' | 'NOT_CALCULATED' | string | null;
+  sectorWeight?: number | null;
+  isSectorWeightCapped?: boolean | null;
+  sectorCappingFactor?: number | null;
 }
 
 export interface SupportResistanceDto {

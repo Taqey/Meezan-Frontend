@@ -1868,10 +1868,8 @@ export class AdminComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.shariahSelectedStockMarketData = data;
         this.shariahLoadingStock = false;
-        // Load Shariah overrides if the stock has Shariah metrics
-        if (data.shariahMetrics) {
-          this.loadShariahOverrides(ticker);
-        }
+        // Load Shariah overrides (API now returns defaults even if no metrics row exists)
+        this.loadShariahOverrides(ticker);
       },
       error: (err) => {
         if (err.status === 404) {

@@ -487,6 +487,38 @@ export interface ManualMarketDataUpdateResponse {
   fairValue?: number | null;
 }
 
+// ── Shariah Manual Overrides ────────────────────────────────────────────────
+
+export interface ShariahOverridesDto {
+  ticker: string;
+  // Feed values
+  feedCoreActivityCompliant?: boolean | null;
+  feedCategoryAr?: string | null;
+  feedCategoryEn?: string | null;
+  feedHaramRevenuePercentage?: number | null;
+  feedLoansPercentage?: number | null;
+  // Override values
+  overrideCoreActivityCompliant?: boolean | null;
+  overrideCategoryAr?: string | null;
+  overrideCategoryEn?: string | null;
+  overrideHaramRevenuePercentage?: number | null;
+  overrideLoansPercentage?: number | null;
+  // Effective values (override wins)
+  effectiveCoreActivityCompliant?: boolean | null;
+  effectiveCategoryAr?: string | null;
+  effectiveCategoryEn?: string | null;
+  effectiveHaramRevenuePercentage?: number | null;
+  effectiveLoansPercentage?: number | null;
+}
+
+export interface SaveShariahOverridesRequest {
+  coreActivityCompliantOverride?: boolean | null;
+  categoryArOverride?: string | null;
+  categoryEnOverride?: string | null;
+  haramRevenuePercentageOverride?: number | null;
+  loansPercentageOverride?: number | null;
+}
+
 export interface AdminStockLookupItem {
   ticker: string;
   nameAr?: string | null;

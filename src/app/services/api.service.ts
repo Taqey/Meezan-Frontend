@@ -30,7 +30,9 @@ import {
   ConstituentManagementItem,
   CreateStockRequest,
   AssignSectorRequest,
-  AddToIndexRequest
+  AddToIndexRequest,
+  ShariahOverridesDto,
+  SaveShariahOverridesRequest
 } from '../models/api.models';
 
 @Injectable({
@@ -299,6 +301,20 @@ export class ApiService {
     return this.http.delete<void>(
       `${this.baseUrl}/api/admin/stocks-management/${stockId}/indices/${indexId}`
     );
+  }
+
+  // ── Shariah Manual Overrides ───────────────────────────────────────────────
+
+  getShariahOverrides(ticker: string): Observable<ShariahOverridesDto> {
+    return this.http.get<ShariahOverridesDto>(`${this.baseUrl}/api/admin/market-data/${encodeURIComponent(ticker)}/shariah-overrides`);
+  }
+
+  saveShariahOverrides(ticker: string, request: SaveShariahOverridesRequest): Observable<ShariahOverridesDto> {
+    return this.http.patch<ShariahOverridesDto>(`${this.baseUrl}/api/admin/market-data/${encodeURIComponent(ticker)}/shariah-overrides`, request);
+  }
+
+  resetShariahOverride(ticker: string, fieldName: string): Observable<ShariahOverridesDto> {
+    return this.http.delete<ShariahOverridesDto>(`${this.baseUrl}/api/admin/market-data/${encodeURIComponent(ticker)}/shariah-overrides/${encodeURIComponent(fieldName)}`);
   }
 }
 

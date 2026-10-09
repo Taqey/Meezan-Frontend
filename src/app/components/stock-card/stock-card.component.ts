@@ -37,7 +37,6 @@ import { INDEX_ARABIC_NAMES } from '../../models/api.models';
           الوزن {{ weight | number:'1.2-2' }}%
           <span *ngIf="isCapped" class="capped-badge" [title]="'معامل السقف: ' + (cappingFactor | number:'1.4-4')">(مسقوف)</span>
         </em>
-        <em *ngIf="weight === null || weight === undefined" class="neutral-pill muted-pill" title="لا توجد قيمة سوقية صالحة لحساب الوزن">الوزن —</em>
       </div>
 
       <div class="stock-bottom">

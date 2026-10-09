@@ -773,8 +773,8 @@ interface EditableMarketForm {
                       <span>مطابق للنشاط الأساسي (CoreActivityCompliant)</span>
                     </label>
                   </div>
-                  <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 120px;">
+                  <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 12px;">
+                    <div style="flex: 1; min-width: 0;">
                       <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">التصنيف (عربي)</label>
                       <input
                         type="text"
@@ -787,7 +787,7 @@ interface EditableMarketForm {
                         التغذية: {{ shariahOverrides.feedCategoryAr }}
                       </div>
                     </div>
-                    <div style="flex: 1; min-width: 120px;">
+                    <div style="flex: 1; min-width: 0;">
                       <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">التصنيف (إنجليزي)</label>
                       <input
                         type="text"
@@ -801,11 +801,11 @@ interface EditableMarketForm {
                       </div>
                     </div>
                   </div>
-                  <div style="margin-top: 10px; display: flex; gap: 8px;">
+                  <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
                     <button
                       type="button"
                       class="btn btn-primary"
-                      style="font-size: 12px; padding: 6px 12px;"
+                      style="font-size: 12px; padding: 8px 16px;"
                       (click)="saveShariahOverrides()"
                       [disabled]="savingShariahOverrides">
                       <lucide-icon [img]="SaveIcon" size="14"></lucide-icon>
@@ -814,7 +814,7 @@ interface EditableMarketForm {
                     <button
                       type="button"
                       class="btn btn-outline"
-                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
+                      style="font-size: 12px; padding: 6px 12px; border-color: #fecaca; color: var(--bad);"
                       (click)="resetShariahOverride('CoreActivityCompliant')"
                       [disabled]="savingShariahOverrides || shariahOverrides.overrideCoreActivityCompliant === null"
                       title="استعادة قيمة التغذية لمطابقة النشاط الأساسي">
@@ -824,7 +824,7 @@ interface EditableMarketForm {
                     <button
                       type="button"
                       class="btn btn-outline"
-                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
+                      style="font-size: 12px; padding: 6px 12px; border-color: #fecaca; color: var(--bad);"
                       (click)="resetShariahOverride('CategoryAr')"
                       [disabled]="savingShariahOverrides || shariahOverrides.overrideCategoryAr === null"
                       title="استعادة قيمة التغذية للتصنيف العربي">
@@ -834,7 +834,7 @@ interface EditableMarketForm {
                     <button
                       type="button"
                       class="btn btn-outline"
-                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
+                      style="font-size: 12px; padding: 6px 12px; border-color: #fecaca; color: var(--bad);"
                       (click)="resetShariahOverride('CategoryEn')"
                       [disabled]="savingShariahOverrides || shariahOverrides.overrideCategoryEn === null"
                       title="استعادة قيمة التغذية للتصنيف الإنجليزي">
@@ -852,8 +852,8 @@ interface EditableMarketForm {
                       معدّل يدويًا
                     </span>
                   </div>
-                  <div style="display: flex; gap: 10px; align-items: end; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 140px;">
+                  <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 160px;">
                       <input
                         type="number"
                         step="0.01"
@@ -864,11 +864,11 @@ interface EditableMarketForm {
                         class="admin-form input"
                         placeholder="من المصدر"
                         style="font-size: 13px; font-weight: 600;" />
-                      <div *ngIf="shariahOverrides.overrideHaramRevenuePercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 2px;">
+                      <div *ngIf="shariahOverrides.overrideHaramRevenuePercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 4px;">
                         التغذية: {{ shariahOverrides.feedHaramRevenuePercentage !== null ? (shariahOverrides.feedHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
                       </div>
                     </div>
-                    <div style="flex: 1; min-width: 140px;">
+                    <div style="flex: 1; min-width: 140px; padding-top: 4px;">
                       <strong style="font-size: 13px; color: var(--primary);">فعال: </strong>
                       <span style="font-size: 13px; font-weight: 600;">
                         {{ shariahOverrides.effectiveHaramRevenuePercentage !== null ? (shariahOverrides.effectiveHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
@@ -879,7 +879,7 @@ interface EditableMarketForm {
                     <button
                       type="button"
                       class="btn btn-outline"
-                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
+                      style="font-size: 12px; padding: 6px 12px; border-color: #fecaca; color: var(--bad);"
                       (click)="resetShariahOverride('HaramRevenuePercentage')"
                       [disabled]="savingShariahOverrides || shariahOverrides.overrideHaramRevenuePercentage === null"
                       title="استعادة قيمة التغذية لنسبة الإيراد المحرم">
@@ -897,8 +897,8 @@ interface EditableMarketForm {
                       معدّل يدويًا
                     </span>
                   </div>
-                  <div style="display: flex; gap: 10px; align-items: end; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 140px;">
+                  <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 160px;">
                       <input
                         type="number"
                         step="0.01"
@@ -909,11 +909,11 @@ interface EditableMarketForm {
                         class="admin-form input"
                         placeholder="من المصدر"
                         style="font-size: 13px; font-weight: 600;" />
-                      <div *ngIf="shariahOverrides.overrideLoansPercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 2px;">
+                      <div *ngIf="shariahOverrides.overrideLoansPercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 4px;">
                         التغذية: {{ shariahOverrides.feedLoansPercentage !== null ? (shariahOverrides.feedLoansPercentage | number:'1.2-2') + '%' : '—' }}
                       </div>
                     </div>
-                    <div style="flex: 1; min-width: 140px;">
+                    <div style="flex: 1; min-width: 140px; padding-top: 4px;">
                       <strong style="font-size: 13px; color: var(--primary);">فعال: </strong>
                       <span style="font-size: 13px; font-weight: 600;">
                         {{ shariahOverrides.effectiveLoansPercentage !== null ? (shariahOverrides.effectiveLoansPercentage | number:'1.2-2') + '%' : '—' }}
@@ -924,7 +924,7 @@ interface EditableMarketForm {
                     <button
                       type="button"
                       class="btn btn-outline"
-                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
+                      style="font-size: 12px; padding: 6px 12px; border-color: #fecaca; color: var(--bad);"
                       (click)="resetShariahOverride('LoansPercentage')"
                       [disabled]="savingShariahOverrides || shariahOverrides.overrideLoansPercentage === null"
                       title="استعادة قيمة التغذية لنسبة القروض والفوائد">
@@ -936,7 +936,7 @@ interface EditableMarketForm {
               </div>
 
               <!-- Bourse Halal 5 Standards Preview -->
-              <div *ngIf="shariahOverrides.effectiveHaramRevenuePercentage !== null || shariahOverrides.effectiveLoansPercentage !== null" style="margin-top: 20px; padding: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;">
+              <div *ngIf="shariahOverrides.effectiveHaramRevenuePercentage !== null || shariahOverrides.effectiveLoansPercentage !== null" style="margin-top: 12px; padding: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;">
                 <div style="font-size: 12px; font-weight: 600; color: #166534; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
                   <lucide-icon [img]="CheckCircleIcon" size="16"></lucide-icon>
                   معاينة معايير "بورصة حلال" الخمس (باستخدام القيم الفعالة)

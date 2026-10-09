@@ -22,7 +22,8 @@ import {
   Upload as UploadIcon,
   X,
   AlertCircle,
-  Check
+  Check,
+  ShieldCheck
 } from 'lucide-angular';
 import { ApiService } from '../../services/api.service';
 import { AdminAuthService } from '../../services/admin-auth.service';
@@ -624,7 +625,7 @@ interface EditableMarketForm {
                 {{ savingMarketData ? 'جارٍ حفظ التعديلات...' : 'حفظ بيانات السوق' }}
               </button>
 
-              <button
+<button
                 type="button"
                 class="btn btn-outline"
                 (click)="resetMarketForm()"
@@ -635,243 +636,348 @@ interface EditableMarketForm {
             </div>
           </form>
         </div>
+      </div>
 
-        <!-- Shariah Manual Overrides Section -->
-        <div *ngIf="selectedStockMarketData && !loadingStock && shariahOverrides" style="margin-top: 32px;">
-          <div style="background: #fbfcfb; border: 1px solid var(--border); border-radius: 14px; padding: 20px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
-              <h3 style="margin: 0; font-size: 16px; color: var(--primary); display: flex; align-items: center; gap: 8px;">
-                <lucide-icon [img]="Edit3Icon" size="18"></lucide-icon>
-                بيانات شرعية (يدوي)
-              </h3>
-              <span style="font-size: 11px; background: #ede9fe; color: #5b21b6; padding: 3px 10px; border-radius: 999px;">
-                يطبق على "بورصة حلال" فقط (EGX 33، DFM، AAOIFI، S&P، KLSI)
-              </span>
+      <!-- TAB: SHARIAH MANUAL EDIT -->
+      <div *ngIf="activeTab === 'shariah-edit'" class="admin-card">
+        <h2>تعديل البيانات الشرعية للأسهم يدوياً</h2>
+        <p class="muted">
+          ابحث عن السهم وحدده لتعديل البيانات الشرعية يدوياً (تصنيف النشاط، مطابقة النشاط الأساسي، نسبة الإيراد المحرم، نسبة القروض والفوائد).
+          القيم المدخلة هنا تطبق على "بورصة حلال" فقط (EGX 33، DFM، AAOIFI، S&P، KLSI) وتجاوز قيم التغذية.
+        </p>
+
+        <!-- Search / Select Stock Bar -->
+        <div style="background: #fbfcfb; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin: 20px 0;">
+          <label style="font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;">
+            البحث عن سهم بالرمز أو الاسم:
+          </label>
+          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <div style="position: relative; flex: 1; min-width: 240px;">
+              <input
+                type="text"
+                [(ngModel)]="shariahStockSearchQuery"
+                (input)="onShariahSearchInput()"
+                placeholder="أدخل رمز السهم (مثال: COMI, ORAS, ESRS)..."
+                class="admin-form input"
+                style="min-height: 42px; padding-inline-start: 36px;" />
+              <lucide-icon [img]="SearchIcon" size="18" style="position: absolute; right: 10px; top: 12px; color: var(--muted-foreground);"></lucide-icon>
+            </div>
+            
+            <select
+              [(ngModel)]="shariahSelectedTicker"
+              (change)="onShariahStockSelected()"
+              class="admin-form select"
+              style="min-height: 42px; min-width: 260px; flex: 1;">
+              <option value="">-- اختر من قائمة الأسهم ({{ filteredShariahStocks.length }} سهم) --</option>
+              <option *ngFor="let s of filteredShariahStocks" [value]="s.ticker">
+                {{ s.ticker }} - {{ s.nameAr || s.nameEn }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Quick click chips when searching -->
+          <div *ngIf="shariahStockSearchQuery.trim() && filteredShariahStocks.length > 0" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+            <span style="font-size: 11px; color: var(--muted-foreground); align-self: center; margin-left: 4px;">نتائج مطابقة سريعة:</span>
+            <button
+              *ngFor="let match of filteredShariahStocks.slice(0, 10)"
+              type="button"
+              (click)="selectShariahStockDirectly(match.ticker)"
+              class="btn btn-outline"
+              style="font-size: 11px; padding: 4px 8px; border-radius: 6px; background: white;"
+              [style.borderColor]="shariahSelectedTicker === match.ticker ? 'var(--primary)' : 'var(--border)'"
+              [style.color]="shariahSelectedTicker === match.ticker ? 'var(--primary)' : 'inherit'">
+              <strong>{{ match.ticker }}</strong> <span style="margin-right: 4px; font-size: 10px; color: var(--muted-foreground);">({{ match.nameAr || match.nameEn }})</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Stock Details Header & Info -->
+        <div *ngIf="shariahLoadingStock" style="padding: 30px; text-align: center; color: var(--muted-foreground);">
+          جارٍ تحميل بيانات السهم...
+        </div>
+
+        <div *ngIf="shariahSelectedStockMarketData && !shariahLoadingStock" style="margin-top: 24px;">
+          <!-- Header Banner -->
+          <div style="background: var(--muted); border-radius: 12px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <h3 style="margin: 0; font-size: 18px; font-weight: 700;">
+                  [{{ shariahSelectedStockMarketData.ticker }}] {{ shariahSelectedStockMarketData.nameAr || shariahSelectedStockMarketData.nameEn }}
+                </h3>
+                <span style="font-size: 12px; background: white; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--border);">
+                  {{ shariahSelectedStockMarketData.sectorNameAr || 'قطاع عام' }}
+                </span>
+                <span *ngIf="!shariahSelectedStockMarketData.fetchedAt" style="font-size: 11px; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 6px; border: 1px solid #fcd34d;">
+                  لا توجد بيانات سوق سابقة — سيتم الإنشاء عند الحفظ
+                </span>
+              </div>
+              <div *ngIf="shariahSelectedStockMarketData.fetchedAt" style="font-size: 12px; color: var(--muted-foreground); margin-top: 6px;">
+                آخر تحديث حي: <strong>{{ shariahSelectedStockMarketData.fetchedAt | date:'yyyy-MM-dd HH:mm' }}</strong>
+                <span *ngIf="shariahSelectedStockMarketData.sourceLastUpdateText"> | المصدر: {{ shariahSelectedStockMarketData.sourceLastUpdateText }}</span>
+              </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
-              <!-- Core Activity Compliant -->
-              <div style="background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                  <label style="font-size: 12px; font-weight: 600; margin: 0;">تصنيف النشاط + مطابقة النشاط الأساسي</label>
-                  <span *ngIf="shariahOverrides.overrideCoreActivityCompliant !== null" style="font-size: 10px; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 999px; border: 1px solid #fcd34d;">
-                    معدّل يدويًا
-                  </span>
-                </div>
-                <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                  <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
-                    <input
-                      type="checkbox"
-                      [(ngModel)]="shariahOverrideForm.coreActivityCompliantOverride"
-                      name="coreActivityCompliantOverride"
-                      style="width: 18px; height: 18px; accent-color: var(--primary);" />
-                    <span>مطابق للنشاط الأساسي (CoreActivityCompliant)</span>
-                  </label>
-                </div>
-                <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
-                  <div style="flex: 1; min-width: 120px;">
-                    <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">التصنيف (عربي)</label>
-                    <input
-                      type="text"
-                      [(ngModel)]="shariahOverrideForm.categoryArOverride"
-                      name="categoryArOverride"
-                      class="admin-form input"
-                      placeholder="من المصدر"
-                      style="font-size: 12px;" />
-                    <div *ngIf="shariahOverrides.overrideCategoryAr" style="font-size: 10px; color: #92400e; margin-top: 2px;">
-                      التغذية: {{ shariahOverrides.feedCategoryAr }}
-                    </div>
-                  </div>
-                  <div style="flex: 1; min-width: 120px;">
-                    <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">التصنيف (إنجليزي)</label>
-                    <input
-                      type="text"
-                      [(ngModel)]="shariahOverrideForm.categoryEnOverride"
-                      name="categoryEnOverride"
-                      class="admin-form input"
-                      placeholder="من المصدر"
-                      style="font-size: 12px;" />
-                    <div *ngIf="shariahOverrides.overrideCategoryEn" style="font-size: 10px; color: #92400e; margin-top: 2px;">
-                      التغذية: {{ shariahOverrides.feedCategoryEn }}
-                    </div>
-                  </div>
-                </div>
-                <div style="margin-top: 10px; display: flex; gap: 8px;">
-                  <button
-                    type="button"
-                    class="btn btn-primary"
-                    style="font-size: 12px; padding: 6px 12px;"
-                    (click)="saveShariahOverrides()"
-                    [disabled]="savingShariahOverrides">
-                    <lucide-icon [img]="SaveIcon" size="14"></lucide-icon>
-                    حفظ الكل
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-outline"
-                    style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
-                    (click)="resetShariahOverride('CoreActivityCompliant')"
-                    [disabled]="savingShariahOverrides || shariahOverrides.overrideCoreActivityCompliant === null"
-                    title="استعادة قيمة التغذية لمطابقة النشاط الأساسي">
-                    <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
-                    استعادة النشاط
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-outline"
-                    style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
-                    (click)="resetShariahOverride('CategoryAr')"
-                    [disabled]="savingShariahOverrides || shariahOverrides.overrideCategoryAr === null"
-                    title="استعادة قيمة التغذية للتصنيف العربي">
-                    <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
-                    استعادة التصنيف (عربي)
-                  </button>
-                  <button
-                    type="button"
-                    class="btn btn-outline"
-                    style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
-                    (click)="resetShariahOverride('CategoryEn')"
-                    [disabled]="savingShariahOverrides || shariahOverrides.overrideCategoryEn === null"
-                    title="استعادة قيمة التغذية للتصنيف الإنجليزي">
-                    <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
-                    استعادة التصنيف (إنجليزي)
-                  </button>
-                </div>
+            <!-- Shariah & Fair Value Context Pills -->
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <div style="font-size: 12px; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px;">
+                <div style="color: var(--muted-foreground); font-size: 11px;">القيمة العادلة المحسوبة:</div>
+                <strong style="color: var(--primary); font-size: 14px;">
+                  {{ shariahSelectedStockMarketData.fairValue ? (shariahSelectedStockMarketData.fairValue | number:'1.2-2') + ' جنيه' : 'غير متوفرة' }}
+                </strong>
+                <span *ngIf="shariahSelectedStockMarketData.priceComparison" style="font-size: 11px; margin-right: 4px;" [style.color]="shariahSelectedStockMarketData.priceComparison === 'Cheap' ? 'var(--good)' : (shariahSelectedStockMarketData.priceComparison === 'Expensive' ? 'var(--bad)' : 'inherit')">
+                  ({{ shariahSelectedStockMarketData.priceComparison === 'Cheap' ? 'أرخص من العادلة' : (shariahSelectedStockMarketData.priceComparison === 'Expensive' ? 'أعلى من العادلة' : (shariahSelectedStockMarketData.priceComparison === 'Fair' ? 'قريبة من العادلة' : 'لا يمكن حساب القيمة العادلة')) }})
+                </span>
               </div>
 
-              <!-- Haram Revenue Percentage -->
-              <div style="background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                  <label style="font-size: 12px; font-weight: 600; margin: 0;">نسبة الإيراد المحرم (%)</label>
-                  <span *ngIf="shariahOverrides.overrideHaramRevenuePercentage !== null" style="font-size: 10px; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 999px; border: 1px solid #fcd34d;">
-                    معدّل يدويًا
-                  </span>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: end; flex-wrap: wrap;">
-                  <div style="flex: 1; min-width: 140px;">
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      [(ngModel)]="shariahOverrideForm.haramRevenuePercentageOverride"
-                      name="haramRevenuePercentageOverride"
-                      class="admin-form input"
-                      placeholder="من المصدر"
-                      style="font-size: 13px; font-weight: 600;" />
-                    <div *ngIf="shariahOverrides.overrideHaramRevenuePercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 2px;">
-                      التغذية: {{ shariahOverrides.feedHaramRevenuePercentage !== null ? (shariahOverrides.feedHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
-                    </div>
-                  </div>
-                  <div style="flex: 1; min-width: 140px;">
-                    <strong style="font-size: 13px; color: var(--primary);">فعال: </strong>
-                    <span style="font-size: 13px; font-weight: 600;">
-                      {{ shariahOverrides.effectiveHaramRevenuePercentage !== null ? (shariahOverrides.effectiveHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
+              <div style="font-size: 12px; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px;">
+                <div style="color: var(--muted-foreground); font-size: 11px;">حكم الشريعة:</div>
+                <strong [style.color]="shariahSelectedStockMarketData.shariahStatus === 'Compliant' ? 'var(--good)' : 'var(--bad)'">
+                  {{ shariahSelectedStockMarketData.shariahStatus === 'Compliant' ? 'متوافق' : (shariahSelectedStockMarketData.shariahStatus || 'غير محدد') }}
+                </strong>
+                <span *ngIf="shariahSelectedStockMarketData.shariahPct !== null" style="font-size: 11px; margin-right: 4px;">
+                  ({{ shariahSelectedStockMarketData.shariahPct }}% تطهير)
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shariah Manual Overrides Section -->
+          <div *ngIf="shariahOverrides" style="margin-top: 32px;">
+            <div style="background: #fbfcfb; border: 1px solid var(--border); border-radius: 14px; padding: 20px;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                <h3 style="margin: 0; font-size: 16px; color: var(--primary); display: flex; align-items: center; gap: 8px;">
+                  <lucide-icon [img]="Edit3Icon" size="18"></lucide-icon>
+                  بيانات شرعية (يدوي)
+                </h3>
+                <span style="font-size: 11px; background: #ede9fe; color: #5b21b6; padding: 3px 10px; border-radius: 999px;">
+                  يطبق على "بورصة حلال" فقط (EGX 33، DFM، AAOIFI، S&P، KLSI)
+                </span>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+                <!-- Core Activity Compliant -->
+                <div style="background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <label style="font-size: 12px; font-weight: 600; margin: 0;">تصنيف النشاط + مطابقة النشاط الأساسي</label>
+                    <span *ngIf="shariahOverrides.overrideCoreActivityCompliant !== null" style="font-size: 10px; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 999px; border: 1px solid #fcd34d;">
+                      معدّل يدويًا
                     </span>
                   </div>
-                </div>
-                <div style="margin-top: 10px; display: flex; gap: 8px;">
-                  <button
-                    type="button"
-                    class="btn btn-outline"
-                    style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
-                    (click)="resetShariahOverride('HaramRevenuePercentage')"
-                    [disabled]="savingShariahOverrides || shariahOverrides.overrideHaramRevenuePercentage === null"
-                    title="استعادة قيمة التغذية لنسبة الإيراد المحرم">
-                    <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
-                    استعادة للتغذية
-                  </button>
-                </div>
-              </div>
-
-              <!-- Loans Percentage -->
-              <div style="background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                  <label style="font-size: 12px; font-weight: 600; margin: 0;">نسبة القروض والفوائد (%)</label>
-                  <span *ngIf="shariahOverrides.overrideLoansPercentage !== null" style="font-size: 10px; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 999px; border: 1px solid #fcd34d;">
-                    معدّل يدويًا
-                  </span>
-                </div>
-                <div style="display: flex; gap: 10px; align-items: end; flex-wrap: wrap;">
-                  <div style="flex: 1; min-width: 140px;">
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      [(ngModel)]="shariahOverrideForm.loansPercentageOverride"
-                      name="loansPercentageOverride"
-                      class="admin-form input"
-                      placeholder="من المصدر"
-                      style="font-size: 13px; font-weight: 600;" />
-                    <div *ngIf="shariahOverrides.overrideLoansPercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 2px;">
-                      التغذية: {{ shariahOverrides.feedLoansPercentage !== null ? (shariahOverrides.feedLoansPercentage | number:'1.2-2') + '%' : '—' }}
+                  <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="shariahOverrideForm.coreActivityCompliantOverride"
+                        name="coreActivityCompliantOverride"
+                        style="width: 18px; height: 18px; accent-color: var(--primary);" />
+                      <span>مطابق للنشاط الأساسي (CoreActivityCompliant)</span>
+                    </label>
+                  </div>
+                  <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 120px;">
+                      <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">التصنيف (عربي)</label>
+                      <input
+                        type="text"
+                        [(ngModel)]="shariahOverrideForm.categoryArOverride"
+                        name="categoryArOverride"
+                        class="admin-form input"
+                        placeholder="من المصدر"
+                        style="font-size: 12px;" />
+                      <div *ngIf="shariahOverrides.overrideCategoryAr" style="font-size: 10px; color: #92400e; margin-top: 2px;">
+                        التغذية: {{ shariahOverrides.feedCategoryAr }}
+                      </div>
+                    </div>
+                    <div style="flex: 1; min-width: 120px;">
+                      <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">التصنيف (إنجليزي)</label>
+                      <input
+                        type="text"
+                        [(ngModel)]="shariahOverrideForm.categoryEnOverride"
+                        name="categoryEnOverride"
+                        class="admin-form input"
+                        placeholder="من المصدر"
+                        style="font-size: 12px;" />
+                      <div *ngIf="shariahOverrides.overrideCategoryEn" style="font-size: 10px; color: #92400e; margin-top: 2px;">
+                        التغذية: {{ shariahOverrides.feedCategoryEn }}
+                      </div>
                     </div>
                   </div>
-                  <div style="flex: 1; min-width: 140px;">
-                    <strong style="font-size: 13px; color: var(--primary);">فعال: </strong>
-                    <span style="font-size: 13px; font-weight: 600;">
-                      {{ shariahOverrides.effectiveLoansPercentage !== null ? (shariahOverrides.effectiveLoansPercentage | number:'1.2-2') + '%' : '—' }}
-                    </span>
+                  <div style="margin-top: 10px; display: flex; gap: 8px;">
+                    <button
+                      type="button"
+                      class="btn btn-primary"
+                      style="font-size: 12px; padding: 6px 12px;"
+                      (click)="saveShariahOverrides()"
+                      [disabled]="savingShariahOverrides">
+                      <lucide-icon [img]="SaveIcon" size="14"></lucide-icon>
+                      حفظ الكل
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline"
+                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
+                      (click)="resetShariahOverride('CoreActivityCompliant')"
+                      [disabled]="savingShariahOverrides || shariahOverrides.overrideCoreActivityCompliant === null"
+                      title="استعادة قيمة التغذية لمطابقة النشاط الأساسي">
+                      <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
+                      استعادة النشاط
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline"
+                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
+                      (click)="resetShariahOverride('CategoryAr')"
+                      [disabled]="savingShariahOverrides || shariahOverrides.overrideCategoryAr === null"
+                      title="استعادة قيمة التغذية للتصنيف العربي">
+                      <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
+                      استعادة التصنيف (عربي)
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline"
+                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
+                      (click)="resetShariahOverride('CategoryEn')"
+                      [disabled]="savingShariahOverrides || shariahOverrides.overrideCategoryEn === null"
+                      title="استعادة قيمة التغذية للتصنيف الإنجليزي">
+                      <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
+                      استعادة التصنيف (إنجليزي)
+                    </button>
                   </div>
                 </div>
-                <div style="margin-top: 10px; display: flex; gap: 8px;">
-                  <button
-                    type="button"
-                    class="btn btn-outline"
-                    style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
-                    (click)="resetShariahOverride('LoansPercentage')"
-                    [disabled]="savingShariahOverrides || shariahOverrides.overrideLoansPercentage === null"
-                    title="استعادة قيمة التغذية لنسبة القروض والفوائد">
-                    <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
-                    استعادة للتغذية
-                  </button>
+
+                <!-- Haram Revenue Percentage -->
+                <div style="background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <label style="font-size: 12px; font-weight: 600; margin: 0;">نسبة الإيراد المحرم (%)</label>
+                    <span *ngIf="shariahOverrides.overrideHaramRevenuePercentage !== null" style="font-size: 10px; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 999px; border: 1px solid #fcd34d;">
+                      معدّل يدويًا
+                    </span>
+                  </div>
+                  <div style="display: flex; gap: 10px; align-items: end; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 140px;">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        [(ngModel)]="shariahOverrideForm.haramRevenuePercentageOverride"
+                        name="haramRevenuePercentageOverride"
+                        class="admin-form input"
+                        placeholder="من المصدر"
+                        style="font-size: 13px; font-weight: 600;" />
+                      <div *ngIf="shariahOverrides.overrideHaramRevenuePercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 2px;">
+                        التغذية: {{ shariahOverrides.feedHaramRevenuePercentage !== null ? (shariahOverrides.feedHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
+                      </div>
+                    </div>
+                    <div style="flex: 1; min-width: 140px;">
+                      <strong style="font-size: 13px; color: var(--primary);">فعال: </strong>
+                      <span style="font-size: 13px; font-weight: 600;">
+                        {{ shariahOverrides.effectiveHaramRevenuePercentage !== null ? (shariahOverrides.effectiveHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
+                      </span>
+                    </div>
+                  </div>
+                  <div style="margin-top: 10px; display: flex; gap: 8px;">
+                    <button
+                      type="button"
+                      class="btn btn-outline"
+                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
+                      (click)="resetShariahOverride('HaramRevenuePercentage')"
+                      [disabled]="savingShariahOverrides || shariahOverrides.overrideHaramRevenuePercentage === null"
+                      title="استعادة قيمة التغذية لنسبة الإيراد المحرم">
+                      <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
+                      استعادة للتغذية
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Loans Percentage -->
+                <div style="background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                    <label style="font-size: 12px; font-weight: 600; margin: 0;">نسبة القروض والفوائد (%)</label>
+                    <span *ngIf="shariahOverrides.overrideLoansPercentage !== null" style="font-size: 10px; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 999px; border: 1px solid #fcd34d;">
+                      معدّل يدويًا
+                    </span>
+                  </div>
+                  <div style="display: flex; gap: 10px; align-items: end; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 140px;">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        [(ngModel)]="shariahOverrideForm.loansPercentageOverride"
+                        name="loansPercentageOverride"
+                        class="admin-form input"
+                        placeholder="من المصدر"
+                        style="font-size: 13px; font-weight: 600;" />
+                      <div *ngIf="shariahOverrides.overrideLoansPercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 2px;">
+                        التغذية: {{ shariahOverrides.feedLoansPercentage !== null ? (shariahOverrides.feedLoansPercentage | number:'1.2-2') + '%' : '—' }}
+                      </div>
+                    </div>
+                    <div style="flex: 1; min-width: 140px;">
+                      <strong style="font-size: 13px; color: var(--primary);">فعال: </strong>
+                      <span style="font-size: 13px; font-weight: 600;">
+                        {{ shariahOverrides.effectiveLoansPercentage !== null ? (shariahOverrides.effectiveLoansPercentage | number:'1.2-2') + '%' : '—' }}
+                      </span>
+                    </div>
+                  </div>
+                  <div style="margin-top: 10px; display: flex; gap: 8px;">
+                    <button
+                      type="button"
+                      class="btn btn-outline"
+                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
+                      (click)="resetShariahOverride('LoansPercentage')"
+                      [disabled]="savingShariahOverrides || shariahOverrides.overrideLoansPercentage === null"
+                      title="استعادة قيمة التغذية لنسبة القروض والفوائد">
+                      <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
+                      استعادة للتغذية
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Bourse Halal 5 Standards Preview -->
-            <div *ngIf="shariahOverrides.effectiveHaramRevenuePercentage !== null || shariahOverrides.effectiveLoansPercentage !== null" style="margin-top: 20px; padding: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;">
-              <div style="font-size: 12px; font-weight: 600; color: #166534; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                <lucide-icon [img]="CheckCircleIcon" size="16"></lucide-icon>
-                معاينة معايير "بورصة حلال" الخمس (باستخدام القيم الفعالة)
+              <!-- Bourse Halal 5 Standards Preview -->
+              <div *ngIf="shariahOverrides.effectiveHaramRevenuePercentage !== null || shariahOverrides.effectiveLoansPercentage !== null" style="margin-top: 20px; padding: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;">
+                <div style="font-size: 12px; font-weight: 600; color: #166534; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                  <lucide-icon [img]="CheckCircleIcon" size="16"></lucide-icon>
+                  معاينة معايير "بورصة حلال" الخمس (باستخدام القيم الفعالة)
+                </div>
+                <div class="table-scroll-x">
+                  <table class="admin-table" style="font-size: 12px;">
+                    <thead>
+                      <tr>
+                        <th>المعيار</th>
+                        <th>حد الإيراد المحرم</th>
+                        <th>حد المديونية</th>
+                        <th>الإيراد الفعلي</th>
+                        <th>المديونية الفعلية</th>
+                        <th>النتيجة</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let s of bourseHalalStandards">
+                        <td><strong>{{ s.name }}</strong></td>
+                        <td>{{ s.revenueMax }}%</td>
+                        <td>{{ s.debtMax }}%</td>
+                        <td>{{ shariahOverrides.effectiveHaramRevenuePercentage !== null ? (shariahOverrides.effectiveHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}</td>
+                        <td>{{ shariahOverrides.effectiveLoansPercentage !== null ? (shariahOverrides.effectiveLoansPercentage | number:'1.2-2') + '%' : '—' }}</td>
+                        <td>
+                          <span [style.color]="s.passes ? 'var(--good)' : 'var(--bad)'" style="font-weight: 600;">
+                            {{ s.passes ? 'اجتاز ✓' : 'لم يجتاز ✗' }}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div style="font-size: 11px; color: #166534; margin-top: 8px;">
+                  اجتاز <strong>{{ passedStandardsCount }} من 5</strong> معيارًا.
+                  <span *ngIf="passedStandardsCount > 0" style="margin-right: 8px;">→ يؤهل للترقية من "مشكوك" إلى "متوافق" في بورصة حلال.</span>
+                </div>
               </div>
-              <div class="table-scroll-x">
-                <table class="admin-table" style="font-size: 12px;">
-                  <thead>
-                    <tr>
-                      <th>المعيار</th>
-                      <th>حد الإيراد المحرم</th>
-                      <th>حد المديونية</th>
-                      <th>الإيراد الفعلي</th>
-                      <th>المديونية الفعلية</th>
-                      <th>النتيجة</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr *ngFor="let s of bourseHalalStandards">
-                      <td><strong>{{ s.name }}</strong></td>
-                      <td>{{ s.revenueMax }}%</td>
-                      <td>{{ s.debtMax }}%</td>
-                      <td>{{ shariahOverrides.effectiveHaramRevenuePercentage !== null ? (shariahOverrides.effectiveHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}</td>
-                      <td>{{ shariahOverrides.effectiveLoansPercentage !== null ? (shariahOverrides.effectiveLoansPercentage | number:'1.2-2') + '%' : '—' }}</td>
-                      <td>
-                        <span [style.color]="s.passes ? 'var(--good)' : 'var(--bad)'" style="font-weight: 600;">
-                          {{ s.passes ? 'اجتاز ✓' : 'لم يجتاز ✗' }}
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div style="font-size: 11px; color: #166534; margin-top: 8px;">
-                اجتاز <strong>{{ passedStandardsCount }} من 5</strong> معيارًا.
-                <span *ngIf="passedStandardsCount > 0" style="margin-right: 8px;">→ يؤهل للترقية من "مشكوك" إلى "متوافق" في بورصة حلال.</span>
-              </div>
-            </div>
 
-            <div *ngIf="shariahOverridesError" class="admin-result error" style="margin-top: 16px;">{{ shariahOverridesError }}</div>
-            <div *ngIf="shariahOverridesSuccess" class="admin-result success" style="margin-top: 16px;">{{ shariahOverridesSuccess }}</div>
+              <div *ngIf="shariahOverridesError" class="admin-result error" style="margin-top: 16px;">{{ shariahOverridesError }}</div>
+              <div *ngIf="shariahOverridesSuccess" class="admin-result success" style="margin-top: 16px;">{{ shariahOverridesSuccess }}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1343,8 +1449,9 @@ export class AdminComponent implements OnInit, OnDestroy {
   readonly AlertCircleIcon = AlertCircle;
   readonly CheckCircleIcon = CheckCircle;
   readonly CheckIcon = Check;
+  readonly ShieldCheckIcon = ShieldCheck;
 
-  activeTab: 'scraping' | 'market-data' | 'upload' | 'shariah' | 'pdf-upload' | 'review' | 'stocks' = 'scraping';
+  activeTab: 'scraping' | 'market-data' | 'upload' | 'shariah' | 'pdf-upload' | 'review' | 'stocks' | 'shariah-edit' = 'scraping';
 
   indices: IndexSummaryDto[] = [];
   allStocks: AdminStockLookupItem[] = [];
@@ -1401,6 +1508,13 @@ export class AdminComponent implements OnInit, OnDestroy {
     { name: 'S&P', revenueMax: 5, debtMax: 33, passes: false },
     { name: 'KLSI', revenueMax: 20, debtMax: 33, passes: false }
   ];
+
+  // Shariah Manual Edit tab
+  filteredShariahStocks: AdminStockLookupItem[] = [];
+  shariahStockSearchQuery = '';
+  shariahSelectedTicker = '';
+  shariahSelectedStockMarketData?: MarketDataDto;
+  shariahLoadingStock = false;
 
   // Upload tab
   selectedUploadIndex = '';
@@ -1638,19 +1752,12 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.loadingStock = true;
     this.saveError = '';
     this.saveSuccessResult = undefined;
-    this.shariahOverrides = undefined;
-    this.shariahOverridesError = '';
-    this.shariahOverridesSuccess = '';
 
     this.api.getMarketData(ticker).subscribe({
       next: (data) => {
         this.selectedStockMarketData = data;
         this.populateForm(data);
         this.loadingStock = false;
-        // Load Shariah overrides if the stock has Shariah metrics
-        if (data.shariahMetrics) {
-          this.loadShariahOverrides(ticker);
-        }
       },
       error: (err) => {
         if (err.status === 404) {
@@ -1711,6 +1818,76 @@ export class AdminComponent implements OnInit, OnDestroy {
       ...s,
       passes: (rev === null || rev <= s.revenueMax) && (debt === null || debt <= s.debtMax) && (rev !== null || debt !== null)
     }));
+  }
+
+  // ── Shariah Manual Edit tab ────────────────────────────────────────────────
+
+  onShariahSearchInput(): void {
+    const q = this.shariahStockSearchQuery.trim().toLowerCase();
+    if (!q) {
+      this.filteredShariahStocks = [...this.allStocks];
+      return;
+    }
+    this.filteredShariahStocks = this.allStocks.filter(s =>
+      s.ticker.toLowerCase().includes(q) ||
+      (s.nameAr && s.nameAr.toLowerCase().includes(q)) ||
+      (s.nameEn && s.nameEn.toLowerCase().includes(q))
+    );
+
+    // If exact ticker match typed, auto-select
+    const exact = this.allStocks.find(s => s.ticker.toLowerCase() === q);
+    if (exact && this.shariahSelectedTicker !== exact.ticker) {
+      this.shariahSelectedTicker = exact.ticker;
+      this.loadShariahStockMarketData(exact.ticker);
+    }
+  }
+
+  selectShariahStockDirectly(ticker: string): void {
+    this.shariahSelectedTicker = ticker;
+    this.shariahStockSearchQuery = ticker;
+    this.loadShariahStockMarketData(ticker);
+  }
+
+  onShariahStockSelected(): void {
+    if (!this.shariahSelectedTicker) {
+      this.shariahSelectedStockMarketData = undefined;
+      return;
+    }
+    this.shariahStockSearchQuery = this.shariahSelectedTicker;
+    this.loadShariahStockMarketData(this.shariahSelectedTicker);
+  }
+
+  loadShariahStockMarketData(ticker: string): void {
+    this.shariahLoadingStock = true;
+    this.shariahOverrides = undefined;
+    this.shariahOverridesError = '';
+    this.shariahOverridesSuccess = '';
+
+    this.api.getMarketData(ticker).subscribe({
+      next: (data) => {
+        this.shariahSelectedStockMarketData = data;
+        this.shariahLoadingStock = false;
+        // Load Shariah overrides if the stock has Shariah metrics
+        if (data.shariahMetrics) {
+          this.loadShariahOverrides(ticker);
+        }
+      },
+      error: (err) => {
+        if (err.status === 404) {
+          const match = this.allStocks.find(s => s.ticker === ticker);
+          this.shariahSelectedStockMarketData = {
+            ticker,
+            nameAr: match?.nameAr,
+            nameEn: match?.nameEn,
+            indices: [],
+            shariahOpinions: [],
+          } as any;
+        } else {
+          this.shariahOverridesError = 'تعذر تحميل بيانات السهم المختار';
+        }
+        this.shariahLoadingStock = false;
+      }
+    });
   }
 
   populateForm(data: MarketDataDto): void {

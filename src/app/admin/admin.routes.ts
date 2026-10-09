@@ -71,6 +71,15 @@ export const adminRoutes: Routes = [
         }
       },
       {
+        path: 'shariah-edit',
+        component: AdminComponent,
+        data: {
+          tab: 'shariah-edit',
+          title: 'تعديل البيانات الشرعية',
+          subtitle: 'تعديل تصنيف النشاط، مطابقة النشاط الأساسي، نسبة الإيراد المحرم، نسبة القروض والفوائد'
+        }
+      },
+      {
         path: 'stocks',
         component: AdminComponent,
         data: {

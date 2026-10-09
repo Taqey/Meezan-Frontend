@@ -400,6 +400,7 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   readonly navItems: AdminNavItem[] = [
     { path: 'market-data', label: 'سحب بيانات السوق (Live & Quarterly)', icon: Database },
     { path: 'manual-edit', label: 'تعديل بيانات السوق يدوياً', icon: Edit3 },
+    { path: 'shariah-edit', label: 'تعديل البيانات الشرعية', icon: ShieldCheck },
     { path: 'index-files', label: 'رفع ملفات المؤشرات (Excel)', icon: Upload },
     { path: 'shariah-seed', label: 'تحديث وبذر بيانات الشريعة', icon: ShieldCheck },
     { path: 'shariah-reports', label: 'رفع تقارير فيصل/أسطول (PDF)', icon: FileText },

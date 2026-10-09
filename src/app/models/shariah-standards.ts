@@ -202,16 +202,27 @@ export function evaluateStandards(stockRatios: StockRatios): StandardsEvaluation
 }
 
 /**
- * Overall Bourse Halal rule (pure, unit-testable): applies ONLY when the card's
- * effective status is doubtful. The stock is treated as compliant overall when
- * it passes AT LEAST ONE standard with data. Failing all standards (or having
- * no data at all) keeps it doubtful.
+ * Overall Bourse Halal rule (pure, unit-testable).
+ *
+ * Without a manual override the upgrade applies ONLY when the card's effective
+ * status is doubtful: the stock is treated as compliant overall when it passes
+ * AT LEAST ONE standard with data. Failing all standards (or having no data at
+ * all) keeps it doubtful.
+ *
+ * `hasComplianceOverride` is set by the admin when an override was saved on a
+ * compliance-affecting field (activity flag / prohibited revenue % / loans %).
+ * The operator has then corrected the inputs by hand, so the five screens decide
+ * on their own and the stored opinion is no longer required to be doubtful —
+ * this is what lets an override correct a stored "non_compliant" refusal.
+ * The "passes at least one standard with data" requirement is unchanged.
  */
 export function shouldUpgradeDoubtfulToCompliant(
   isDoubtful: boolean,
-  evaluation: StandardsEvaluation
+  evaluation: StandardsEvaluation,
+  hasComplianceOverride = false
 ): boolean {
-  return isDoubtful && evaluation.totalCount > 0 && evaluation.passedCount > 0;
+  if (!hasComplianceOverride && !isDoubtful) return false;
+  return evaluation.totalCount > 0 && evaluation.passedCount > 0;
 }
 
 // ── Effective per-source status (single place) ─────────────────────────
@@ -267,14 +278,17 @@ export function halalBourseDisplayStatus(
 /**
  * ONE effective status per source. For Bourse Halal: a doubtful display status
  * that passes at least one quantitative standard becomes "Compliant";
- * otherwise it equals the display status. All other sources keep their raw
+ * otherwise it equals the display status. When `hasComplianceOverride` is set the
+ * doubtful precondition is waived (see shouldUpgradeDoubtfulToCompliant), so an
+ * admin override also corrects a stored refusal. All other sources keep their raw
  * status. Extra fields on the input objects (notes, dates, pdf urls) are
  * preserved untouched.
  */
 export function getEffectiveSourceStatuses<T extends SourceStatusInput>(
   sources: readonly T[],
   evaluation: StandardsEvaluation,
-  halalBourseKey: number
+  halalBourseKey: number,
+  hasComplianceOverride = false
 ): Array<T & EffectiveSourceStatus> {
   return sources.map((src) => {
     if (src.noOpinion) {
@@ -285,7 +299,11 @@ export function getEffectiveSourceStatuses<T extends SourceStatusInput>(
       ? halalBourseDisplayStatus(src.status, src.percentage)
       : (src.status ?? null);
     const upgraded = isHalalBourse
-      && shouldUpgradeDoubtfulToCompliant(normalizeStatusValue(raw) === 'doubtful', evaluation);
+      && shouldUpgradeDoubtfulToCompliant(
+        normalizeStatusValue(raw) === 'doubtful',
+        evaluation,
+        hasComplianceOverride
+      );
     return {
       ...src,
       rawDisplayStatus: raw,

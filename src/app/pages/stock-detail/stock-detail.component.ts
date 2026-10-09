@@ -670,7 +670,12 @@ export class StockDetailComponent implements OnInit, OnDestroy {
       return { sourceKey: key, status: null, percentage: null, note: null, noOpinion: true };
     });
 
-    return getEffectiveSourceStatuses(raw, this.standardsEvaluation, ShariahSourceKey.HalalBourse);
+    return getEffectiveSourceStatuses(
+      raw,
+      this.standardsEvaluation,
+      ShariahSourceKey.HalalBourse,
+      !!this.marketData?.hasShariahComplianceOverride
+    );
   }
 
   /** Boards that actually returned a stored verdict for this stock. */

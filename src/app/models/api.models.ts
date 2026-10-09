@@ -238,6 +238,13 @@ export interface MarketDataDto {
    * (camelCase to match the API's camelCase JSON.)
    */
   shariahMetricsUnavailableReason?: 'MISSING_FINANCIALS' | 'NOT_CALCULATED' | string | null;
+  /**
+   * True when an admin saved a manual override on a compliance-affecting Shariah
+   * field (activity flag, prohibited revenue %, loans %). Lets the Bourse Halal
+   * card let the five quantitative screens decide the verdict without requiring
+   * the stored opinion to be "doubtful" first.
+   */
+  hasShariahComplianceOverride?: boolean | null;
   sectorWeight?: number | null;
   isSectorWeightCapped?: boolean | null;
   sectorCappingFactor?: number | null;

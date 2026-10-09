@@ -216,6 +216,49 @@ describe('getEffectiveSourceStatuses', () => {
     expect(out[0].effectiveStatus).toBe('Compliant');
     expect(out[0].upgraded).toBeTrue();
   });
+
+  // ── Manual compliance override (admin) ────────────────────────────────────
+  // The operator corrected the inputs by hand, so the five screens decide the
+  // Bourse Halal verdict even when the stored opinion is an explicit refusal.
+
+  it('override flips a stored non-compliant Bourse Halal card when a standard passes', () => {
+    const sources: SourceStatusInput[] = [
+      { sourceKey: HB, status: 'NonCompliant', percentage: null, noOpinion: false }
+    ];
+    const out = getEffectiveSourceStatuses(sources, abukEval, HB, true);
+    expect(out[0].rawDisplayStatus).toBe('NonCompliant');
+    expect(out[0].effectiveStatus).toBe('Compliant');
+    expect(out[0].upgraded).toBeTrue();
+  });
+
+  it('override does NOT flip a non-compliant card when no standard passes', () => {
+    const failing = evaluateStandards({ prohibitedRevenue: 60, debt: 80 });
+    const sources: SourceStatusInput[] = [
+      { sourceKey: HB, status: 'NonCompliant', percentage: null, noOpinion: false }
+    ];
+    const out = getEffectiveSourceStatuses(sources, failing, HB, true);
+    expect(out[0].effectiveStatus).toBe('NonCompliant');
+    expect(out[0].upgraded).toBeFalse();
+  });
+
+  it('override does not flip the card when there is no ratio data at all', () => {
+    const noData = evaluateStandards({ prohibitedRevenue: null, debt: null });
+    const sources: SourceStatusInput[] = [
+      { sourceKey: HB, status: 'NonCompliant', percentage: null, noOpinion: false }
+    ];
+    const out = getEffectiveSourceStatuses(sources, noData, HB, true);
+    expect(out[0].effectiveStatus).toBe('NonCompliant');
+    expect(out[0].upgraded).toBeFalse();
+  });
+
+  it('override never touches the other sources', () => {
+    const sources: SourceStatusInput[] = [
+      { sourceKey: HB, status: 'NonCompliant', percentage: null, noOpinion: false },
+      { sourceKey: MUS, status: 'NonCompliant', percentage: null, noOpinion: false }
+    ];
+    const out = getEffectiveSourceStatuses(sources, abukEval, HB, true);
+    expect(out.find((s) => s.sourceKey === MUS)!.effectiveStatus).toBe('NonCompliant');
+  });
 });
 
 describe('resolveInternalVerdict', () => {

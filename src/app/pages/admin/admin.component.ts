@@ -643,7 +643,7 @@ interface EditableMarketForm {
         <h2>تعديل البيانات الشرعية للأسهم يدوياً</h2>
         <p class="muted">
           ابحث عن السهم وحدده لتعديل البيانات الشرعية يدوياً (تصنيف النشاط، مطابقة النشاط الأساسي، نسبة الإيراد المحرم، نسبة القروض والفوائد).
-          القيم المدخلة هنا تطبق على "بورصة حلال" فقط (EGX 33، DFM، AAOIFI، S&P، KLSI) وتجاوز قيم التغذية.
+          القيم المدخلة هنا تطبق على كل الحسابات الشرعية (EGX 33، DFM، AAOIFI، S&P، KLSI، حالة الامتثال، التطهير) وتجاوز قيم التغذية.
         </p>
 
         <!-- Search / Select Stock Bar -->
@@ -750,7 +750,7 @@ interface EditableMarketForm {
                   بيانات شرعية (يدوي)
                 </h3>
                 <span style="font-size: 11px; background: #ede9fe; color: #5b21b6; padding: 3px 10px; border-radius: 999px;">
-                  يطبق على "بورصة حلال" فقط (EGX 33، DFM، AAOIFI، S&P، KLSI)
+                  تطبق على كل الحسابات الشرعية (EGX 33، DFM، AAOIFI، S&P، KLSI، حالة الامتثال، التطهير)
                 </span>
               </div>
 

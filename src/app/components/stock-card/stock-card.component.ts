@@ -7,6 +7,7 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import { FavoriteToggleComponent } from '../favorite-toggle/favorite-toggle.component';
 import { PriceFlashDirective } from '../../directives/price-flash.directive';
 import { INDEX_ARABIC_NAMES } from '../../models/api.models';
+import { getNonComplianceReasons, normalizeStatusValue } from '../../models/shariah-standards';
 
 @Component({
   selector: 'app-stock-card',
@@ -46,6 +47,11 @@ import { INDEX_ARABIC_NAMES } from '../../models/api.models';
         <app-comparison-badge [comparison]="priceComparison" [fairValueDiffPct]="fairValueDiffPct" [closingPrice]="closingPrice" [fairValue]="fairValue"></app-comparison-badge>
       </div>
 
+      <!-- Non-compliance reason line (shown only when status is NonCompliant and reasons exist) -->
+      <div class="noncompliance-reason" *ngIf="nonComplianceReasons.length > 0">
+        <span *ngFor="let r of nonComplianceReasons; let last = last">{{ r }}<span *ngIf="!last"> · </span></span>
+      </div>
+
       <div class="stock-meta" *ngIf="indexLabels && indexLabels.length">
         <span>{{ indexLabels.join(' · ') }}</span>
       </div>
@@ -71,6 +77,12 @@ export class StockCardComponent {
   /** Shows the favorite star toggle next to the change percentage. */
   @Input() showFavorite = false;
 
+  // Shariah metrics for non-compliance reason display
+  @Input() coreActivityCompliant?: boolean | null;
+  @Input() categoryAr?: string | null;
+  @Input() spHaramEarningPercentage?: number | null;
+  @Input() loansPercentage?: number | null;
+
   readonly ShieldCheckIcon = ShieldCheck;
 
   get currencyLabel(): string {
@@ -86,4 +98,17 @@ export class StockCardComponent {
       return INDEX_ARABIC_NAMES[code] || code;
     });
   }
+
+  /** Non-compliance reasons to show below the badge — empty unless status is NonCompliant. */
+  get nonComplianceReasons(): string[] {
+    if (normalizeStatusValue(this.shariahStatus) !== 'noncompliant') return [];
+    return getNonComplianceReasons({
+      coreActivityCompliant: this.coreActivityCompliant,
+      categoryAr: this.categoryAr,
+      spHaramEarningPercentage: this.spHaramEarningPercentage,
+      loansPercentage: this.loansPercentage
+    });
+  }
 }
+
+

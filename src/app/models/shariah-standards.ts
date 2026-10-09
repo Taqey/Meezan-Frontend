@@ -307,3 +307,67 @@ export function resolveInternalVerdict(
   if (effectiveStatuses.some((s) => normalizeStatusValue(s) === 'compliant')) return 'Compliant';
   return fallback ?? null;
 }
+
+// ── Non-compliance reason helper ────────────────────────────────────────────
+
+export interface NonComplianceReasonInput {
+  coreActivityCompliant?: boolean | null;
+  categoryAr?: string | null;
+  spHaramEarningPercentage?: number | null;
+  loansPercentage?: number | null;
+}
+
+/**
+ * Builds an array of compact Arabic reason strings for a non-compliant stock.
+ *
+ * Order: activity first, then financial ratios.
+ * Thresholds are read from SHARIAH_STANDARDS; the loosest standard that still
+ * caused non-compliance is not resolved here — instead we show the actual values
+ * and the KLSI limit (20 % revenue, 33 % debt) which is the widest threshold
+ * in the backend upgrade logic (matching StockRepository.cs).
+ *
+ * Returns an empty array when the stock is not explicitly non-compliant.
+ */
+export function getNonComplianceReasons(input: NonComplianceReasonInput): string[] {
+  const reasons: string[] = [];
+
+  // 1. Activity non-compliance
+  if (input.coreActivityCompliant === false) {
+    const cat = input.categoryAr?.trim();
+    reasons.push(
+      cat
+        ? `السبب: النشاط الأساسي غير متوافق (${cat})`
+        : 'السبب: النشاط الأساسي غير متوافق'
+    );
+  }
+
+  // 2. Financial ratio non-compliance (only if activity is fine)
+  // Use the loosest revenue/debt thresholds (KLSI: 20/33) because the backend
+  // upgrades a doubtful stock to compliant only when ALL standards' thresholds
+  // pass; a stock that fails even KLSI is flagged non-compliant.
+  const revenueMax = Math.max(...SHARIAH_STANDARDS.map((s) => s.prohibitedRevenueMax)); // 20
+  const debtMax    = Math.max(...SHARIAH_STANDARDS.map((s) => s.debtMax));              // 33
+
+  const ratioReasons: string[] = [];
+
+  const rev = input.spHaramEarningPercentage;
+  if (rev != null && rev > revenueMax) {
+    ratioReasons.push(
+      `تجاوز نسبة الإيرادات المحرمة (${rev.toFixed(0)}% — الحد الأقصى ${revenueMax}%)`
+    );
+  }
+
+  const debt = input.loansPercentage;
+  if (debt != null && debt > debtMax) {
+    ratioReasons.push(
+      `تجاوز نسبة القروض (${debt.toFixed(0)}% — الحد الأقصى ${debtMax}%)`
+    );
+  }
+
+  if (ratioReasons.length > 0) {
+    reasons.push('السبب: ' + ratioReasons.join(' · '));
+  }
+
+  return reasons;
+}
+

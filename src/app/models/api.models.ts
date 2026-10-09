@@ -85,6 +85,18 @@ export interface StockListItemDto {
   weightIndexCode?: string | null;
   isCapped?: boolean | null;
   cappingFactor?: number | null;
+  /** False = activity non-compliant (e.g. traditional bank). */
+  coreActivityCompliant?: boolean | null;
+  /** Arabic activity category name (used in non-compliance reason). */
+  categoryAr?: string | null;
+  /** English activity category name. */
+  categoryEn?: string | null;
+  /** S&P haram earning percentage (primary ratio for non-compliance reason). */
+  spHaramEarningPercentage?: number | null;
+  /** Loans/debt percentage (secondary ratio). */
+  loansPercentage?: number | null;
+  /** Purification percentage from ShariahCompliance (legacy Pct field). */
+  purificationPct?: number | null;
 }
 
 export interface IndexSummaryDto {

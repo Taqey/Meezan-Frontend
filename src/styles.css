@@ -4467,3 +4467,14 @@ app-shariah-standards .explainer-note {
   font-weight: 600;
 }
 
+
+/* -- Non-compliance reason line on stock cards */
+.noncompliance-reason {
+  font-size: 11px;
+  color: var(--ink-muted, rgba(255, 255, 255, 0.55));
+  line-height: 1.4;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(239, 68, 68, 0.15);
+  word-break: break-word;
+}

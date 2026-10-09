@@ -94,6 +94,13 @@ import { IndexSummaryDto, PagedResult, SectorSummaryDto, StockListItemDto } from
             </div>
           </div>
 
+          <!-- Non-compliance sub-filter (shown when NonCompliant is selected) -->
+          <select *ngIf="shariahStatuses.includes('NonCompliant')" [(ngModel)]="nonComplianceType" (change)="onFilterChange()" aria-label="سبب عدم التوافق">
+            <option value="">الكل (نشاط + نسب)</option>
+            <option value="activity">النشاط الأساسي</option>
+            <option value="ratios">النسب المالية</option>
+          </select>
+
           <!-- Price Comparison Filter (Cheap / Fair / Expensive) -->
           <select [(ngModel)]="priceComparison" (change)="onFilterChange()" aria-label="مقارنة القيمة العادلة">
             <option value="">القيمة العادلة: الكل</option>
@@ -239,6 +246,11 @@ import { IndexSummaryDto, PagedResult, SectorSummaryDto, StockListItemDto } from
             </span>
           </ng-container>
 
+          <span *ngIf="nonComplianceType" class="active-filter">
+            سبب عدم التوافق: {{ nonComplianceType === 'activity' ? 'النشاط' : 'النسب المالية' }}
+            <button (click)="clearFilter('nonComplianceType')">×</button>
+          </span>
+
           <span *ngIf="priceComparison" class="active-filter">
             التقييم: {{ getPriceComparisonLabel(priceComparison) }}
             <button (click)="clearFilter('priceComparison')">×</button>
@@ -270,9 +282,9 @@ import { IndexSummaryDto, PagedResult, SectorSummaryDto, StockListItemDto } from
       </div>
 
       <!-- Stock Grid -->
-      <div class="stock-grid" *ngIf="!stocksLoading && stocks.length">
+      <div class="stock-grid" *ngIf="!stocksLoading && displayedStocks.length">
         <app-stock-card
-          *ngFor="let s of stocks; let i = index"
+          *ngFor="let s of displayedStocks; let i = index"
           [style.--item-index]="i"
           [ticker]="s.ticker"
           [nameAr]="s.nameAr"
@@ -288,13 +300,17 @@ import { IndexSummaryDto, PagedResult, SectorSummaryDto, StockListItemDto } from
           [isCapped]="s.isCapped"
           [cappingFactor]="s.cappingFactor"
           [currency]="s.currency"
-          [sectorNameAr]="s.sectorNameAr || sector?.nameAr"
+          [sectorNameAr]="s.sectorNameAr || sector.nameAr"
+          [coreActivityCompliant]="s.coreActivityCompliant"
+          [categoryAr]="s.categoryAr"
+          [spHaramEarningPercentage]="s.spHaramEarningPercentage"
+          [loansPercentage]="s.loansPercentage"
           [showFavorite]="true">
         </app-stock-card>
       </div>
 
       <!-- Empty -->
-      <div *ngIf="!stocksLoading && !stocks.length" class="empty-state">
+      <div *ngIf="!stocksLoading && !displayedStocks.length" class="empty-state">
         <lucide-icon [img]="SearchIcon" size="32"></lucide-icon>
         <h3>لا توجد أسهم مطابقة للفلاتر المختارة</h3>
         <p>جرّب إزالة أحد الفلاتر لتوسيع النتائج.</p>
@@ -349,6 +365,9 @@ export class SectorDetailComponent implements OnInit {
   maxPe: number | null = null;
   minPb: number | null = null;
   maxPb: number | null = null;
+
+  /** Client-side sub-filter for non-compliance type: '' | 'activity' | 'ratios' */
+  nonComplianceType = '';
 
   sectorWeightWarning: string | null = null;
 
@@ -423,6 +442,7 @@ export class SectorDetailComponent implements OnInit {
       this.maxPe = params['maxPe'] !== undefined && params['maxPe'] !== null ? Number(params['maxPe']) : null;
       this.minPb = params['minPb'] !== undefined && params['minPb'] !== null ? Number(params['minPb']) : null;
       this.maxPb = params['maxPb'] !== undefined && params['maxPb'] !== null ? Number(params['maxPb']) : null;
+      this.nonComplianceType = params['nonComplianceType'] || '';
 
       if (this.sectorId) {
         this.loadStocks();
@@ -637,6 +657,7 @@ export class SectorDetailComponent implements OnInit {
   clearFilter(key: string): void {
     if (key === 'priceComparison') this.priceComparison = '';
     if (key === 'minCompliantSources') this.minCompliantSources = '';
+    if (key === 'nonComplianceType') this.nonComplianceType = '';
     this.page = 1;
     this.updateUrl();
   }
@@ -675,6 +696,7 @@ export class SectorDetailComponent implements OnInit {
       maxPe: this.maxPe !== null ? this.maxPe : null,
       minPb: this.minPb !== null ? this.minPb : null,
       maxPb: this.maxPb !== null ? this.maxPb : null,
+      nonComplianceType: this.nonComplianceType || null,
       sortBy: this.sortBy !== 'changePct' ? this.sortBy : null,
       sortDir: this.sortDir !== 'desc' ? this.sortDir : null
     };
@@ -682,5 +704,21 @@ export class SectorDetailComponent implements OnInit {
     // replaceUrl + equality guard live in the helper so Back always
     // leaves the page instead of stepping through param states.
     navigateQueryParams(this.router, this.route, queryParams);
+  }
+
+  /** Client-side sub-filter: apply nonComplianceType on top of backend results. */
+  get displayedStocks() {
+    if (!this.nonComplianceType) return this.stocks;
+    return this.stocks.filter(s => {
+      const status = (s.shariahStatus || '').toLowerCase().replace(/[-_ ]/g, '');
+      if (status !== 'noncompliant') return true;
+      if (this.nonComplianceType === 'activity') {
+        return s.coreActivityCompliant === false;
+      }
+      if (this.nonComplianceType === 'ratios') {
+        return s.coreActivityCompliant !== false;
+      }
+      return true;
+    });
   }
 }

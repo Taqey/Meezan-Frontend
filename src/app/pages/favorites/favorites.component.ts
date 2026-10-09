@@ -102,6 +102,10 @@ import { StockListItemDto } from '../../models/api.models';
           [indices]="s.indices"
           [currency]="s.currency"
           [sectorNameAr]="s.sectorNameAr"
+          [coreActivityCompliant]="s.coreActivityCompliant"
+          [categoryAr]="s.categoryAr"
+          [spHaramEarningPercentage]="s.spHaramEarningPercentage"
+          [loansPercentage]="s.loansPercentage"
           [showFavorite]="true">
         </app-stock-card>
       </div>

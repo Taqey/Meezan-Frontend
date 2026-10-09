@@ -1966,7 +1966,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   // ── Shariah Manual Overrides ────────────────────────────────────────────────
 
   saveShariahOverrides(): void {
-    if (!this.selectedTicker) return;
+    if (!this.shariahSelectedTicker) return;
 
     // Validate percentage ranges
     const haramRev = this.shariahOverrideForm.haramRevenuePercentageOverride;

@@ -1596,7 +1596,8 @@ export class AdminComponent implements OnInit, OnDestroy {
         tab === 'shariah' ||
         tab === 'pdf-upload' ||
         tab === 'review' ||
-        tab === 'stocks'
+        tab === 'stocks' ||
+        tab === 'shariah-edit'
       ) {
         this.activeTab = tab;
         if (tab === 'pdf-upload') {

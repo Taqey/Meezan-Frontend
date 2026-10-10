@@ -348,10 +348,11 @@ type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
               <!-- Smarter Bourse Halal card: a doubtful verdict upgraded by the
                    quantitative standards shows a partial-compliance disclaimer
                    (when it passes only some standards) and a details button. -->
-              <ng-container *ngIf="isHalalBourseCard(op) && halalBourseUpgraded">
-                <p class="upgrade-note" *ngIf="halalBoursePartial">
+              <ng-container *ngIf="isHalalBourseCard(op) && (halalBourseUpgraded || scholarsDebtPasses)">
+                <p class="upgrade-note" *ngIf="halalBoursePartial || (!halalBourseUpgraded && scholarsDebtPasses)">
                   <lucide-icon [img]="InfoIcon" size="13"></lucide-icon>
-                  <span>متوافق وفق بعض المعايير فقط وليس جميعها ({{ standardsEvaluation.passedCount }} من {{ standardsEvaluation.totalCount }} معايير)</span>
+                  <span *ngIf="halalBourseUpgraded">متوافق وفق بعض المعايير فقط وليس جميعها ({{ standardsEvaluation.passedCount }} من {{ standardsEvaluation.totalCount }} معايير)</span>
+                  <span *ngIf="!halalBourseUpgraded && scholarsDebtPasses">متوافق وفق فتاوى بعض العلماء الأفراد فقط (نسبة القروض {{ loansPct | number:'1.0-2' }}% ≤ {{ scholarsMaxDebt }}%)</span>
                 </p>
                 <button type="button" class="details-button" (click)="openStandardsDialog($event)">
                   عرض التفاصيل
@@ -459,7 +460,7 @@ type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
              tabindex="-1" (keydown)="onStandardsDialogKeydown($event)">
           <div class="standards-dialog-head">
             <div>
-              <span class="eyebrow">بورصة حلال · الفحص الكمي</span>
+              <span class="eyebrow">الفحص الكمي الشرعي</span>
               <h2 id="std-dialog-title">تفاصيل المطابقة للمعايير الشرعية</h2>
             </div>
             <button type="button" class="standards-dialog-close" (click)="closeStandardsDialog()" aria-label="إغلاق">
@@ -467,8 +468,8 @@ type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
             </button>
           </div>
 
-          <p class="standards-summary">
-            اجتاز {{ standardsEvaluation.passedCount }} من {{ standardsEvaluation.totalCount }} معايير
+          <p class="standards-summary" [class.pass]="dialogTotalPassed > 0" [class.fail]="dialogTotalPassed === 0 && dialogTotalCount > 0">
+            اجتاز {{ dialogTotalPassed }} من {{ dialogTotalCount }} معايير
           </p>
 
           <div class="std-block" *ngFor="let ev of standardsEvaluation.standards">
@@ -835,6 +836,25 @@ export class StockDetailComponent implements OnInit, OnDestroy {
   get halalBoursePartial(): boolean {
     const ev = this.standardsEvaluation;
     return this.halalBourseUpgraded && ev.passedCount < ev.totalCount;
+  }
+
+  /**
+   * Total passed criteria for the dialog banner, counting scholars as the 6th:
+   * = institutional passedCount + (1 if scholars debt passes, else 0).
+   */
+  get dialogTotalPassed(): number {
+    return this.standardsEvaluation.passedCount + (this.scholarsDebtPasses ? 1 : 0);
+  }
+
+  /**
+   * Total available criteria for the dialog banner = institutional totalCount + 1 (scholars),
+   * but only when at least one criterion has data (to avoid "0 من 1").
+   */
+  get dialogTotalCount(): number {
+    const inst = this.standardsEvaluation.totalCount;
+    // Count scholars criterion when debt data is available
+    const scholarsHasData = this.loansPct != null;
+    return inst + (scholarsHasData ? 1 : 0);
   }
 
   /**

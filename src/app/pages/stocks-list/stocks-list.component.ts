@@ -17,7 +17,7 @@ import { ApiService } from '../../services/api.service';
 import { navigateQueryParams } from '../../utils/navigation-utils';
 import { StockCardComponent } from '../../components/stock-card/stock-card.component';
 import { IndexSummaryDto, PagedResult, StockListItemDto } from '../../models/api.models';
-import { matchesNonComplianceType } from '../../models/shariah-standards';
+import { matchesNonComplianceType, evaluateStandards, resolveVerdictWithScholars, normalizeStatusValue, SCHOLARS_COMPLIANT_VERDICT } from '../../models/shariah-standards';
 
 @Component({
   selector: 'app-stocks-list',
@@ -327,6 +327,7 @@ export class StocksListComponent implements OnInit {
 
   readonly shariahOptions = [
     { value: 'Compliant', label: 'متوافق شرعاً' },
+    { value: 'ScholarsCompliant', label: 'متوافق (بعض العلماء الأفراد)' },
     { value: 'NonCompliant', label: 'غير متوافق' },
     { value: 'Pending', label: 'قيد المراجعة / مشكل' },
     { value: 'Blocked', label: 'محظور' }
@@ -515,6 +516,12 @@ export class StocksListComponent implements OnInit {
   allFetchedStocks: StockListItemDto[] = [];
   rawTotalCount = 0;
 
+  /** True when the scholars-compliant virtual filter is active. */
+  get isScholarsCompliantFiltered(): boolean {
+    return this.shariahStatuses.includes('ScholarsCompliant') &&
+      !this.shariahStatuses.some(s => s !== 'ScholarsCompliant');
+  }
+
   get isNonComplianceFiltered(): boolean {
     return !!(this.nonComplianceType && this.shariahStatuses.includes('NonCompliant'));
   }
@@ -524,15 +531,21 @@ export class StocksListComponent implements OnInit {
 
     // When client-side nonComplianceType sub-filter is active, fetch all NonCompliant items (up to 200)
     // so filtering, totalCount, and pagination apply to the entire matching dataset.
-    const queryPageSize = this.isNonComplianceFiltered ? 200 : this.pageSize;
-    const queryPage = this.isNonComplianceFiltered ? 1 : this.page;
+    // When scholars-compliant filter is active, fetch NonCompliant stocks and filter client-side.
+    let queryStatuses = this.shariahStatuses;
+    if (this.isScholarsCompliantFiltered) {
+      queryStatuses = ['NonCompliant'];
+    }
+
+    const queryPageSize = (this.isNonComplianceFiltered || this.isScholarsCompliantFiltered) ? 200 : this.pageSize;
+    const queryPage = (this.isNonComplianceFiltered || this.isScholarsCompliantFiltered) ? 1 : this.page;
 
     this.api.getStocks({
       page: queryPage,
       pageSize: queryPageSize,
       search: this.search || undefined,
       indexCodes: this.indexCodes.length ? this.indexCodes : undefined,
-      shariahStatuses: this.shariahStatuses.length ? this.shariahStatuses : undefined,
+      shariahStatuses: queryStatuses.length ? queryStatuses : undefined,
       priceComparison: this.priceComparison || undefined,
       minCompliantSources: this.minCompliantSources ? Number(this.minCompliantSources) : undefined,
       minPeRatio: this.minPe !== null ? this.minPe : undefined,
@@ -548,6 +561,13 @@ export class StocksListComponent implements OnInit {
 
         if (this.isNonComplianceFiltered) {
           const filtered = this.stocks.filter((s) => matchesNonComplianceType(s, this.nonComplianceType));
+          this.totalCount = filtered.length;
+          this.totalPages = Math.max(1, Math.ceil(this.totalCount / this.pageSize));
+          if (this.page > this.totalPages) {
+            this.page = 1;
+          }
+        } else if (this.isScholarsCompliantFiltered) {
+          const filtered = this.stocks.filter((s) => this.isScholarsOnlyCompliant(s));
           this.totalCount = filtered.length;
           this.totalPages = Math.max(1, Math.ceil(this.totalCount / this.pageSize));
           if (this.page > this.totalPages) {
@@ -677,11 +697,28 @@ export class StocksListComponent implements OnInit {
     navigateQueryParams(this.router, this.route, queryParams);
   }
 
-  /** Displayed stocks: when nonComplianceType is active, filters and paginates client-side. */
+  /** Returns true when a stock's effective verdict is scholars-only compliant. */
+  private isScholarsOnlyCompliant(s: { coreActivityCompliant?: boolean | null; spHaramEarningPercentage?: number | null; loansPercentage?: number | null }): boolean {
+    if (s.coreActivityCompliant === false) return false;
+    const ev = evaluateStandards({
+      prohibitedRevenue: s.spHaramEarningPercentage,
+      debt: s.loansPercentage
+    });
+    return resolveVerdictWithScholars(ev, s.loansPercentage) === SCHOLARS_COMPLIANT_VERDICT;
+  }
+
+  /** Displayed stocks: when nonComplianceType or ScholarsCompliant filter is active, filters and paginates client-side. */
   get displayedStocks() {
-    if (!this.isNonComplianceFiltered) return this.stocks;
-    const filtered = this.stocks.filter((s) => matchesNonComplianceType(s, this.nonComplianceType));
-    const start = (this.page - 1) * this.pageSize;
-    return filtered.slice(start, start + this.pageSize);
+    if (this.isNonComplianceFiltered) {
+      const filtered = this.stocks.filter((s) => matchesNonComplianceType(s, this.nonComplianceType));
+      const start = (this.page - 1) * this.pageSize;
+      return filtered.slice(start, start + this.pageSize);
+    }
+    if (this.isScholarsCompliantFiltered) {
+      const filtered = this.stocks.filter((s) => this.isScholarsOnlyCompliant(s));
+      const start = (this.page - 1) * this.pageSize;
+      return filtered.slice(start, start + this.pageSize);
+    }
+    return this.stocks;
   }
 }

@@ -7,7 +7,12 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import { FavoriteToggleComponent } from '../favorite-toggle/favorite-toggle.component';
 import { PriceFlashDirective } from '../../directives/price-flash.directive';
 import { INDEX_ARABIC_NAMES } from '../../models/api.models';
-import { getNonComplianceReasons, normalizeStatusValue } from '../../models/shariah-standards';
+import {
+  evaluateStandards,
+  getNonComplianceReasons,
+  normalizeStatusValue,
+  resolveVerdictWithScholars
+} from '../../models/shariah-standards';
 
 @Component({
   selector: 'app-stock-card',
@@ -42,7 +47,7 @@ import { getNonComplianceReasons, normalizeStatusValue } from '../../models/shar
 
       <div class="stock-bottom">
         <div class="mini-ratio">
-          <app-status-badge [status]="shariahStatus"></app-status-badge>
+          <app-status-badge [status]="effectiveShariahStatus"></app-status-badge>
         </div>
         <app-comparison-badge [comparison]="priceComparison" [fairValueDiffPct]="fairValueDiffPct" [closingPrice]="closingPrice" [fairValue]="fairValue"></app-comparison-badge>
       </div>
@@ -99,9 +104,27 @@ export class StockCardComponent {
     });
   }
 
-  /** Non-compliance reasons to show below the badge — empty unless status is NonCompliant. */
+  /**
+   * Effective verdict for this card: applies the scholars-debt tier when the
+   * backend stores NonCompliant but debt ≤ 50% (and activity is permissible).
+   * All other statuses pass through unchanged.
+   */
+  get effectiveShariahStatus(): string | null | undefined {
+    const raw = normalizeStatusValue(this.shariahStatus);
+    if (raw !== 'noncompliant') return this.shariahStatus;
+    // Activity hard gate: if activity is non-compliant, keep NonCompliant.
+    if (this.coreActivityCompliant === false) return this.shariahStatus;
+    // Compute the 4-tier verdict from available ratios.
+    const evaluation = evaluateStandards({
+      prohibitedRevenue: this.spHaramEarningPercentage,
+      debt: this.loansPercentage
+    });
+    return resolveVerdictWithScholars(evaluation, this.loansPercentage);
+  }
+
+  /** Non-compliance reasons to show below the badge — empty unless effective status is NonCompliant. */
   get nonComplianceReasons(): string[] {
-    if (normalizeStatusValue(this.shariahStatus) !== 'noncompliant') return [];
+    if (normalizeStatusValue(this.effectiveShariahStatus) !== 'noncompliant') return [];
     return getNonComplianceReasons({
       coreActivityCompliant: this.coreActivityCompliant,
       categoryAr: this.categoryAr,

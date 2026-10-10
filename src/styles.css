@@ -3084,6 +3084,16 @@ app-shariah-standards .explainer-note {
   margin: 14px 0;
 }
 
+.standards-summary.pass {
+  background: var(--good-soft);
+  color: var(--good);
+}
+
+.standards-summary.fail {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+
 .std-block {
   border: 1px solid var(--border);
   border-radius: 12px;

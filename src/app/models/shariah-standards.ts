@@ -111,6 +111,27 @@ export const SHARIAH_STANDARDS: readonly ShariahStandard[] = [
  */
 export const scholarsDebtMax = 50;
 
+/** Arabic label for the individual-scholars criterion. */
+export const SCHOLARS_STANDARD_NAME_AR = 'فتاوى علماء أفراد';
+/** English label for the individual-scholars criterion. */
+export const SCHOLARS_STANDARD_NAME_EN = 'Individual Scholars';
+
+/**
+ * Arabic verdict label for a stock that passes only the individual-scholars
+ * debt threshold (≤ 50%) but fails all five institutional standards.
+ */
+export const SCHOLARS_COMPLIANT_VERDICT = 'متوافق (بحسب بعض العلماء الأفراد)';
+
+/**
+ * Evaluates only the scholars' debt criterion: debt ≤ scholarsDebtMax.
+ * Returns true if the debt ratio is available AND within the 50% ceiling.
+ * Returns false if debt is null/undefined (no data) or exceeds the ceiling.
+ */
+export function evaluateScholarsDebt(debtPct: number | null | undefined): boolean {
+  if (debtPct == null || isNaN(Number(debtPct))) return false;
+  return Number(debtPct) <= scholarsDebtMax;
+}
+
 /** The stock's own quantitative ratios (percentages), as shown in the
  *  "AAOIFI & S&P detailed ratios" section. Missing/unknown ratios are
  *  null/undefined — never 0. */
@@ -202,27 +223,16 @@ export function evaluateStandards(stockRatios: StockRatios): StandardsEvaluation
 }
 
 /**
- * Overall Bourse Halal rule (pure, unit-testable).
- *
- * Without a manual override the upgrade applies ONLY when the card's effective
- * status is doubtful: the stock is treated as compliant overall when it passes
- * AT LEAST ONE standard with data. Failing all standards (or having no data at
- * all) keeps it doubtful.
- *
- * `hasComplianceOverride` is set by the admin when an override was saved on a
- * compliance-affecting field (activity flag / prohibited revenue % / loans %).
- * The operator has then corrected the inputs by hand, so the five screens decide
- * on their own and the stored opinion is no longer required to be doubtful —
- * this is what lets an override correct a stored "non_compliant" refusal.
- * The "passes at least one standard with data" requirement is unchanged.
+ * Overall Bourse Halal rule (pure, unit-testable): applies ONLY when the card's
+ * effective status is doubtful. The stock is treated as compliant overall when
+ * it passes AT LEAST ONE standard with data. Failing all standards (or having
+ * no data at all) keeps it doubtful.
  */
 export function shouldUpgradeDoubtfulToCompliant(
   isDoubtful: boolean,
-  evaluation: StandardsEvaluation,
-  hasComplianceOverride = false
+  evaluation: StandardsEvaluation
 ): boolean {
-  if (!hasComplianceOverride && !isDoubtful) return false;
-  return evaluation.totalCount > 0 && evaluation.passedCount > 0;
+  return isDoubtful && evaluation.totalCount > 0 && evaluation.passedCount > 0;
 }
 
 // ── Effective per-source status (single place) ─────────────────────────
@@ -278,17 +288,14 @@ export function halalBourseDisplayStatus(
 /**
  * ONE effective status per source. For Bourse Halal: a doubtful display status
  * that passes at least one quantitative standard becomes "Compliant";
- * otherwise it equals the display status. When `hasComplianceOverride` is set the
- * doubtful precondition is waived (see shouldUpgradeDoubtfulToCompliant), so an
- * admin override also corrects a stored refusal. All other sources keep their raw
+ * otherwise it equals the display status. All other sources keep their raw
  * status. Extra fields on the input objects (notes, dates, pdf urls) are
  * preserved untouched.
  */
 export function getEffectiveSourceStatuses<T extends SourceStatusInput>(
   sources: readonly T[],
   evaluation: StandardsEvaluation,
-  halalBourseKey: number,
-  hasComplianceOverride = false
+  halalBourseKey: number
 ): Array<T & EffectiveSourceStatus> {
   return sources.map((src) => {
     if (src.noOpinion) {
@@ -299,11 +306,7 @@ export function getEffectiveSourceStatuses<T extends SourceStatusInput>(
       ? halalBourseDisplayStatus(src.status, src.percentage)
       : (src.status ?? null);
     const upgraded = isHalalBourse
-      && shouldUpgradeDoubtfulToCompliant(
-        normalizeStatusValue(raw) === 'doubtful',
-        evaluation,
-        hasComplianceOverride
-      );
+      && shouldUpgradeDoubtfulToCompliant(normalizeStatusValue(raw) === 'doubtful', evaluation);
     return {
       ...src,
       rawDisplayStatus: raw,
@@ -324,6 +327,31 @@ export function resolveInternalVerdict(
 ): string | null {
   if (effectiveStatuses.some((s) => normalizeStatusValue(s) === 'compliant')) return 'Compliant';
   return fallback ?? null;
+}
+
+/**
+ * Full four-tier verdict (replaces the old doubtful bucket):
+ *
+ * 1. passes ≥1 of 5 institutional standards   → 'Compliant'
+ * 2. fails all 5 but debt ≤ 50% (scholars)    → SCHOLARS_COMPLIANT_VERDICT
+ * 3. fails everything with data                → 'NonCompliant'
+ * 4. no data at all                            → 'Pending' (قيد المراجعة)
+ *
+ * Call this instead of resolveInternalVerdict on the stock-detail page to
+ * eliminate the doubtful display entirely.
+ */
+export function resolveVerdictWithScholars(
+  evaluation: StandardsEvaluation,
+  debtPct: number | null | undefined
+): string {
+  // Tier 1: passes at least one institutional standard
+  if (evaluation.passedCount > 0) return 'Compliant';
+  // Tier 2: no data for any standard → pending
+  if (evaluation.totalCount === 0) return 'Pending';
+  // Tier 3: fails all standards but the scholars debt threshold passes
+  if (evaluateScholarsDebt(debtPct)) return SCHOLARS_COMPLIANT_VERDICT;
+  // Tier 4: fails everything
+  return 'NonCompliant';
 }
 
 // ── Non-compliance reason helper ────────────────────────────────────────────

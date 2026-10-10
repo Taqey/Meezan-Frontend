@@ -48,6 +48,12 @@ import {
   ShariahOverridesDto,
   SaveShariahOverridesRequest
 } from '../../models/api.models';
+import {
+  SHARIAH_STANDARDS,
+  scholarsDebtMax,
+  SCHOLARS_STANDARD_NAME_AR,
+  SCHOLARS_STANDARD_NAME_EN
+} from '../../models/shariah-standards';
 
 interface EditableMarketForm {
   closingPrice: number | null;
@@ -643,7 +649,7 @@ interface EditableMarketForm {
         <h2>تعديل البيانات الشرعية للأسهم يدوياً</h2>
         <p class="muted">
           ابحث عن السهم وحدده لتعديل البيانات الشرعية يدوياً (تصنيف النشاط، مطابقة النشاط الأساسي، نسبة الإيراد المحرم، نسبة القروض والفوائد).
-          القيم المدخلة هنا تطبق على كل الحسابات الشرعية (EGX 33، DFM، AAOIFI، S&P، KLSI، حالة الامتثال، التطهير) وتجاوز قيم التغذية.
+          القيم المدخلة هنا تطبق على "بورصة حلال" فقط (EGX 33، DFM، AAOIFI، S&P، KLSI) وتجاوز قيم التغذية.
         </p>
 
         <!-- Search / Select Stock Bar -->
@@ -750,7 +756,7 @@ interface EditableMarketForm {
                   بيانات شرعية (يدوي)
                 </h3>
                 <span style="font-size: 11px; background: #ede9fe; color: #5b21b6; padding: 3px 10px; border-radius: 999px;">
-                  تطبق على كل الحسابات الشرعية (EGX 33، DFM، AAOIFI، S&P، KLSI، حالة الامتثال، التطهير)
+                  يطبق على "بورصة حلال" فقط (EGX 33، DFM، AAOIFI، S&P، KLSI)
                 </span>
               </div>
 
@@ -773,8 +779,8 @@ interface EditableMarketForm {
                       <span>مطابق للنشاط الأساسي (CoreActivityCompliant)</span>
                     </label>
                   </div>
-                  <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 12px;">
-                    <div style="flex: 1; min-width: 0;">
+                  <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 120px;">
                       <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">التصنيف (عربي)</label>
                       <input
                         type="text"
@@ -787,7 +793,7 @@ interface EditableMarketForm {
                         التغذية: {{ shariahOverrides.feedCategoryAr }}
                       </div>
                     </div>
-                    <div style="flex: 1; min-width: 0;">
+                    <div style="flex: 1; min-width: 120px;">
                       <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">التصنيف (إنجليزي)</label>
                       <input
                         type="text"
@@ -801,11 +807,11 @@ interface EditableMarketForm {
                       </div>
                     </div>
                   </div>
-                  <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+                  <div style="margin-top: 10px; display: flex; gap: 8px;">
                     <button
                       type="button"
                       class="btn btn-primary"
-                      style="font-size: 12px; padding: 8px 16px;"
+                      style="font-size: 12px; padding: 6px 12px;"
                       (click)="saveShariahOverrides()"
                       [disabled]="savingShariahOverrides">
                       <lucide-icon [img]="SaveIcon" size="14"></lucide-icon>
@@ -814,7 +820,7 @@ interface EditableMarketForm {
                     <button
                       type="button"
                       class="btn btn-outline"
-                      style="font-size: 12px; padding: 6px 12px; border-color: #fecaca; color: var(--bad);"
+                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
                       (click)="resetShariahOverride('CoreActivityCompliant')"
                       [disabled]="savingShariahOverrides || shariahOverrides.overrideCoreActivityCompliant === null"
                       title="استعادة قيمة التغذية لمطابقة النشاط الأساسي">
@@ -824,7 +830,7 @@ interface EditableMarketForm {
                     <button
                       type="button"
                       class="btn btn-outline"
-                      style="font-size: 12px; padding: 6px 12px; border-color: #fecaca; color: var(--bad);"
+                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
                       (click)="resetShariahOverride('CategoryAr')"
                       [disabled]="savingShariahOverrides || shariahOverrides.overrideCategoryAr === null"
                       title="استعادة قيمة التغذية للتصنيف العربي">
@@ -834,7 +840,7 @@ interface EditableMarketForm {
                     <button
                       type="button"
                       class="btn btn-outline"
-                      style="font-size: 12px; padding: 6px 12px; border-color: #fecaca; color: var(--bad);"
+                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
                       (click)="resetShariahOverride('CategoryEn')"
                       [disabled]="savingShariahOverrides || shariahOverrides.overrideCategoryEn === null"
                       title="استعادة قيمة التغذية للتصنيف الإنجليزي">
@@ -852,8 +858,8 @@ interface EditableMarketForm {
                       معدّل يدويًا
                     </span>
                   </div>
-                  <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 160px;">
+                  <div style="display: flex; gap: 10px; align-items: end; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 140px;">
                       <input
                         type="number"
                         step="0.01"
@@ -864,11 +870,11 @@ interface EditableMarketForm {
                         class="admin-form input"
                         placeholder="من المصدر"
                         style="font-size: 13px; font-weight: 600;" />
-                      <div *ngIf="shariahOverrides.overrideHaramRevenuePercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 4px;">
+                      <div *ngIf="shariahOverrides.overrideHaramRevenuePercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 2px;">
                         التغذية: {{ shariahOverrides.feedHaramRevenuePercentage !== null ? (shariahOverrides.feedHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
                       </div>
                     </div>
-                    <div style="flex: 1; min-width: 140px; padding-top: 4px;">
+                    <div style="flex: 1; min-width: 140px;">
                       <strong style="font-size: 13px; color: var(--primary);">فعال: </strong>
                       <span style="font-size: 13px; font-weight: 600;">
                         {{ shariahOverrides.effectiveHaramRevenuePercentage !== null ? (shariahOverrides.effectiveHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
@@ -879,7 +885,7 @@ interface EditableMarketForm {
                     <button
                       type="button"
                       class="btn btn-outline"
-                      style="font-size: 12px; padding: 6px 12px; border-color: #fecaca; color: var(--bad);"
+                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
                       (click)="resetShariahOverride('HaramRevenuePercentage')"
                       [disabled]="savingShariahOverrides || shariahOverrides.overrideHaramRevenuePercentage === null"
                       title="استعادة قيمة التغذية لنسبة الإيراد المحرم">
@@ -897,8 +903,8 @@ interface EditableMarketForm {
                       معدّل يدويًا
                     </span>
                   </div>
-                  <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 160px;">
+                  <div style="display: flex; gap: 10px; align-items: end; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 140px;">
                       <input
                         type="number"
                         step="0.01"
@@ -909,11 +915,11 @@ interface EditableMarketForm {
                         class="admin-form input"
                         placeholder="من المصدر"
                         style="font-size: 13px; font-weight: 600;" />
-                      <div *ngIf="shariahOverrides.overrideLoansPercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 4px;">
+                      <div *ngIf="shariahOverrides.overrideLoansPercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 2px;">
                         التغذية: {{ shariahOverrides.feedLoansPercentage !== null ? (shariahOverrides.feedLoansPercentage | number:'1.2-2') + '%' : '—' }}
                       </div>
                     </div>
-                    <div style="flex: 1; min-width: 140px; padding-top: 4px;">
+                    <div style="flex: 1; min-width: 140px;">
                       <strong style="font-size: 13px; color: var(--primary);">فعال: </strong>
                       <span style="font-size: 13px; font-weight: 600;">
                         {{ shariahOverrides.effectiveLoansPercentage !== null ? (shariahOverrides.effectiveLoansPercentage | number:'1.2-2') + '%' : '—' }}
@@ -924,7 +930,7 @@ interface EditableMarketForm {
                     <button
                       type="button"
                       class="btn btn-outline"
-                      style="font-size: 12px; padding: 6px 12px; border-color: #fecaca; color: var(--bad);"
+                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
                       (click)="resetShariahOverride('LoansPercentage')"
                       [disabled]="savingShariahOverrides || shariahOverrides.overrideLoansPercentage === null"
                       title="استعادة قيمة التغذية لنسبة القروض والفوائد">
@@ -936,7 +942,7 @@ interface EditableMarketForm {
               </div>
 
               <!-- Bourse Halal 5 Standards Preview -->
-              <div *ngIf="shariahOverrides.effectiveHaramRevenuePercentage !== null || shariahOverrides.effectiveLoansPercentage !== null" style="margin-top: 12px; padding: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;">
+              <div *ngIf="shariahOverrides.effectiveHaramRevenuePercentage !== null || shariahOverrides.effectiveLoansPercentage !== null" style="margin-top: 20px; padding: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px;">
                 <div style="font-size: 12px; font-weight: 600; color: #166534; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
                   <lucide-icon [img]="CheckCircleIcon" size="16"></lucide-icon>
                   معاينة معايير "بورصة حلال" الخمس (باستخدام القيم الفعالة)
@@ -954,9 +960,9 @@ interface EditableMarketForm {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr *ngFor="let s of bourseHalalStandards">
+                  <tr *ngFor="let s of bourseHalalStandards">
                         <td><strong>{{ s.name }}</strong></td>
-                        <td>{{ s.revenueMax }}%</td>
+                        <td>{{ s.revenueMax != null ? s.revenueMax + '%' : '—' }}</td>
                         <td>{{ s.debtMax }}%</td>
                         <td>{{ shariahOverrides.effectiveHaramRevenuePercentage !== null ? (shariahOverrides.effectiveHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}</td>
                         <td>{{ shariahOverrides.effectiveLoansPercentage !== null ? (shariahOverrides.effectiveLoansPercentage | number:'1.2-2') + '%' : '—' }}</td>
@@ -966,12 +972,34 @@ interface EditableMarketForm {
                           </span>
                         </td>
                       </tr>
+                      <!-- Scholars criterion (informational, not counted) -->
+                      <tr style="border-top: 2px dashed #e2e8f0; opacity: 0.8;">
+                        <td><strong>{{ scholarsStandardNameAr }}</strong><br><small style="font-weight:400;color:#64748b;">{{ scholarsStandardNameEn }} · استرشادي</small></td>
+                        <td style="color:#94a3b8;">—</td>
+                        <td>{{ scholarsDebtMaxVal }}%</td>
+                        <td style="color:#94a3b8;">—</td>
+                        <td>{{ shariahOverrides.effectiveLoansPercentage !== null ? (shariahOverrides.effectiveLoansPercentage | number:'1.2-2') + '%' : '—' }}</td>
+                        <td>
+                          <span *ngIf="shariahOverrides.effectiveLoansPercentage !== null"
+                                [style.color]="(shariahOverrides.effectiveLoansPercentage! <= scholarsDebtMaxVal) ? 'var(--good)' : 'var(--bad)'"
+                                style="font-weight: 600;">
+                            {{ (shariahOverrides.effectiveLoansPercentage! <= scholarsDebtMaxVal) ? 'اجتاز ✓' : 'لم يجتاز ✗' }}
+                          </span>
+                          <span *ngIf="shariahOverrides.effectiveLoansPercentage === null" style="color:#94a3b8;">—</span>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
                 <div style="font-size: 11px; color: #166534; margin-top: 8px;">
-                  اجتاز <strong>{{ passedStandardsCount }} من 5</strong> معيارًا.
-                  <span *ngIf="passedStandardsCount > 0" style="margin-right: 8px;">→ يؤهل للترقية من "مشكوك" إلى "متوافق" في بورصة حلال.</span>
+                  اجتاز <strong>{{ passedStandardsCount }} من 5</strong> معايير رئيسية.
+                  <span *ngIf="passedStandardsCount > 0" style="margin-right: 8px;">→ الحكم العام: متوافق</span>
+                  <span *ngIf="passedStandardsCount === 0 && shariahOverrides!.effectiveLoansPercentage !== null && shariahOverrides!.effectiveLoansPercentage! <= scholarsDebtMaxVal" style="margin-right: 8px; color: #d97706;">
+                    → الحكم العام: متوافق (بحسب بعض العلماء الأفراد)
+                  </span>
+                  <span *ngIf="passedStandardsCount === 0 && (shariahOverrides!.effectiveLoansPercentage === null || shariahOverrides!.effectiveLoansPercentage! > scholarsDebtMaxVal) && (shariahOverrides!.effectiveHaramRevenuePercentage !== null || shariahOverrides!.effectiveLoansPercentage !== null)" style="margin-right: 8px; color: var(--bad);">
+                    → الحكم العام: غير متوافق
+                  </span>
                 </div>
               </div>
 
@@ -1495,19 +1523,23 @@ export class AdminComponent implements OnInit, OnDestroy {
   shariahOverridesError = '';
   shariahOverridesSuccess = '';
 
-  // Bourse Halal 5 Standards Preview
+  // Bourse Halal Standards Preview — derived from SHARIAH_STANDARDS (single source of truth)
   bourseHalalStandards: Array<{
     name: string;
-    revenueMax: number;
+    revenueMax: number | null;
     debtMax: number;
     passes: boolean;
-  }> = [
-    { name: 'EGX 33', revenueMax: 10, debtMax: 33, passes: false },
-    { name: 'DFM', revenueMax: 10, debtMax: 30, passes: false },
-    { name: 'AAOIFI', revenueMax: 5, debtMax: 30, passes: false },
-    { name: 'S&P', revenueMax: 5, debtMax: 33, passes: false },
-    { name: 'KLSI', revenueMax: 20, debtMax: 33, passes: false }
-  ];
+  }> = SHARIAH_STANDARDS.map(s => ({
+    name: s.nameEn,
+    revenueMax: s.prohibitedRevenueMax,
+    debtMax: s.debtMax,
+    passes: false
+  }));
+
+  /** Scholars standard labels and threshold exposed to the template. */
+  readonly scholarsStandardNameAr = SCHOLARS_STANDARD_NAME_AR;
+  readonly scholarsStandardNameEn = SCHOLARS_STANDARD_NAME_EN;
+  readonly scholarsDebtMaxVal = scholarsDebtMax;
 
   // Shariah Manual Edit tab
   filteredShariahStocks: AdminStockLookupItem[] = [];
@@ -1815,9 +1847,11 @@ export class AdminComponent implements OnInit, OnDestroy {
     if (!this.shariahOverrides) return;
     const rev = this.shariahOverrides.effectiveHaramRevenuePercentage ?? null;
     const debt = this.shariahOverrides.effectiveLoansPercentage ?? null;
-    this.bourseHalalStandards = this.bourseHalalStandards.map(s => ({
-      ...s,
-      passes: (rev === null || rev <= s.revenueMax) && (debt === null || debt <= s.debtMax) && (rev !== null || debt !== null)
+    this.bourseHalalStandards = SHARIAH_STANDARDS.map(s => ({
+      name: s.nameEn,
+      revenueMax: s.prohibitedRevenueMax,
+      debtMax: s.debtMax,
+      passes: (rev === null || rev <= s.prohibitedRevenueMax) && (debt === null || debt <= s.debtMax) && (rev !== null || debt !== null)
     }));
   }
 
@@ -1868,8 +1902,10 @@ export class AdminComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.shariahSelectedStockMarketData = data;
         this.shariahLoadingStock = false;
-        // Load Shariah overrides (API now returns defaults even if no metrics row exists)
-        this.loadShariahOverrides(ticker);
+        // Load Shariah overrides if the stock has Shariah metrics
+        if (data.shariahMetrics) {
+          this.loadShariahOverrides(ticker);
+        }
       },
       error: (err) => {
         if (err.status === 404) {
@@ -1966,7 +2002,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   // ── Shariah Manual Overrides ────────────────────────────────────────────────
 
   saveShariahOverrides(): void {
-    if (!this.shariahSelectedTicker) return;
+    if (!this.selectedTicker) return;
 
     // Validate percentage ranges
     const haramRev = this.shariahOverrideForm.haramRevenuePercentageOverride;
@@ -1986,7 +2022,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.shariahOverridesError = '';
     this.shariahOverridesSuccess = '';
 
-    this.api.saveShariahOverrides(this.shariahSelectedTicker, this.shariahOverrideForm).subscribe({
+    this.api.saveShariahOverrides(this.selectedTicker, this.shariahOverrideForm).subscribe({
       next: (data) => {
         this.shariahOverrides = data;
         this.populateShariahOverrideForm(data);
@@ -1994,7 +2030,7 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.shariahOverridesSuccess = 'تم حفظ التعديلات الشرعية بنجاح. تم إعادة احتساب حالة الامتثال.';
         this.savingShariahOverrides = false;
         // Refresh the stock market data to reflect updated compliance status
-        this.loadShariahStockMarketData(this.shariahSelectedTicker);
+        this.loadStockMarketData(this.selectedTicker);
       },
       error: (err) => {
         this.shariahOverridesError = err.error?.message || err.message || 'حدث خطأ أثناء حفظ التعديلات الشرعية.';
@@ -2004,7 +2040,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   resetShariahOverride(fieldName: string): void {
-    if (!this.shariahSelectedTicker) return;
+    if (!this.selectedTicker) return;
 
     const confirmMsg = `هل أنت متأكد من استعادة قيمة التغذية لـ ${this.getFieldLabel(fieldName)}؟ سيتم إلغاء التعديل اليدوي.`;
     if (!confirm(confirmMsg)) {
@@ -2015,7 +2051,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.shariahOverridesError = '';
     this.shariahOverridesSuccess = '';
 
-    this.api.resetShariahOverride(this.shariahSelectedTicker, fieldName).subscribe({
+    this.api.resetShariahOverride(this.selectedTicker, fieldName).subscribe({
       next: (data) => {
         this.shariahOverrides = data;
         this.populateShariahOverrideForm(data);
@@ -2023,7 +2059,7 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.shariahOverridesSuccess = `تم استعادة قيمة التغذية لـ ${this.getFieldLabel(fieldName)}.`;
         this.savingShariahOverrides = false;
         // Refresh the stock market data to reflect updated compliance status
-        this.loadShariahStockMarketData(this.shariahSelectedTicker);
+        this.loadStockMarketData(this.selectedTicker);
       },
       error: (err) => {
         this.shariahOverridesError = err.error?.message || err.message || 'حدث خطأ أثناء استعادة قيمة التغذية.';

@@ -33,10 +33,15 @@ import {
 import {
   CRITERION_LABELS,
   CRITERION_ORDER,
+  evaluateScholarsDebt,
   evaluateStandards,
   getEffectiveSourceStatuses,
   normalizeStatusValue,
-  resolveInternalVerdict,
+  resolveVerdictWithScholars,
+  SCHOLARS_COMPLIANT_VERDICT,
+  SCHOLARS_STANDARD_NAME_AR,
+  SCHOLARS_STANDARD_NAME_EN,
+  scholarsDebtMax,
   type EffectiveSourceStatus,
   type ShariahCriterionKey,
   type StandardsEvaluation,
@@ -495,6 +500,54 @@ type EffectiveOpinionView = ShariahSourceOpinionView & EffectiveSourceStatus;
             </div>
           </div>
 
+          <!-- Scholars criterion (informational, not counted in passedCount/totalCount) -->
+          <div class="std-block scholars-block">
+            <div class="std-block-head">
+              <span class="std-verdict" [class.pass]="scholarsDebtPasses" [class.fail]="!scholarsDebtPasses && loansPct != null" [class.nodata]="loansPct == null">
+                <lucide-icon *ngIf="loansPct != null && scholarsDebtPasses" [img]="CheckIcon" size="14"></lucide-icon>
+                <lucide-icon *ngIf="loansPct != null && !scholarsDebtPasses" [img]="XIcon" size="14"></lucide-icon>
+                <lucide-icon *ngIf="loansPct == null" [img]="MinusIcon" size="14"></lucide-icon>
+              </span>
+              <div class="std-block-title">
+                <strong>{{ scholarsStandardNameAr }}</strong>
+                <span class="std-en">{{ scholarsStandardNameEn }}</span>
+              </div>
+            </div>
+            <div class="criterion-row">
+              <span class="criterion-name">{{ criterionLabels['debt'].ar }}</span>
+              <span class="criterion-values">
+                <ng-container *ngIf="loansPct != null">
+                  {{ loansPct | number:'1.0-2' }}% / ≤ {{ scholarsMaxDebt }}%
+                </ng-container>
+                <ng-container *ngIf="loansPct == null">—</ng-container>
+              </span>
+              <span class="criterion-mark"
+                    [class.pass]="loansPct != null && scholarsDebtPasses"
+                    [class.fail]="loansPct != null && !scholarsDebtPasses"
+                    [class.nodata]="loansPct == null">
+                <lucide-icon *ngIf="loansPct != null && scholarsDebtPasses" [img]="CheckIcon" size="14"></lucide-icon>
+                <lucide-icon *ngIf="loansPct != null && !scholarsDebtPasses" [img]="XIcon" size="14"></lucide-icon>
+                <lucide-icon *ngIf="loansPct == null" [img]="MinusIcon" size="14"></lucide-icon>
+              </span>
+            </div>
+            <div class="criterion-row criterion-nocheck">
+              <span class="criterion-name">{{ criterionLabels['prohibitedRevenue'].ar }}</span>
+              <span class="criterion-values">—</span>
+              <span class="criterion-mark nodata"><lucide-icon [img]="MinusIcon" size="14"></lucide-icon></span>
+            </div>
+            <div class="criterion-row criterion-nocheck">
+              <span class="criterion-name">{{ criterionLabels['prohibitedInvestments'].ar }}</span>
+              <span class="criterion-values">—</span>
+              <span class="criterion-mark nodata"><lucide-icon [img]="MinusIcon" size="14"></lucide-icon></span>
+            </div>
+            <div class="criterion-row criterion-nocheck">
+              <span class="criterion-name">{{ criterionLabels['cash'].ar }}</span>
+              <span class="criterion-values">—</span>
+              <span class="criterion-mark nodata"><lucide-icon [img]="MinusIcon" size="14"></lucide-icon></span>
+            </div>
+            <p class="scholars-note">هذا المعيار استرشادي فقط — لا يُحتسب في نتيجة الاجتياز الكمية.</p>
+          </div>
+
           <p class="muted standards-dialog-foot">الفحص كمي فقط، ولا يزال الفحص النوعي لنشاط الشركة مطلوبًا</p>
         </div>
       </div>
@@ -569,6 +622,11 @@ export class StockDetailComponent implements OnInit, OnDestroy {
   readonly MinusIcon = Minus;
   readonly criterionOrder: readonly ShariahCriterionKey[] = CRITERION_ORDER;
   readonly criterionLabels = CRITERION_LABELS;
+
+  /** Scholars criterion constants exposed to the template. */
+  readonly scholarsStandardNameAr = SCHOLARS_STANDARD_NAME_AR;
+  readonly scholarsStandardNameEn = SCHOLARS_STANDARD_NAME_EN;
+  readonly scholarsMaxDebt = scholarsDebtMax;
 
   /** Single source of truth ticker freeze list (also imported from models) */
   readonly frozenShariahTickers = SHARIAH_BOARD_FROZEN_TICKERS;
@@ -670,12 +728,7 @@ export class StockDetailComponent implements OnInit, OnDestroy {
       return { sourceKey: key, status: null, percentage: null, note: null, noOpinion: true };
     });
 
-    return getEffectiveSourceStatuses(
-      raw,
-      this.standardsEvaluation,
-      ShariahSourceKey.HalalBourse,
-      !!this.marketData?.hasShariahComplianceOverride
-    );
+    return getEffectiveSourceStatuses(raw, this.standardsEvaluation, ShariahSourceKey.HalalBourse);
   }
 
   /** Boards that actually returned a stored verdict for this stock. */
@@ -803,15 +856,11 @@ export class StockDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Internal verdict from EFFECTIVE statuses: at least one effective compliant
-   * → "Compliant"; otherwise the API verdict (existing behavior preserved for
-   * every other case).
+   * Internal verdict derived purely from the quantitative standards (4-tier,
+   * no doubtful): Compliant > scholars-compliant > NonCompliant > Pending.
    */
   get internalVerdict(): string | null {
-    return resolveInternalVerdict(
-      this.sourceOpinionsList.map((o) => o.effectiveStatus),
-      this.marketData?.shariahStatus ?? null
-    );
+    return resolveVerdictWithScholars(this.standardsEvaluation, this.loansPct);
   }
 
   /**
@@ -896,7 +945,10 @@ export class StockDetailComponent implements OnInit, OnDestroy {
     const s = this.normalizeShariahStatus(status);
     if (s === 'compliant' || status === 'متوافق') return 'متوافق';
     if (s === 'noncompliant' || status === 'غير متوافق') return 'غير متوافق';
-    if (s === 'doubtful' || status === 'مشكوك') return 'مشكوك';
+    // Scholars compliant — pass through the full Arabic verdict string
+    if (status === SCHOLARS_COMPLIANT_VERDICT) return SCHOLARS_COMPLIANT_VERDICT;
+    // Pending / no data
+    if (s === 'pending') return 'قيد المراجعة';
     return status || 'غير محدد';
   }
 
@@ -1038,6 +1090,11 @@ export class StockDetailComponent implements OnInit, OnDestroy {
   get loansPct(): number | null {
     const m = this.marketData?.shariahMetrics;
     return m?.loansPercentage ?? m?.interestBearingDebtRatio ?? null;
+  }
+
+  /** True when debt% is available and ≤ scholarsDebtMax (50%). */
+  get scholarsDebtPasses(): boolean {
+    return evaluateScholarsDebt(this.loansPct);
   }
 
   get currentStockPrice(): number | null {

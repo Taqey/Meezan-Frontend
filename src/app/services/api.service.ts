@@ -7,6 +7,7 @@ import {
   IndexSummaryDto,
   MarketDataDto,
   MarketSnapshotDto,
+  RefreshMarketSnapshotsResult,
   PagedResult,
   RefreshShariahDataResult,
   RunCombinedScrapeResult,
@@ -159,6 +160,11 @@ export class ApiService {
   /** Latest-good published quotes (indices + sectors). Empty when never fetched. */
   getMarketSnapshots(): Observable<MarketSnapshotDto[]> {
     return this.http.get<MarketSnapshotDto[]>(`${this.baseUrl}/api/market-snapshots`);
+  }
+
+  /** Triggers a market snapshots scrape on demand */
+  refreshMarketSnapshots(): Observable<RefreshMarketSnapshotsResult> {
+    return this.http.post<RefreshMarketSnapshotsResult>(`${this.baseUrl}/api/market-snapshots/refresh`, {});
   }
 
   getSupportResistance(ticker: string): Observable<SupportResistanceDto> {

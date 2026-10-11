@@ -636,3 +636,11 @@ export interface AddToIndexRequest {
   effectiveDate?: string | null;
 }
 
+export interface RefreshMarketSnapshotsResult {
+  succeeded: number;
+  failed: number;
+  totalTargets: number;
+  duration?: string | any;
+}
+
+

@@ -33,6 +33,7 @@ import {
   ManualMarketDataUpdateRequest,
   ManualMarketDataUpdateResponse,
   AdminStockLookupItem,
+  RefreshMarketSnapshotsResult,
   RefreshShariahDataResult,
   RunCombinedScrapeResult,
   ScrapeStatusResponse,
@@ -204,13 +205,14 @@ interface EditableMarketForm {
                   <lucide-icon [img]="ClockIcon" size="18"></lucide-icon>
                   لقطات السوق والمؤشرات (Market Snapshots)
                 </strong>
+                <span class="live-dot" *ngIf="isSnapshotsRunning"></span>
               </div>
               <p style="font-size: 13px; color: var(--muted-foreground); margin: 0 0 14px; line-height: 1.5;">
-                تحديث أسعار المؤشرات والقطاعات من مباشر كل 15 دقيقة أثناء عمل البورصة + جولة ختامية بعد الإغلاق.
+                تحديث أسعار المؤشرات والقطاعات من مباشر يومياً بعد إغلاق جلسة التداول.
               </p>
               <div style="font-size: 12px; background: white; border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px;">
-                <div style="margin-bottom: 6px;"><strong>الجدول التلقائي:</strong> كل 15 دقيقة (الأحد–الخميس، 9:45 ص–3:30 م)</div>
-                <div><strong>نوع المهمة:</strong> خدمة خلفية مستمرة (Background Worker)</div>
+                <div style="margin-bottom: 6px;"><strong>الجدول التلقائي:</strong> يومياً في تمام 4:00 عصراً بتوقيت القاهرة (الأحد–الخميس)</div>
+                <div><strong>آخر تشغيل مسجل:</strong> {{ snapshotsLastRunText }}</div>
               </div>
 
               <!-- Automation Toggle -->
@@ -222,7 +224,7 @@ interface EditableMarketForm {
                     {{ isJobEnabled('MarketSnapshots') ? 'التشغيل التلقائي مُفعَّل' : 'التشغيل التلقائي مُعطَّل' }}
                   </div>
                   <div style="font-size: 11px; color: var(--muted-foreground);">
-                    {{ isJobEnabled('MarketSnapshots') ? 'يعمل دورياً كل 15 دقيقة أثناء التداول' : 'موقوف مؤقتاً ولن يسحب لقطات جديدة' }}
+                    {{ isJobEnabled('MarketSnapshots') ? 'يعمل مجدولاً في الساعة 4:00 عصراً' : 'لن يتم تنفيذ الجدول التلقائي' }}
                   </div>
                 </div>
                 <button
@@ -233,11 +235,28 @@ interface EditableMarketForm {
                   style="font-size: 12px; padding: 4px 10px; border-radius: 6px;"
                   [style.borderColor]="isJobEnabled('MarketSnapshots') ? '#059669' : '#dc2626'"
                   [style.color]="isJobEnabled('MarketSnapshots') ? '#059669' : '#dc2626'">
-                  {{ isJobEnabled('MarketSnapshots') ? 'تعطيل الآلي' : 'تفعيل الآلي' }}
+                  {{ togglingJobKey === 'MarketSnapshots' ? 'جارٍ الحفظ...' : (isJobEnabled('MarketSnapshots') ? 'تعطيل الآلي' : 'تفعيل الآلي') }}
                 </button>
               </div>
             </div>
+
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button class="btn btn-outline" (click)="triggerSnapshotsRefresh()" [disabled]="isSnapshotsRunning" style="width: 100%; justify-content: center; border-color: #a7f3d0; color: #047857;">
+                <lucide-icon [img]="PlayIcon" size="16"></lucide-icon>
+                {{ isSnapshotsRunning ? 'جارٍ تحديث اللقطات...' : 'تشغيل يدوي الآن (Run Snapshots)' }}
+              </button>
+              <div *ngIf="snapshotsRunResult" style="font-size: 11px; text-align: center;" [style.color]="snapshotsRunResult.failed > 0 ? '#b45309' : '#047857'">
+                اكتمل: نجح {{ snapshotsRunResult.succeeded }} من {{ snapshotsRunResult.totalTargets }}
+              </div>
+              <div *ngIf="snapshotsRunError" style="font-size: 11px; text-align: center; color: var(--bad);">
+                {{ snapshotsRunError }}
+              </div>
+            </div>
           </div>
+        </div>
+
+        <div *ngIf="jobToggleError" class="admin-result error" style="margin-top: 12px; margin-bottom: 12px;">
+          {{ jobToggleError }}
         </div>
 
         <!-- Live Scraping Progress View -->
@@ -1580,6 +1599,13 @@ export class AdminComponent implements OnInit, OnDestroy {
   };
   jobSettingsLoading = false;
   togglingJobKey: string | null = null;
+  jobToggleError: string | null = null;
+
+  // Market Snapshots state
+  isSnapshotsRunning = false;
+  snapshotsRunResult?: RefreshMarketSnapshotsResult | null;
+  snapshotsRunError: string | null = null;
+  snapshotsLastRunText = 'لا يوجد سجل سابق';
 
   // Shariah tab
   shariahRefreshing = false;
@@ -1684,18 +1710,61 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.jobSettingsLoading = false;
       }
     });
+    this.loadSnapshotsLastRun();
+  }
+
+  loadSnapshotsLastRun(): void {
+    this.api.getMarketSnapshots().subscribe({
+      next: (snaps) => {
+        if (snaps && snaps.length > 0) {
+          const dates = snaps
+            .map(s => s.fetchedAt ? new Date(s.fetchedAt).getTime() : 0)
+            .filter(t => t > 0);
+          if (dates.length > 0) {
+            const maxDate = new Date(Math.max(...dates));
+            this.snapshotsLastRunText = maxDate.toLocaleString('ar-EG');
+          }
+        }
+      },
+      error: () => {}
+    });
   }
 
   toggleJobSetting(jobKey: string): void {
     const nextVal = !this.isJobEnabled(jobKey);
     this.togglingJobKey = jobKey;
+    this.jobToggleError = null;
     this.api.setJobSetting(jobKey, nextVal).subscribe({
       next: (res) => {
         this.jobSettings = { ...this.jobSettings, [res.jobKey]: res.enabled };
         this.togglingJobKey = null;
       },
-      error: () => {
+      error: (err) => {
         this.togglingJobKey = null;
+        this.jobToggleError = `فشل حفظ إعداد المهمة (${jobKey}): ${err?.message || 'خطأ في الاتصال بالخادم'}`;
+      }
+    });
+  }
+
+  triggerSnapshotsRefresh(): void {
+    if (this.isSnapshotsRunning) return;
+    this.isSnapshotsRunning = true;
+    this.snapshotsRunResult = null;
+    this.snapshotsRunError = null;
+
+    this.api.refreshMarketSnapshots().subscribe({
+      next: (res) => {
+        this.isSnapshotsRunning = false;
+        this.snapshotsRunResult = res;
+        this.snapshotsLastRunText = new Date().toLocaleString('ar-EG');
+      },
+      error: (err) => {
+        this.isSnapshotsRunning = false;
+        if (err?.status === 409) {
+          this.snapshotsRunError = 'عملية سحب لقطات السوق قيد التشغيل بالفعل.';
+        } else {
+          this.snapshotsRunError = `فشل تشغيل سحب اللقطات: ${err?.error?.message || err?.message || 'خطأ غير متوقع'}`;
+        }
       }
     });
   }

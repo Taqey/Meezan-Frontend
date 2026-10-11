@@ -307,4 +307,19 @@ describe('resolveVerdictWithScholars (corrected rule)', () => {
       expect(v).not.toContain('مشكوك');
     }
   });
+
+  it('merged compliance filter returns scholars-only stocks as Compliant', () => {
+    // Both standard-compliant and scholars-only stocks have overall verdict Compliant.
+    // A single Compliant filter returns both without requiring a separate scholars filter.
+    const standardCompliantStock = { ticker: 'ABUK', shariahStatus: 'Compliant', viaScholarsOnly: false };
+    const scholarsOnlyStock = { ticker: 'MIPH', shariahStatus: 'Compliant', viaScholarsOnly: true };
+    const nonCompliantStock = { ticker: 'FWRY', shariahStatus: 'NonCompliant', viaScholarsOnly: false };
+
+    const selectedFilter = 'Compliant';
+    const list = [standardCompliantStock, scholarsOnlyStock, nonCompliantStock];
+    const filtered = list.filter(s => s.shariahStatus === selectedFilter);
+
+    expect(filtered.map(s => s.ticker)).toEqual(['ABUK', 'MIPH']);
+    expect(filtered.some(s => s.viaScholarsOnly)).toBeTrue();
+  });
 });

@@ -52,7 +52,10 @@ import {
   SHARIAH_STANDARDS,
   scholarsDebtMax,
   SCHOLARS_STANDARD_NAME_AR,
-  SCHOLARS_STANDARD_NAME_EN
+  SCHOLARS_STANDARD_NAME_EN,
+  evaluateStandards,
+  resolveVerdictWithScholars,
+  isViaScholarsOnly
 } from '../../models/shariah-standards';
 
 interface EditableMarketForm {
@@ -993,12 +996,15 @@ interface EditableMarketForm {
                 </div>
                 <div style="font-size: 11px; color: #166534; margin-top: 8px;">
                   اجتاز <strong>{{ passedStandardsCount }} من 5</strong> معايير رئيسية.
-                  <span *ngIf="passedStandardsCount > 0" style="margin-right: 8px;">→ الحكم العام: متوافق</span>
-                  <span *ngIf="passedStandardsCount === 0 && shariahOverrides!.effectiveLoansPercentage !== null && shariahOverrides!.effectiveLoansPercentage! <= scholarsDebtMaxVal" style="margin-right: 8px; color: #d97706;">
+                  <span *ngIf="adminOverallVerdict === 'Compliant' && !adminIsViaScholarsOnly" style="margin-right: 8px;">→ الحكم العام: متوافق</span>
+                  <span *ngIf="adminOverallVerdict === 'Compliant' && adminIsViaScholarsOnly" style="margin-right: 8px; color: #d97706;">
                     → الحكم العام: متوافق (بحسب بعض العلماء الأفراد)
                   </span>
-                  <span *ngIf="passedStandardsCount === 0 && (shariahOverrides!.effectiveLoansPercentage === null || shariahOverrides!.effectiveLoansPercentage! > scholarsDebtMaxVal) && (shariahOverrides!.effectiveHaramRevenuePercentage !== null || shariahOverrides!.effectiveLoansPercentage !== null)" style="margin-right: 8px; color: var(--bad);">
+                  <span *ngIf="adminOverallVerdict === 'NonCompliant'" style="margin-right: 8px; color: var(--bad);">
                     → الحكم العام: غير متوافق
+                  </span>
+                  <span *ngIf="adminOverallVerdict === 'Pending'" style="margin-right: 8px; color: #64748b;">
+                    → الحكم العام: البيانات غير كافية
                   </span>
                 </div>
               </div>
@@ -1853,16 +1859,26 @@ export class AdminComponent implements OnInit, OnDestroy {
     };
   }
 
+  adminEvaluation?: ReturnType<typeof evaluateStandards>;
+  adminIsViaScholarsOnly = false;
+  adminOverallVerdict: string | null = null;
+
   updateBourseHalalStandards(): void {
     if (!this.shariahOverrides) return;
     const rev = this.shariahOverrides.effectiveHaramRevenuePercentage ?? null;
     const debt = this.shariahOverrides.effectiveLoansPercentage ?? null;
-    this.bourseHalalStandards = SHARIAH_STANDARDS.map(s => ({
-      name: s.nameEn,
-      revenueMax: s.prohibitedRevenueMax,
-      debtMax: s.debtMax,
-      passes: (rev === null || rev <= s.prohibitedRevenueMax) && (debt === null || debt <= s.debtMax) && (rev !== null || debt !== null)
+    this.adminEvaluation = evaluateStandards({
+      prohibitedRevenue: rev,
+      debt: debt
+    });
+    this.bourseHalalStandards = this.adminEvaluation.standards.map(s => ({
+      name: s.standard.nameEn,
+      revenueMax: s.standard.prohibitedRevenueMax,
+      debtMax: s.standard.debtMax,
+      passes: s.passed
     }));
+    this.adminIsViaScholarsOnly = isViaScholarsOnly(this.adminEvaluation, debt);
+    this.adminOverallVerdict = resolveVerdictWithScholars(this.adminEvaluation, debt);
   }
 
   // ── Shariah Manual Edit tab ────────────────────────────────────────────────

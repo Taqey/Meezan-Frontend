@@ -2291,7 +2291,11 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.loadShariahStockMarketData(ticker);
       },
       error: (err) => {
-        this.shariahOverridesError = err.error?.message || err.message || 'حدث خطأ أثناء حفظ التعديلات الشرعية.';
+        // Clean Arabic error: prefer server-provided message, fallback to generic
+        const serverMsg = err.error?.message || err.error?.title || '';
+        this.shariahOverridesError = serverMsg
+          ? `فشل الحفظ: ${serverMsg}`
+          : 'حدث خطأ أثناء حفظ التعديلات الشرعية. يرجى المحاولة مرة أخرى.';
         this.savingShariahOverrides = false;
       }
     });
@@ -2321,7 +2325,11 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.loadShariahStockMarketData(ticker);
       },
       error: (err) => {
-        this.shariahOverridesError = err.error?.message || err.message || 'حدث خطأ أثناء استعادة قيمة التغذية.';
+        // Clean Arabic error: prefer server-provided message, fallback to generic
+        const serverMsg = err.error?.message || err.error?.title || '';
+        this.shariahOverridesError = serverMsg
+          ? `فشل الاستعادة: ${serverMsg}`
+          : 'حدث خطأ أثناء استعادة قيمة التغذية. يرجى المحاولة مرة أخرى.';
         this.savingShariahOverrides = false;
       }
     });

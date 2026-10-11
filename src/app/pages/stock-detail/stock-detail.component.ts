@@ -298,15 +298,15 @@ type EffectiveOpinionView = ShariahSourceOpinionView & { effectiveStatus: string
             </div>
           </div>
 
-          <div class="opinion-grid" *ngIf="!marketData.hasShariahBoard">
-          <!-- 7 board cards. Halal Bourse shows the STORED verdict only;
-               other boards show their raw opinion (doubtful sanitized to no-opinion). -->
-          <div class="source-card"
-               [class.no-opinion]="op.noOpinion"
-               [class.compliant]="!op.noOpinion && isCompliant(getCardStatus(op))"
-               [class.non-compliant]="!op.noOpinion && isNonCompliant(getCardStatus(op))"
-               *ngFor="let op of sourceOpinionsList; let i = index; trackBy: trackOpinionByKey"
-               [style.--item-index]="i">
+<div class="opinion-grid" *ngIf="!marketData.hasShariahBoard">
+           <!-- 7 board cards. Halal Bourse shows the STORED verdict only;
+                other boards show their raw opinion (doubtful sanitized to no-opinion). -->
+           <div class="source-card"
+                [class.no-opinion]="op.noOpinion || (isHalalBourseCard(op) && isHalalInsufficient)"
+                [class.compliant]="!op.noOpinion && !(isHalalBourseCard(op) && isHalalInsufficient) && isCompliant(getCardStatus(op))"
+                [class.non-compliant]="!op.noOpinion && !(isHalalBourseCard(op) && isHalalInsufficient) && isNonCompliant(getCardStatus(op))"
+                *ngFor="let op of sourceOpinionsList; let i = index; trackBy: trackOpinionByKey"
+                [style.--item-index]="i">
             <div class="source-top">
               <strong>{{ getSourceName(op.sourceKey) }}</strong>
               <!-- No recorded opinion on this stock: say so explicitly instead of
@@ -380,12 +380,6 @@ type EffectiveOpinionView = ShariahSourceOpinionView & { effectiveStatus: string
             <div class="metrics-flags">
               <span class="flag-badge" [class.pass]="getActivityCompliant()" [class.fail]="!getActivityCompliant()">
                 نشاط الشركة: {{ getActivityCompliant() ? 'متوافق' : 'غير متوافق' }}
-              </span>
-              <span class="flag-badge" [class.pass]="getAaoifiCompliant() === true" [class.fail]="getAaoifiCompliant() === false">
-                معيار AAOIFI: {{ getAaoifiCompliant() === true ? 'مجاز' : (getAaoifiCompliant() === false ? 'غير مجاز' : 'غير متاح') }}
-              </span>
-              <span class="flag-badge" [class.pass]="getSpCompliant() === true" [class.fail]="getSpCompliant() === false">
-                معيار S&P: {{ getSpCompliant() === true ? 'مجاز' : (getSpCompliant() === false ? 'غير مجاز' : 'غير متاح') }}
               </span>
             </div>
           </div>
@@ -1327,24 +1321,6 @@ export class StockDetailComponent implements OnInit, OnDestroy {
       || m.aaoifiHaramEarningPerShare != null
       || m.cashLiquidityCompliant != null
       || m.haramInvestmentsCompliant != null;
-  }
-
-  /**
-   * Stored AAOIFI verdict exactly as returned (no status fallback): true = pass,
-   * false = fail, null = unknown/unavailable. Never derived from shariahStatus.
-   */
-  getAaoifiCompliant(): boolean | null {
-    const v = this.marketData?.shariahMetrics?.isCompliantAaoifi;
-    return v === true ? true : v === false ? false : null;
-  }
-
-  /**
-   * Stored S&P verdict exactly as returned (no status fallback): true = pass,
-   * false = fail, null = unknown/unavailable. Never derived from shariahStatus.
-   */
-  getSpCompliant(): boolean | null {
-    const v = this.marketData?.shariahMetrics?.isCompliantSp;
-    return v === true ? true : v === false ? false : null;
   }
 
   get nonSectoralIndices(): IndexInStockDto[] {

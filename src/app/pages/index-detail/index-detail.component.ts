@@ -279,7 +279,7 @@ export class IndexDetailComponent implements OnInit {
   readonly shariahOptions = [
     { value: 'Compliant', label: 'متوافق شرعاً' },
     { value: 'NonCompliant', label: 'غير متوافق' },
-    { value: 'Pending', label: 'قيد المراجعة / مشكل' },
+    { value: 'Pending', label: 'البيانات غير كافية' },
     { value: 'Blocked', label: 'محظور' }
   ];
 

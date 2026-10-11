@@ -1088,7 +1088,11 @@ interface EditableMarketForm {
         </p>
 
         <div style="display: flex; gap: 16px; margin: 20px 0; flex-wrap: wrap;">
-          <button class="btn btn-primary" (click)="triggerShariahRefresh()" [disabled]="shariahRefreshing">
+          <button class="btn btn-primary" (click)="triggerVerdictRecompute()" [disabled]="verdictRecomputing">
+            <lucide-icon [img]="RefreshCwIcon" size="16"></lucide-icon>
+            {{ verdictRecomputing ? 'جارٍ إعادة الحساب...' : 'إعادة حساب الأحكام الشرعية' }}
+          </button>
+          <button class="btn btn-outline" (click)="triggerShariahRefresh()" [disabled]="shariahRefreshing">
             <lucide-icon [img]="RefreshCwIcon" size="16"></lucide-icon>
             {{ shariahRefreshing ? 'جارٍ جلب وتحديث الشريعة...' : 'تحديث الشريعة المدمجة الآن (Refresh Merged Data)' }}
           </button>
@@ -1108,6 +1112,10 @@ interface EditableMarketForm {
         </div>
 
         <!-- Shariah Results Views -->
+        <div *ngIf="recomputeResult" class="admin-result success">
+          <div style="font-weight: 700; margin-bottom: 6px;">نتيجة إعادة حساب الأحكام الشرعية:</div>
+          <div>{{ recomputeResult.message }}</div>
+        </div>
         <div *ngIf="refreshResult" class="admin-result success">
           <div style="font-weight: 700; margin-bottom: 6px;">نتيجة تحديث الشريعة المدمجة:</div>
           <div>تم تحديث نسب التطهير لـ: <strong>{{ refreshResult.pctUpdatedCount }}</strong> سهم.</div>
@@ -1570,6 +1578,8 @@ export class AdminComponent implements OnInit, OnDestroy {
   // Shariah tab
   shariahRefreshing = false;
   shariahSeeding = false;
+  verdictRecomputing = false;
+  recomputeResult?: { message?: string | null; recomputedCount: number; changedCount: number } | null;
   refreshResult?: RefreshShariahDataResult;
   seedResult?: SeedShariahResultDto;
   seedJsonOverride = '';
@@ -2150,6 +2160,21 @@ export class AdminComponent implements OnInit, OnDestroy {
           message: err.error?.message || err.message || 'حدث خطأ أثناء معالجة ملف الإكسيل.'
         };
         this.uploading = false;
+      }
+    });
+  }
+
+  triggerVerdictRecompute(): void {
+    this.verdictRecomputing = true;
+    this.recomputeResult = null;
+    this.api.recomputeVerdicts().subscribe({
+      next: (res) => {
+        this.recomputeResult = res;
+        this.verdictRecomputing = false;
+      },
+      error: (err) => {
+        this.recomputeResult = { message: err.error?.message || err.message || 'فشل إعادة الحساب', recomputedCount: 0, changedCount: 0 };
+        this.verdictRecomputing = false;
       }
     });
   }

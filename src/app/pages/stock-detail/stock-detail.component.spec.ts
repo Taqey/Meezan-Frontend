@@ -40,6 +40,92 @@ describe('StockDetailComponent trackOpinionByKey', () => {
   });
 });
 
+describe('StockDetailComponent stored Halal verdict', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [StockDetailComponent],
+      providers: [
+        { provide: ActivatedRoute, useValue: {} },
+        { provide: ApiService, useValue: {} },
+        { provide: ElementRef, useValue: { nativeElement: document.createElement('div') } }
+      ]
+    }).compileComponents();
+  });
+
+  function withMarketData(md: Partial<MarketDataDto>): StockDetailComponent {
+    const component = TestBed.createComponent(StockDetailComponent).componentInstance;
+    component.marketData = {
+      ticker: 'TEST',
+      indices: [],
+      shariahOpinions: [],
+      ...md
+    } as MarketDataDto;
+    return component;
+  }
+
+  it('Halal card follows halalStatus, not the raw source value', () => {
+    const component = withMarketData({
+      shariahStatus: 'NonCompliant',
+      halalStatus: 'NonCompliant',
+      shariahOpinions: [{ sourceKey: 1, status: 'Compliant', percentage: 100 }]
+    });
+    const halal = component.sourceOpinionsList.find((o) => o.sourceKey === 1)!;
+    // Raw "Compliant" alone never counts: the stored Halal verdict decides.
+    expect(component.getCardStatus(halal)).toBe('NonCompliant');
+    expect(component.getVerdictLabel(component.getCardStatus(halal))).toBe('غير متوافق');
+  });
+
+  it('Halal insufficient renders a neutral card with the missing-ratio message', () => {
+    const component = withMarketData({
+      shariahStatus: 'Pending',
+      halalStatus: 'Pending',
+      shariahMetrics: { loansPercentage: null, spHaramEarningPercentage: 5 } as never
+    });
+    const halal = component.sourceOpinionsList.find((o) => o.sourceKey === 1)!;
+    expect(halal.noOpinion).toBeFalse();
+    expect(component.getCardStatus(halal)).toBe('Pending');
+    expect(component.getVerdictLabel('Pending')).toBe('البيانات غير كافية');
+    // Dialog belongs to the Halal card: hidden while ratios are missing.
+    expect(component.showDetailsButton).toBeFalse();
+    expect(component.insufficientMessage).toContain('نسبة القروض والفوائد');
+  });
+
+  it('Halal sufficient shows the details button; fallback note only for BoardsFallback', () => {
+    const sufficient = withMarketData({
+      shariahStatus: 'Compliant',
+      halalStatus: 'Compliant',
+      viaScholarsOnly: false,
+      verdictSource: 'Halal'
+    });
+    expect(sufficient.showDetailsButton).toBeTrue();
+    expect(sufficient.showFallbackHeaderNote).toBeFalse();
+
+    const fallback = withMarketData({
+      shariahStatus: 'Compliant',
+      halalStatus: 'Pending',
+      verdictSource: 'BoardsFallback',
+      shariahOpinions: [{ sourceKey: 2, status: 'Compliant' }]
+    });
+    expect(fallback.showFallbackHeaderNote).toBeTrue();
+    expect(fallback.showScholarsHeaderNote).toBeFalse();
+    // Halal insufficient is excluded from the counter denominator.
+    expect(fallback.totalAvailableSourcesCount).toBe(1);
+    expect(fallback.compliantSourcesCount).toBe(1);
+  });
+
+  it('scholars-only shows the scholars note, never the fallback note', () => {
+    const component = withMarketData({
+      shariahStatus: 'Compliant',
+      halalStatus: 'Compliant',
+      viaScholarsOnly: true,
+      verdictSource: 'HalalScholars'
+    });
+    expect(component.showScholarsHeaderNote).toBeTrue();
+    expect(component.showScholarsCardNote).toBeTrue();
+    expect(component.showFallbackHeaderNote).toBeFalse();
+  });
+});
+
 describe('StockDetailComponent opinion cards stability', () => {
   it('does not remount cards when later async data arrives (animation plays once)', fakeAsync(() => {
     const marketData: MarketDataDto = {

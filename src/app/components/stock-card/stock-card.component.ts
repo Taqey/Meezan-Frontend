@@ -8,10 +8,8 @@ import { FavoriteToggleComponent } from '../favorite-toggle/favorite-toggle.comp
 import { PriceFlashDirective } from '../../directives/price-flash.directive';
 import { INDEX_ARABIC_NAMES } from '../../models/api.models';
 import {
-  evaluateStandards,
   getNonComplianceReasons,
-  normalizeStatusValue,
-  resolveVerdictWithScholars
+  normalizeStatusValue
 } from '../../models/shariah-standards';
 
 @Component({
@@ -105,21 +103,13 @@ export class StockCardComponent {
   }
 
   /**
-   * Effective verdict for this card: applies the scholars-debt tier when the
-   * backend stores NonCompliant but debt ≤ 50% (and activity is permissible).
-   * All other statuses pass through unchanged.
+   * Stored verdict only — no client-side recomputation or upgrade.
+   * Scholars-only compliant stocks are normal green "متوافق" here (no amber,
+   * no extra text); that note lives only on the detail page.
+   * Doubtful/مشكوك never renders (mapped to insufficient upstream).
    */
   get effectiveShariahStatus(): string | null | undefined {
-    const raw = normalizeStatusValue(this.shariahStatus);
-    if (raw !== 'noncompliant') return this.shariahStatus;
-    // Activity hard gate: if activity is non-compliant, keep NonCompliant.
-    if (this.coreActivityCompliant === false) return this.shariahStatus;
-    // Compute the 4-tier verdict from available ratios.
-    const evaluation = evaluateStandards({
-      prohibitedRevenue: this.spHaramEarningPercentage,
-      debt: this.loansPercentage
-    });
-    return resolveVerdictWithScholars(evaluation, this.loansPercentage);
+    return this.shariahStatus;
   }
 
   /** Non-compliance reasons to show below the badge — empty unless effective status is NonCompliant. */
@@ -133,5 +123,4 @@ export class StockCardComponent {
     });
   }
 }
-
 

@@ -97,6 +97,10 @@ export interface StockListItemDto {
   loansPercentage?: number | null;
   /** Purification percentage from ShariahCompliance (legacy Pct field). */
   purificationPct?: number | null;
+  /** Stored verdict flag: true when Compliant ONLY via the scholars rule (green everywhere; note only on detail). */
+  viaScholarsOnly?: boolean | null;
+  /** Stored per-criterion results JSON (6 criteria, per-ratio pass/fail/skipped, counts). Dialog reads this directly. */
+  verdictDetailsJson?: string | null;
 }
 
 export interface IndexSummaryDto {
@@ -241,6 +245,14 @@ export interface MarketDataDto {
   sectorWeight?: number | null;
   isSectorWeightCapped?: boolean | null;
   sectorCappingFactor?: number | null;
+  /** Stored verdict flag: true when Compliant ONLY via the scholars rule. */
+  viaScholarsOnly?: boolean | null;
+  /** Stored per-criterion results JSON (6 criteria). The details dialog reads this directly. */
+  verdictDetailsJson?: string | null;
+  /** Halal Bourse source's OWN stored verdict (Compliant/NonCompliant/Pending). Null when never computed. */
+  halalStatus?: string | null;
+  /** Which path produced the overall verdict (Activity/Boards/Halal/HalalScholars/EGX33/BoardsFallback/...). */
+  verdictSource?: string | null;
 }
 
 export interface SupportResistanceDto {

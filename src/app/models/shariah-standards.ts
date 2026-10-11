@@ -330,28 +330,65 @@ export function resolveInternalVerdict(
 }
 
 /**
- * Full four-tier verdict (replaces the old doubtful bucket):
+ * Shared verdict rule (mirrors the backend ShariahVerdictService — same thresholds,
+ * no duplicates; thresholds live only in SHARIAH_STANDARDS):
  *
- * 1. passes ≥1 of 5 institutional standards   → 'Compliant'
- * 2. fails all 5 but debt ≤ 50% (scholars)    → SCHOLARS_COMPLIANT_VERDICT
- * 3. fails everything with data                → 'NonCompliant'
- * 4. no data at all                            → 'Pending' (قيد المراجعة)
- *
- * Call this instead of resolveInternalVerdict on the stock-detail page to
- * eliminate the doubtful display entirely.
+ * - Insufficient (Pending = البيانات غير كافية): debt OR prohibited revenue missing.
+ *   No standard evaluated, scholars never applied.
+ * - Compliant: fully passes ≥1 of the 5 main standards (all available ratios pass;
+ *   investments/cash missing are skipped).
+ * - Compliant via scholars (returns 'Compliant'; use isViaScholarsOnly to detect):
+ *   ≥1 main standard where every available non-debt ratio passes, the ONLY failure
+ *   is debt, and debt ≤ 50%.
+ * - Otherwise NonCompliant (revenue/investments/cash failing everywhere even with
+ *   debt ≤ 50%, or debt > 50%).
  */
 export function resolveVerdictWithScholars(
   evaluation: StandardsEvaluation,
   debtPct: number | null | undefined
 ): string {
-  // Tier 1: passes at least one institutional standard
+  // Insufficient: debt or revenue missing on every standard (same ratios everywhere).
+  const first = evaluation.standards[0];
+  if (first) {
+    const revMissing = !first.criteria['prohibitedRevenue'].hasData;
+    const debtMissing = !first.criteria['debt'].hasData;
+    if (revMissing || debtMissing) return 'Pending';
+  } else {
+    return 'Pending';
+  }
+  // Fully passes ≥1 main standard → Compliant.
   if (evaluation.passedCount > 0) return 'Compliant';
-  // Tier 2: no data for any standard → pending
-  if (evaluation.totalCount === 0) return 'Pending';
-  // Tier 3: fails all standards but the scholars debt threshold passes
-  if (evaluateScholarsDebt(debtPct)) return SCHOLARS_COMPLIANT_VERDICT;
-  // Tier 4: fails everything
+  // Scholars-only: debt ≤ 50 AND ≥1 standard whose non-debt ratios all pass with debt the sole failure.
+  if (isViaScholarsOnly(evaluation, debtPct)) return 'Compliant';
   return 'NonCompliant';
+}
+
+/**
+ * True when the stock is Compliant ONLY through the scholars relaxation
+ * (debt ≤ 50% with all non-debt ratios passing on ≥1 standard).
+ * The badge stays green "متوافق"; the note shows only on the detail page.
+ */
+export function isViaScholarsOnly(
+  evaluation: StandardsEvaluation,
+  debtPct: number | null | undefined
+): boolean {
+  if (evaluation.passedCount > 0) return false;
+  if (debtPct == null || isNaN(Number(debtPct))) return false;
+  if (Number(debtPct) > scholarsDebtMax) return false;
+  for (const s of evaluation.standards) {
+    const rev = s.criteria['prohibitedRevenue'];
+    const debt = s.criteria['debt'];
+    const inv = s.criteria['prohibitedInvestments'];
+    const cash = s.criteria['cash'];
+    const nonDebtOk =
+      (!rev.hasData || rev.passed) &&
+      (!inv.hasData || inv.passed) &&
+      (!cash.hasData || cash.passed);
+    // Revenue/debt are required (insufficient handled above), so hasData is true here.
+    if (!rev.hasData || !debt.hasData) return false;
+    if (nonDebtOk && !debt.passed) return true;
+  }
+  return false;
 }
 
 // ── Non-compliance reason helper ────────────────────────────────────────────

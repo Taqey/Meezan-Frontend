@@ -673,6 +673,11 @@ button, input, select, textarea {
   background: var(--warn-soft);
 }
 
+.status-badge.status-neutral {
+  color: var(--muted-foreground);
+  background: var(--muted);
+}
+
 .status-dot {
   width: 6px;
   height: 6px;

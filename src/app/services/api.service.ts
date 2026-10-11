@@ -247,6 +247,10 @@ export class ApiService {
     return this.http.post<RefreshShariahDataResult>(`${this.baseUrl}/api/shariah/refresh`, {});
   }
 
+  recomputeVerdicts(): Observable<{ success: boolean; totalStocks: number; recomputedCount: number; changedCount: number; failedCount: number; message?: string | null }> {
+    return this.http.post<{ success: boolean; totalStocks: number; recomputedCount: number; changedCount: number; failedCount: number; message?: string | null }>(`${this.baseUrl}/api/shariah/recompute-verdicts`, {});
+  }
+
   // ── Job Settings (Automation toggles) ──────────────────────────────
   getJobSettings(): Observable<Record<string, boolean>> {
     return this.http.get<Record<string, boolean>>(`${this.baseUrl}/api/job-settings`);

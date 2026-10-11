@@ -475,7 +475,7 @@ type EffectiveOpinionView = ShariahSourceOpinionView & { effectiveStatus: string
               </div>
             </div>
             <div class="criterion-row" *ngFor="let r of ev.ratios">
-              <span class="criterion-name">{{ criterionLabels[r.key].ar }}</span>
+              <span class="criterion-name">{{ getCriterionLabelAr(r.key) }}</span>
               <span class="criterion-values">
                 <ng-container *ngIf="r.hasData; else noCriterionData">
                   {{ r.value | number:'1.0-2' }}% / ≤ {{ r.max }}%
@@ -507,7 +507,7 @@ type EffectiveOpinionView = ShariahSourceOpinionView & { effectiveStatus: string
               </div>
             </div>
             <div class="criterion-row" *ngFor="let r of dialogScholarsCriterion.ratios">
-              <span class="criterion-name">{{ criterionLabels[r.key].ar }}</span>
+              <span class="criterion-name">{{ getCriterionLabelAr(r.key) }}</span>
               <span class="criterion-values">
                 <ng-container *ngIf="r.hasData; else noScholarsData">
                   {{ r.value | number:'1.0-2' }}% / ≤ {{ r.max }}%
@@ -604,6 +604,10 @@ export class StockDetailComponent implements OnInit, OnDestroy {
   readonly MinusIcon = Minus;
   readonly criterionOrder: readonly ShariahCriterionKey[] = CRITERION_ORDER;
   readonly criterionLabels = CRITERION_LABELS;
+
+  getCriterionLabelAr(key: string): string {
+    return (this.criterionLabels as Record<string, { ar: string; en: string }>)[key]?.ar || key;
+  }
 
   /** Scholars criterion constants exposed to the template. */
   readonly scholarsStandardNameAr = SCHOLARS_STANDARD_NAME_AR;

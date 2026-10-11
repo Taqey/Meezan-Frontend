@@ -432,6 +432,15 @@ export interface LiveProgressInfo {
   startedAt?: string | null;
   elapsedSeconds: number;
   estimatedSecondsRemaining?: number | null;
+  jobKey?: string;
+}
+
+export interface JobProgressInfo {
+  jobKey: string;
+  status: 'NotRunning' | 'Running' | 'Committing' | 'Completed' | 'Failed' | string;
+  live?: LiveProgressInfo | null;
+  finishedAt?: string | null;
+  errorReason?: string | null;
 }
 
 export interface LastRunSummary {
@@ -449,6 +458,7 @@ export interface ScrapeStatusResponse {
   status: 'NotRunning' | 'Running' | 'Committing' | 'Completed' | 'Failed' | string;
   live?: LiveProgressInfo | null;
   lastRun?: LastRunSummary | null;
+  jobs?: Record<string, JobProgressInfo>;
 }
 
 export interface RunCombinedScrapeResult {

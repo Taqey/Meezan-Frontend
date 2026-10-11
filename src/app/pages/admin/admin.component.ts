@@ -29,6 +29,7 @@ import { ApiService } from '../../services/api.service';
 import { AdminAuthService } from '../../services/admin-auth.service';
 import {
   IndexSummaryDto,
+  LiveProgressInfo,
   MarketDataDto,
   ManualMarketDataUpdateRequest,
   ManualMarketDataUpdateResponse,
@@ -205,7 +206,7 @@ interface EditableMarketForm {
                   <lucide-icon [img]="ClockIcon" size="18"></lucide-icon>
                   لقطات السوق والمؤشرات (Market Snapshots)
                 </strong>
-                <span class="live-dot" *ngIf="isSnapshotsRunning"></span>
+                <span class="live-dot" *ngIf="isMarketSnapshotsRunning"></span>
               </div>
               <p style="font-size: 13px; color: var(--muted-foreground); margin: 0 0 14px; line-height: 1.5;">
                 تحديث أسعار المؤشرات والقطاعات من مباشر يومياً بعد إغلاق جلسة التداول.
@@ -241,9 +242,9 @@ interface EditableMarketForm {
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 8px;">
-              <button class="btn btn-outline" (click)="triggerSnapshotsRefresh()" [disabled]="isSnapshotsRunning" style="width: 100%; justify-content: center; border-color: #a7f3d0; color: #047857;">
+              <button class="btn btn-outline" (click)="triggerSnapshotsRefresh()" [disabled]="isMarketSnapshotsRunning" style="width: 100%; justify-content: center; border-color: #a7f3d0; color: #047857;">
                 <lucide-icon [img]="PlayIcon" size="16"></lucide-icon>
-                {{ isSnapshotsRunning ? 'جارٍ تحديث اللقطات...' : 'تشغيل يدوي الآن (Run Snapshots)' }}
+                {{ isMarketSnapshotsRunning ? 'جارٍ تحديث اللقطات...' : 'تشغيل يدوي الآن (Run Snapshots)' }}
               </button>
               <div *ngIf="snapshotsRunResult" style="font-size: 11px; text-align: center;" [style.color]="snapshotsRunResult.failed > 0 ? '#b45309' : '#047857'">
                 اكتمل: نجح {{ snapshotsRunResult.succeeded }} من {{ snapshotsRunResult.totalTargets }}
@@ -259,40 +260,73 @@ interface EditableMarketForm {
           {{ jobToggleError }}
         </div>
 
-        <!-- Live Scraping Progress View -->
+        <!-- Live Jobs Progress View (Shared across all 3 jobs) -->
         <div *ngIf="scrapeStatus" style="background: #fafbfa; border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-top: 20px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span class="live-dot" *ngIf="isScrapingRunning"></span>
-              <strong>الحالة الحالية:</strong>
-              <span [ngSwitch]="scrapeStatus.status">
-                <span *ngSwitchCase="'Running'" style="color: var(--primary); font-weight: 700;">جارٍ السحب المباشر (Running)</span>
-                <span *ngSwitchCase="'Committing'" style="color: #b47b20; font-weight: 700;">جارٍ اعتماد وحفظ البيانات في قاعدة البيانات (Committing)...</span>
-                <span *ngSwitchCase="'Completed'" style="color: var(--good); font-weight: 700;">اكتملت العملية بنجاح (Completed)</span>
-                <span *ngSwitchCase="'Failed'" style="color: var(--bad); font-weight: 700;">فشلت العملية (Failed)</span>
-                <span *ngSwitchDefault>متوقف (NotRunning)</span>
-              </span>
-              <span *ngIf="scrapeStatus.live?.triggeredBy" style="font-size: 12px; color: var(--muted-foreground); margin-right: 6px;">
-                ({{ scrapeStatus.live?.triggeredBy }})
-              </span>
+          
+          <!-- Running Jobs Section (stacked if multiple running) -->
+          <div *ngIf="runningJobs.length > 0">
+            <div *ngFor="let rJob of runningJobs; let last = last" [style.marginBottom]="last ? '0px' : '20px'" [style.paddingBottom]="last ? '0px' : '16px'" [style.borderBottom]="last ? 'none' : '1px solid var(--border)'">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="live-dot"></span>
+                  <strong>الحالة الحالية:</strong>
+                  <span style="color: var(--primary); font-weight: 700;">
+                    {{ getJobStatusLabel(rJob.status) }} ({{ rJob.nameAr }})
+                  </span>
+                  <span *ngIf="rJob.live?.triggeredBy" style="font-size: 12px; color: var(--muted-foreground); margin-right: 6px;">
+                    [{{ rJob.live?.triggeredBy }}]
+                  </span>
+                </div>
+
+                <span *ngIf="rJob.live?.currentStockTicker" style="font-family: monospace; font-size: 13px; color: var(--primary);">
+                  العنصر الجاري: [{{ rJob.live?.currentStockTicker }}]
+                </span>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" [style.width.%]="rJob.live?.percentComplete || 0"></div>
+              </div>
+
+              <div class="progress-stats" *ngIf="rJob.live">
+                <span>المنجز: {{ rJob.live.processedCount }} من {{ rJob.live.totalStocks }} ({{ rJob.live.percentComplete }}%)</span>
+                <span>الناجح: {{ rJob.live.succeededCount }} | الفاشل: {{ rJob.live.failedCount }}</span>
+                <span *ngIf="rJob.live.estimatedSecondsRemaining !== null">
+                  الوقت المتبقي التقديري: {{ rJob.live.estimatedSecondsRemaining }} ثانية
+                </span>
+              </div>
             </div>
-
-            <span *ngIf="scrapeStatus.live?.currentStockTicker" style="font-family: monospace; font-size: 13px; color: var(--primary);">
-              السهم الجاري: [{{ scrapeStatus.live?.currentStockTicker }}]
-            </span>
           </div>
 
-          <!-- Progress Bar -->
-          <div class="progress-bar-container">
-            <div class="progress-bar-fill" [style.width.%]="scrapeStatus.live?.percentComplete || (scrapeStatus.status === 'Completed' ? 100 : 0)"></div>
+          <!-- Recently Finished Jobs (briefly shown after completion/failure) -->
+          <div *ngIf="runningJobs.length === 0 && recentlyFinishedJobs.length > 0">
+            <div *ngFor="let fJob of recentlyFinishedJobs" style="margin-bottom: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <strong>الحالة:</strong>
+                  <span [style.color]="fJob.status === 'Completed' ? 'var(--good)' : 'var(--bad)'" style="font-weight: 700;">
+                    {{ getJobStatusLabel(fJob.status) }} ({{ fJob.nameAr }})
+                  </span>
+                </div>
+                <div *ngIf="fJob.live" style="font-size: 12px; color: var(--muted-foreground);">
+                  أنجز {{ fJob.live.processedCount }} من {{ fJob.live.totalStocks }} (نجح: {{ fJob.live.succeededCount }} | فشل: {{ fJob.live.failedCount }})
+                </div>
+              </div>
+              <div class="progress-bar-container" style="margin-top: 8px;">
+                <div class="progress-bar-fill" [style.width.%]="100" [style.background]="fJob.status === 'Completed' ? 'var(--good)' : 'var(--bad)'"></div>
+              </div>
+            </div>
           </div>
 
-          <div class="progress-stats" *ngIf="scrapeStatus.live">
-            <span>المنجز: {{ scrapeStatus.live.processedCount }} من {{ scrapeStatus.live.totalStocks }} سهم ({{ scrapeStatus.live.percentComplete }}%)</span>
-            <span>الناجح: {{ scrapeStatus.live.succeededCount }} | الفاشل: {{ scrapeStatus.live.failedCount }}</span>
-            <span *ngIf="scrapeStatus.live.estimatedSecondsRemaining !== null">
-              الوقت المتبقي التقديري: {{ scrapeStatus.live.estimatedSecondsRemaining }} ثانية
-            </span>
+          <!-- Idle (Not Running) state when no jobs active -->
+          <div *ngIf="runningJobs.length === 0 && recentlyFinishedJobs.length === 0" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <strong>الحالة الحالية:</strong>
+              <span style="color: var(--muted-foreground); font-weight: 600;">متوقف (NotRunning)</span>
+            </div>
+            <div *ngIf="scrapeStatus?.lastRun" style="font-size: 12px; color: var(--muted-foreground);">
+              آخر تشغيل: <strong>{{ scrapeStatus!.lastRun!.triggeredBy }}</strong> ({{ scrapeStatus!.lastRun!.succeededStocks }} ناجح من {{ scrapeStatus!.lastRun!.totalStocks }})
+            </div>
           </div>
         </div>
 
@@ -1687,7 +1721,7 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.fetchScrapeStatus();
     this.loadJobSettings();
     this.pollInterval = setInterval(() => {
-      if (this.activeTab === 'scraping' || this.isScrapingRunning) {
+      if (this.activeTab === 'scraping' || this.isAnyJobRunning) {
         this.fetchScrapeStatus();
       }
     }, 2500);
@@ -1747,19 +1781,22 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   triggerSnapshotsRefresh(): void {
-    if (this.isSnapshotsRunning) return;
+    if (this.isMarketSnapshotsRunning) return;
     this.isSnapshotsRunning = true;
     this.snapshotsRunResult = null;
     this.snapshotsRunError = null;
+    this.fetchScrapeStatus();
 
     this.api.refreshMarketSnapshots().subscribe({
       next: (res) => {
         this.isSnapshotsRunning = false;
         this.snapshotsRunResult = res;
         this.snapshotsLastRunText = new Date().toLocaleString('ar-EG');
+        this.fetchScrapeStatus();
       },
       error: (err) => {
         this.isSnapshotsRunning = false;
+        this.fetchScrapeStatus();
         if (err?.status === 409) {
           this.snapshotsRunError = 'عملية سحب لقطات السوق قيد التشغيل بالفعل.';
         } else {
@@ -1778,17 +1815,114 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.auth.logout();
   }
 
-  get isScrapingRunning(): boolean {
-    const s = this.scrapeStatus?.status;
-    return s === 'Running' || s === 'Committing';
-  }
-
   get isDailyRunning(): boolean {
-    return this.isScrapingRunning && (this.activeTriggerBucket === 'LiveDaily' || (this.scrapeStatus?.live?.triggeredBy?.includes('Live') ?? false));
+    const job = this.scrapeStatus?.jobs?.['LiveDaily'];
+    if (job) return job.status === 'Running' || job.status === 'Committing';
+    return (this.scrapeStatus?.status === 'Running' || this.scrapeStatus?.status === 'Committing') &&
+      (this.activeTriggerBucket === 'LiveDaily' || (this.scrapeStatus?.live?.jobKey === 'LiveDaily') || (this.scrapeStatus?.live?.triggeredBy?.includes('Live') ?? false));
   }
 
   get isQuarterlyRunning(): boolean {
-    return this.isScrapingRunning && (this.activeTriggerBucket === 'SlowQuarterly' || (this.scrapeStatus?.live?.triggeredBy?.includes('Slow') ?? false));
+    const job = this.scrapeStatus?.jobs?.['SlowQuarterly'];
+    if (job) return job.status === 'Running' || job.status === 'Committing';
+    return (this.scrapeStatus?.status === 'Running' || this.scrapeStatus?.status === 'Committing') &&
+      (this.activeTriggerBucket === 'SlowQuarterly' || (this.scrapeStatus?.live?.jobKey === 'SlowQuarterly') || (this.scrapeStatus?.live?.triggeredBy?.includes('Slow') ?? false));
+  }
+
+  get isMarketSnapshotsRunning(): boolean {
+    const job = this.scrapeStatus?.jobs?.['MarketSnapshots'];
+    if (job) return job.status === 'Running' || job.status === 'Committing';
+    return this.isSnapshotsRunning;
+  }
+
+  get isScrapingRunning(): boolean {
+    return this.isDailyRunning || this.isQuarterlyRunning;
+  }
+
+  get isAnyJobRunning(): boolean {
+    return this.isDailyRunning || this.isQuarterlyRunning || this.isMarketSnapshotsRunning;
+  }
+
+  get runningJobs(): { jobKey: string; nameAr: string; nameEn: string; status: string; live?: LiveProgressInfo | null }[] {
+    const list: { jobKey: string; nameAr: string; nameEn: string; status: string; live?: LiveProgressInfo | null }[] = [];
+    if (!this.scrapeStatus) return list;
+
+    if (this.scrapeStatus.jobs) {
+      for (const [key, job] of Object.entries(this.scrapeStatus.jobs)) {
+        if (job.status === 'Running' || job.status === 'Committing') {
+          list.push({
+            jobKey: key,
+            nameAr: this.getJobNameAr(key),
+            nameEn: key,
+            status: job.status,
+            live: job.live
+          });
+        }
+      }
+    }
+
+    if (list.length === 0 && (this.scrapeStatus.status === 'Running' || this.scrapeStatus.status === 'Committing')) {
+      const key = this.scrapeStatus.live?.jobKey || this.activeTriggerBucket || (this.isSnapshotsRunning ? 'MarketSnapshots' : 'LiveDaily');
+      list.push({
+        jobKey: key,
+        nameAr: this.getJobNameAr(key),
+        nameEn: key,
+        status: this.scrapeStatus.status,
+        live: this.scrapeStatus.live
+      });
+    }
+
+    return list;
+  }
+
+  get recentlyFinishedJobs(): { jobKey: string; nameAr: string; nameEn: string; status: string; live?: LiveProgressInfo | null }[] {
+    const list: { jobKey: string; nameAr: string; nameEn: string; status: string; live?: LiveProgressInfo | null }[] = [];
+    if (!this.scrapeStatus?.jobs) {
+      if (this.scrapeStatus?.status === 'Completed' || this.scrapeStatus?.status === 'Failed') {
+        const key = this.scrapeStatus.live?.jobKey || 'LiveDaily';
+        list.push({
+          jobKey: key,
+          nameAr: this.getJobNameAr(key),
+          nameEn: key,
+          status: this.scrapeStatus.status,
+          live: this.scrapeStatus.live
+        });
+      }
+      return list;
+    }
+
+    for (const [key, job] of Object.entries(this.scrapeStatus.jobs)) {
+      if (job.status === 'Completed' || job.status === 'Failed') {
+        list.push({
+          jobKey: key,
+          nameAr: this.getJobNameAr(key),
+          nameEn: key,
+          status: job.status,
+          live: job.live
+        });
+      }
+    }
+    return list;
+  }
+
+  getJobNameAr(jobKey: string): string {
+    switch (jobKey) {
+      case 'LiveDaily': return 'سحب الأسعار المباشرة (Daily Live-Price)';
+      case 'SlowQuarterly': return 'سحب الأساسيات الربع سنوية (Quarterly Slow)';
+      case 'MarketSnapshots': return 'لقطات السوق والمؤشرات (Market Snapshots)';
+      default: return jobKey;
+    }
+  }
+
+  getJobStatusLabel(status: string): string {
+    switch (status) {
+      case 'Running': return 'جاري التشغيل';
+      case 'Committing': return 'جاري حفظ البيانات';
+      case 'Completed': return 'اكتمل بنجاح';
+      case 'Failed': return 'فشل';
+      case 'NotRunning': return 'متوقف';
+      default: return status || 'متوقف';
+    }
   }
 
   getBucketLastRun(bucket: 'LiveDaily' | 'SlowQuarterly'): string {

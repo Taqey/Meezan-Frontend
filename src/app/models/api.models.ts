@@ -255,6 +255,51 @@ export interface MarketDataDto {
   verdictSource?: string | null;
 }
 
+export interface RatioCheckDto {
+  key?: string;
+  Key?: string;
+  value?: number | null;
+  Value?: number | null;
+  max?: number;
+  Max?: number;
+  hasData?: boolean;
+  HasData?: boolean;
+  passed?: boolean;
+  Passed?: boolean;
+  outcome?: string;
+  Outcome?: string;
+}
+
+export interface CriterionResultDto {
+  id?: string;
+  Id?: string;
+  nameEn?: string;
+  NameEn?: string;
+  passed?: boolean;
+  Passed?: boolean;
+  hasData?: boolean;
+  HasData?: boolean;
+  ratios?: RatioCheckDto[];
+  Ratios?: RatioCheckDto[];
+}
+
+export interface StoredVerdictDetailsDto {
+  passedCount?: number;
+  PassedCount?: number;
+  totalCount?: number;
+  TotalCount?: number;
+  viaScholarsOnly?: boolean;
+  ViaScholarsOnly?: boolean;
+  revenue?: number | null;
+  Revenue?: number | null;
+  debt?: number | null;
+  Debt?: number | null;
+  missing?: string[];
+  Missing?: string[];
+  criteria?: CriterionResultDto[];
+  Criteria?: CriterionResultDto[];
+}
+
 export interface SupportResistanceDto {
   ticker: string;
   nameAr?: string | null;

@@ -118,11 +118,64 @@ describe('StockDetailComponent stored Halal verdict', () => {
       shariahStatus: 'Compliant',
       halalStatus: 'Compliant',
       viaScholarsOnly: true,
-      verdictSource: 'HalalScholars'
+      verdictSource: 'HalalScholars',
+      shariahMetrics: { loansPercentage: 22.5 } as never
     });
     expect(component.showScholarsHeaderNote).toBeTrue();
     expect(component.showScholarsCardNote).toBeTrue();
     expect(component.showFallbackHeaderNote).toBeFalse();
+    expect(component.halalCardNote).toContain('متوافق وفق فتاوى بعض العلماء الأفراد فقط');
+    expect(component.halalCardNote).toContain('22.5%');
+  });
+
+  it('renders all 6 criteria and calculates Halal card note correctly from stored verdict (both camelCase and PascalCase)', () => {
+    // PascalCase json simulation
+    const pascalJson = JSON.stringify({
+      PassedCount: 3,
+      TotalCount: 6,
+      ViaScholarsOnly: false,
+      Criteria: [
+        { Id: 'egx33', NameEn: 'EGX 33', Passed: true, HasData: true, Ratios: [{ Key: 'debt', Value: 10, Max: 33, HasData: true, Passed: true }] },
+        { Id: 'dfm', NameEn: 'DFM', Passed: true, HasData: true, Ratios: [{ Key: 'debt', Value: 15, Max: 30, HasData: true, Passed: true }] },
+        { Id: 'aaoifi', NameEn: 'AAOIFI', Passed: false, HasData: true, Ratios: [{ Key: 'debt', Value: 35, Max: 30, HasData: true, Passed: false }] },
+        { Id: 'sp', NameEn: 'S&P', Passed: true, HasData: true, Ratios: [{ Key: 'debt', Value: 10, Max: 33, HasData: true, Passed: true }] },
+        { Id: 'klsi', NameEn: 'KLSI', Passed: false, HasData: true, Ratios: [{ Key: 'debt', Value: 35, Max: 33, HasData: true, Passed: false }] },
+        { Id: 'scholars', NameEn: 'Scholars', Passed: true, HasData: true, Ratios: [{ Key: 'debt', Value: 10, Max: 50, HasData: true, Passed: true }] }
+      ]
+    });
+
+    const component = withMarketData({
+      shariahStatus: 'Compliant',
+      halalStatus: 'Compliant',
+      viaScholarsOnly: false,
+      verdictDetailsJson: pascalJson
+    });
+
+    expect(component.dialogTotalPassed).toBe(3);
+    expect(component.dialogTotalCount).toBe(6);
+    expect(component.dialogMainCriteria.length).toBe(5);
+    expect(component.dialogScholarsCriterion).not.toBeNull();
+    expect(component.dialogMainCriteria[0].nameAr).toContain('EGX 33');
+    expect(component.dialogMainCriteria[0].ratios[0].key).toBe('debt');
+    expect(component.dialogMainCriteria[0].ratios[0].value).toBe(10);
+    expect(component.dialogMainCriteria[0].ratios[0].max).toBe(33);
+    expect(component.dialogMainCriteria[0].ratios[0].passed).toBeTrue();
+    expect(component.halalCardNote).toBe('اجتاز 3 من 6 معايير');
+
+    const halalCard = component.sourceOpinionsList.find((o) => o.sourceKey === 1)!;
+    expect(halalCard.note).toBe('اجتاز 3 من 6 معايير');
+  });
+
+  it('Halal card note shows 0 of 6 message when non-compliant', () => {
+    const component = withMarketData({
+      shariahStatus: 'NonCompliant',
+      halalStatus: 'NonCompliant',
+      viaScholarsOnly: false,
+      verdictDetailsJson: JSON.stringify({ passedCount: 0, totalCount: 6, criteria: [] })
+    });
+    expect(component.halalCardNote).toBe('لم يجتز أي معيار من الستة');
+    const halalCard = component.sourceOpinionsList.find((o) => o.sourceKey === 1)!;
+    expect(halalCard.note).toBe('لم يجتز أي معيار من الستة');
   });
 });
 

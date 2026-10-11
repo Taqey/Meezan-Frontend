@@ -28,7 +28,8 @@ import {
   ShariahSourceOpinionDto,
   SupportResistanceDto,
   INDEX_ARABIC_NAMES,
-  SHARIAH_BOARD_FROZEN_TICKERS
+  SHARIAH_BOARD_FROZEN_TICKERS,
+  StoredVerdictDetailsDto
 } from '../../models/api.models';
 import {
   CRITERION_LABELS,
@@ -334,21 +335,12 @@ type EffectiveOpinionView = ShariahSourceOpinionView & { effectiveStatus: string
               <a *ngIf="isManualSource(op) && pdfUrlFor(op)" [href]="pdfUrlFor(op)" target="_blank" rel="noopener noreferrer" class="verdict-pdf-link">
                 <lucide-icon [img]="FileTextIcon" size="14"></lucide-icon> View PDF
               </a>
-              <!-- Halal Bourse card: verdict ONLY from the stored verdict (no doubtful, no amber).
-                   Scholars-only note lives only here on the detail page. -->
-              <ng-container *ngIf="isHalalBourseCard(op)">
-                <p class="upgrade-note" *ngIf="showScholarsCardNote">
-                  <lucide-icon [img]="InfoIcon" size="13"></lucide-icon>
-                  <span>متوافق وفق فتاوى بعض العلماء الأفراد فقط (نسبة القروض {{ loansPct | number:'1.0-2' }}% ≤ 50%)</span>
-                </p>
-              </ng-container>
               <!-- Details entry on the Halal Bourse card only: shown for every stock with
-                   sufficient data; for insufficient stocks the missing-ratio message shows instead. -->
+                   sufficient data. -->
               <ng-container *ngIf="isHalalBourseCard(op)">
                 <button type="button" class="details-button" *ngIf="showDetailsButton" (click)="openStandardsDialog($event)">
                   عرض التفاصيل
                 </button>
-                <p class="muted" *ngIf="!showDetailsButton">{{ insufficientMessage }}</p>
               </ng-container>
             </ng-container>
           </div>
@@ -761,8 +753,26 @@ export class StockDetailComponent implements OnInit, OnDestroy {
     if (!raw) return null;
     try {
       const o = JSON.parse(raw);
-      if (!o || !Array.isArray(o.criteria)) return null;
-      return o;
+      const rawCriteria = (o?.criteria || o?.Criteria);
+      if (!o || !Array.isArray(rawCriteria)) return null;
+      return {
+        passedCount: Number(o.passedCount ?? o.PassedCount ?? 0),
+        totalCount: Number(o.totalCount ?? o.TotalCount ?? 6),
+        viaScholarsOnly: !!(o.viaScholarsOnly ?? o.ViaScholarsOnly),
+        criteria: rawCriteria.map((c: any) => ({
+          id: String(c.id ?? c.Id ?? ''),
+          nameEn: String(c.nameEn ?? c.NameEn ?? ''),
+          passed: !!(c.passed ?? c.Passed),
+          hasData: !!(c.hasData ?? c.HasData),
+          ratios: Array.isArray(c.ratios ?? c.Ratios) ? (c.ratios ?? c.Ratios).map((r: any) => ({
+            key: String(r.key ?? r.Key ?? ''),
+            value: (r.value ?? r.Value) != null ? Number(r.value ?? r.Value) : null,
+            max: Number(r.max ?? r.Max ?? 0),
+            hasData: !!(r.hasData ?? r.HasData),
+            passed: !!(r.passed ?? r.Passed)
+          })) : []
+        }))
+      };
     } catch { return null; }
   }
 
@@ -797,7 +807,7 @@ export class StockDetailComponent implements OnInit, OnDestroy {
       nameEn: this.storedCriterionNameEn[x.id] || x.nameEn,
       passed: !!x.passed,
       hasData: !!x.hasData,
-      ratios: (x.ratios || []).map((r) => ({ key: String((r as unknown as { key: string }).key), value: (r as unknown as { value: number | null }).value ?? null, max: Number((r as unknown as { max: number }).max) || 0, hasData: !!(r as unknown as { hasData: boolean }).hasData, passed: !!(r as unknown as { passed: boolean }).passed }))
+      ratios: x.ratios || []
     }));
   }
 
@@ -810,7 +820,7 @@ export class StockDetailComponent implements OnInit, OnDestroy {
     return {
       passed: !!x.passed,
       hasData: !!x.hasData,
-      ratios: (x.ratios || []).map((r) => ({ key: String((r as unknown as { key: string }).key), value: (r as unknown as { value: number | null }).value ?? null, max: Number((r as unknown as { max: number }).max) || 0, hasData: !!(r as unknown as { hasData: boolean }).hasData, passed: !!(r as unknown as { passed: boolean }).passed }))
+      ratios: x.ratios || []
     };
   }
 
@@ -821,6 +831,28 @@ export class StockDetailComponent implements OnInit, OnDestroy {
 
   get dialogTotalCount(): number {
     return this.storedVerdict?.totalCount ?? 6;
+  }
+
+  /**
+   * Computed note for Halal Bourse card according to stored verdict:
+   * - Compliant via main standard: "اجتاز X من 6 معايير"
+   * - Compliant via scholars rule only: "متوافق وفق فتاوى بعض العلماء الأفراد فقط (نسبة القروض X% ≤ 50%)"
+   * - NonCompliant: "لم يجتز أي معيار من الستة"
+   * - Insufficient: insufficientMessage
+   */
+  get halalCardNote(): string {
+    const s = this.normalizeShariahStatus(this.halalVerdict);
+    if (s === 'compliant') {
+      if (this.viaScholarsOnly) {
+        const debtStr = this.loansPct != null ? `${parseFloat(Number(this.loansPct).toFixed(2))}%` : '';
+        return `متوافق وفق فتاوى بعض العلماء الأفراد فقط (نسبة القروض ${debtStr} ≤ 50%)`;
+      }
+      return `اجتاز ${this.dialogTotalPassed} من 6 معايير`;
+    }
+    if (s === 'noncompliant') {
+      return 'لم يجتز أي معيار من الستة';
+    }
+    return this.insufficientMessage;
   }
 
   /**
@@ -843,10 +875,11 @@ export class StockDetailComponent implements OnInit, OnDestroy {
       if (isHalal) {
         // Halal's OWN stored verdict only — raw source values never count.
         const s = this.normalizeShariahStatus(this.halalVerdict);
-        if (s === 'compliant') return { sourceKey: key, status: 'Compliant', percentage: null, note: real?.note ?? null, noOpinion: false, rawDisplayStatus: 'Compliant', effectiveStatus: 'Compliant', upgraded: this.viaScholarsOnly };
-        if (s === 'noncompliant') return { sourceKey: key, status: 'NonCompliant', percentage: null, note: real?.note ?? null, noOpinion: false, rawDisplayStatus: 'NonCompliant', effectiveStatus: 'NonCompliant', upgraded: false };
+        const cardNote = this.halalCardNote;
+        if (s === 'compliant') return { sourceKey: key, status: 'Compliant', percentage: null, note: cardNote, noOpinion: false, rawDisplayStatus: 'Compliant', effectiveStatus: 'Compliant', upgraded: this.viaScholarsOnly };
+        if (s === 'noncompliant') return { sourceKey: key, status: 'NonCompliant', percentage: null, note: cardNote, noOpinion: false, rawDisplayStatus: 'NonCompliant', effectiveStatus: 'NonCompliant', upgraded: false };
         // Insufficient -> neutral البيانات غير كافية card (excluded from the counter).
-        return { sourceKey: key, status: 'Pending', percentage: null, note: real?.note ?? null, noOpinion: false, rawDisplayStatus: 'Pending', effectiveStatus: 'Pending', upgraded: false };
+        return { sourceKey: key, status: 'Pending', percentage: null, note: cardNote, noOpinion: false, rawDisplayStatus: 'Pending', effectiveStatus: 'Pending', upgraded: false };
       }
       if (real && (real.status || '').trim() && this.normalizeShariahStatus(real.status) !== 'doubtful' && !(real.status || '').includes('مشكوك')) {
         const st = real.status;

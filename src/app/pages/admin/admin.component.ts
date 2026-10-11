@@ -2131,10 +2131,7 @@ export class AdminComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.shariahSelectedStockMarketData = data;
         this.shariahLoadingStock = false;
-        // Load Shariah overrides if the stock has Shariah metrics
-        if (data.shariahMetrics) {
-          this.loadShariahOverrides(ticker);
-        }
+        this.loadShariahOverrides(ticker);
       },
       error: (err) => {
         if (err.status === 404) {
@@ -2231,7 +2228,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   // ── Shariah Manual Overrides ────────────────────────────────────────────────
 
   saveShariahOverrides(): void {
-    if (!this.selectedTicker) return;
+    if (!this.shariahSelectedTicker) return;
 
     // Validate percentage ranges
     const haramRev = this.shariahOverrideForm.haramRevenuePercentageOverride;
@@ -2251,7 +2248,8 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.shariahOverridesError = '';
     this.shariahOverridesSuccess = '';
 
-    this.api.saveShariahOverrides(this.selectedTicker, this.shariahOverrideForm).subscribe({
+    const ticker = this.shariahSelectedTicker;
+    this.api.saveShariahOverrides(ticker, this.shariahOverrideForm).subscribe({
       next: (data) => {
         this.shariahOverrides = data;
         this.populateShariahOverrideForm(data);
@@ -2259,7 +2257,7 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.shariahOverridesSuccess = 'تم حفظ التعديلات الشرعية بنجاح. تم إعادة احتساب حالة الامتثال.';
         this.savingShariahOverrides = false;
         // Refresh the stock market data to reflect updated compliance status
-        this.loadStockMarketData(this.selectedTicker);
+        this.loadShariahStockMarketData(ticker);
       },
       error: (err) => {
         this.shariahOverridesError = err.error?.message || err.message || 'حدث خطأ أثناء حفظ التعديلات الشرعية.';
@@ -2269,7 +2267,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   resetShariahOverride(fieldName: string): void {
-    if (!this.selectedTicker) return;
+    if (!this.shariahSelectedTicker) return;
 
     const confirmMsg = `هل أنت متأكد من استعادة قيمة التغذية لـ ${this.getFieldLabel(fieldName)}؟ سيتم إلغاء التعديل اليدوي.`;
     if (!confirm(confirmMsg)) {
@@ -2280,7 +2278,8 @@ export class AdminComponent implements OnInit, OnDestroy {
     this.shariahOverridesError = '';
     this.shariahOverridesSuccess = '';
 
-    this.api.resetShariahOverride(this.selectedTicker, fieldName).subscribe({
+    const ticker = this.shariahSelectedTicker;
+    this.api.resetShariahOverride(ticker, fieldName).subscribe({
       next: (data) => {
         this.shariahOverrides = data;
         this.populateShariahOverrideForm(data);
@@ -2288,7 +2287,7 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.shariahOverridesSuccess = `تم استعادة قيمة التغذية لـ ${this.getFieldLabel(fieldName)}.`;
         this.savingShariahOverrides = false;
         // Refresh the stock market data to reflect updated compliance status
-        this.loadStockMarketData(this.selectedTicker);
+        this.loadShariahStockMarketData(ticker);
       },
       error: (err) => {
         this.shariahOverridesError = err.error?.message || err.message || 'حدث خطأ أثناء استعادة قيمة التغذية.';

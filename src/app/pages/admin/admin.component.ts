@@ -816,54 +816,54 @@ interface EditableMarketForm {
                 </span>
               </div>
 
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
                 <!-- Core Activity Compliant -->
                 <div style="background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
-                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-                    <label style="font-size: 12px; font-weight: 600; margin: 0;">تصنيف النشاط + مطابقة النشاط الأساسي</label>
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                    <label style="font-size: 12px; font-weight: 600; margin: 0;">النشاط الأساسي</label>
                     <span *ngIf="shariahOverrides.overrideCoreActivityCompliant !== null" style="font-size: 10px; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 999px; border: 1px solid #fcd34d;">
                       معدّل يدويًا
                     </span>
                   </div>
-                  <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                    <label style="display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer;">
+                  
+                  <!-- Checkbox row: show EFFECTIVE value (override if set, else feed) -->
+                  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; flex: 1;">
                       <input
                         type="checkbox"
-                        [(ngModel)]="shariahOverrideForm.coreActivityCompliantOverride"
+                        [(ngModel)]="coreActivityCheckboxValue"
                         name="coreActivityCompliantOverride"
-                        style="width: 18px; height: 18px; accent-color: var(--primary);" />
-                      <span>مطابق للنشاط الأساسي (CoreActivityCompliant)</span>
+                        style="width: 20px; height: 20px; accent-color: var(--primary);" />
+                      <span>مطابق للنشاط الأساسي</span>
+                      <small style="color: var(--muted-foreground); font-size: 11px;">(CoreActivityCompliant)</small>
                     </label>
+                    <span *ngIf="shariahOverrides.coreActivityCompliantSource === 'override'" style="font-size: 10px; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 999px; border: 1px solid #fcd34d;">
+                      مصدر: تعديل يدوي
+                    </span>
+                    <span *ngIf="shariahOverrides.coreActivityCompliantSource === 'feed'" style="font-size: 10px; background: #e0e7ff; color: #3730a3; padding: 2px 8px; border-radius: 999px; border: 1px solid #c7d2fe;">
+                      مصدر: التغذية
+                    </span>
                   </div>
-                  <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 120px;">
-                      <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">التصنيف (عربي)</label>
-                      <input
-                        type="text"
-                        [(ngModel)]="shariahOverrideForm.categoryArOverride"
-                        name="categoryArOverride"
-                        class="admin-form input"
-                        placeholder="من المصدر"
-                        style="font-size: 12px;" />
-                      <div *ngIf="shariahOverrides.overrideCategoryAr" style="font-size: 10px; color: #92400e; margin-top: 2px;">
-                        التغذية: {{ shariahOverrides.feedCategoryAr }}
+
+                  <!-- Read-only classification display -->
+                  <div style="padding-top: 10px; border-top: 1px solid var(--border);">
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 8px;">
+                      <div style="flex: 1; min-width: 140px;">
+                        <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">التصنيف (عربي)</label>
+                        <div style="font-size: 13px; color: var(--foreground); min-height: 20px;">
+                          {{ shariahOverrides.effectiveCategoryAr || 'غير متوفر' }}
+                        </div>
                       </div>
-                    </div>
-                    <div style="flex: 1; min-width: 120px;">
-                      <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">التصنيف (إنجليزي)</label>
-                      <input
-                        type="text"
-                        [(ngModel)]="shariahOverrideForm.categoryEnOverride"
-                        name="categoryEnOverride"
-                        class="admin-form input"
-                        placeholder="من المصدر"
-                        style="font-size: 12px;" />
-                      <div *ngIf="shariahOverrides.overrideCategoryEn" style="font-size: 10px; color: #92400e; margin-top: 2px;">
-                        التغذية: {{ shariahOverrides.feedCategoryEn }}
+                      <div style="flex: 1; min-width: 140px;">
+                        <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">التصنيف (إنجليزي)</label>
+                        <div style="font-size: 13px; color: var(--foreground); min-height: 20px;">
+                          {{ shariahOverrides.effectiveCategoryEn || 'غير متوفر' }}
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div style="margin-top: 10px; display: flex; gap: 8px;">
+
+                  <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
                     <button
                       type="button"
                       class="btn btn-primary"
@@ -883,58 +883,53 @@ interface EditableMarketForm {
                       <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
                       استعادة النشاط
                     </button>
-                    <button
-                      type="button"
-                      class="btn btn-outline"
-                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
-                      (click)="resetShariahOverride('CategoryAr')"
-                      [disabled]="savingShariahOverrides || shariahOverrides.overrideCategoryAr === null"
-                      title="استعادة قيمة التغذية للتصنيف العربي">
-                      <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
-                      استعادة التصنيف (عربي)
-                    </button>
-                    <button
-                      type="button"
-                      class="btn btn-outline"
-                      style="font-size: 11px; padding: 4px 10px; border-color: #fecaca; color: var(--bad);"
-                      (click)="resetShariahOverride('CategoryEn')"
-                      [disabled]="savingShariahOverrides || shariahOverrides.overrideCategoryEn === null"
-                      title="استعادة قيمة التغذية للتصنيف الإنجليزي">
-                      <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
-                      استعادة التصنيف (إنجليزي)
-                    </button>
                   </div>
                 </div>
 
                 <!-- Haram Revenue Percentage -->
                 <div style="background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
-                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
                     <label style="font-size: 12px; font-weight: 600; margin: 0;">نسبة الإيراد المحرم (%)</label>
                     <span *ngIf="shariahOverrides.overrideHaramRevenuePercentage !== null" style="font-size: 10px; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 999px; border: 1px solid #fcd34d;">
                       معدّل يدويًا
                     </span>
                   </div>
-                  <div style="display: flex; gap: 10px; align-items: end; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 140px;">
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        max="100"
-                        [(ngModel)]="shariahOverrideForm.haramRevenuePercentageOverride"
-                        name="haramRevenuePercentageOverride"
-                        class="admin-form input"
-                        placeholder="من المصدر"
-                        style="font-size: 13px; font-weight: 600;" />
-                      <div *ngIf="shariahOverrides.overrideHaramRevenuePercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 2px;">
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Override input with % suffix -->
+                    <div style="position: relative;">
+                      <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 4px;">التعديل اليدوي</label>
+                      <div style="position: relative;">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          [(ngModel)]="shariahOverrideForm.haramRevenuePercentageOverride"
+                          name="haramRevenuePercentageOverride"
+                          class="admin-form input"
+                          placeholder="من المصدر"
+                          style="font-size: 13px; font-weight: 600; padding-inline-end: 40px;" />
+                        <span style="position: absolute; inset-inline-end: 12px; top: 50%; transform: translateY(-50%); color: var(--muted-foreground); font-size: 13px; font-weight: 600; pointer-events: none;">%</span>
+                      </div>
+                      <div *ngIf="shariahOverrides.overrideHaramRevenuePercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 4px;">
                         التغذية: {{ shariahOverrides.feedHaramRevenuePercentage !== null ? (shariahOverrides.feedHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
                       </div>
                     </div>
-                    <div style="flex: 1; min-width: 140px;">
-                      <strong style="font-size: 13px; color: var(--primary);">فعال: </strong>
-                      <span style="font-size: 13px; font-weight: 600;">
-                        {{ shariahOverrides.effectiveHaramRevenuePercentage !== null ? (shariahOverrides.effectiveHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
-                      </span>
+                    
+                    <!-- Effective and feed values display - never overlaps input -->
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap; padding-top: 4px;">
+                      <div style="flex: 1; min-width: 140px;">
+                        <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">القيمة الفعّالة</label>
+                        <div style="font-size: 13px; font-weight: 600; color: var(--primary);">
+                          {{ shariahOverrides.effectiveHaramRevenuePercentage !== null ? (shariahOverrides.effectiveHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
+                        </div>
+                      </div>
+                      <div style="flex: 1; min-width: 140px;">
+                        <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">قيمة المصدر</label>
+                        <div style="font-size: 13px; font-weight: 500;">
+                          {{ shariahOverrides.feedHaramRevenuePercentage !== null ? (shariahOverrides.feedHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <div style="margin-top: 10px; display: flex; gap: 8px;">
@@ -953,33 +948,48 @@ interface EditableMarketForm {
 
                 <!-- Loans Percentage -->
                 <div style="background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px;">
-                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
                     <label style="font-size: 12px; font-weight: 600; margin: 0;">نسبة القروض والفوائد (%)</label>
                     <span *ngIf="shariahOverrides.overrideLoansPercentage !== null" style="font-size: 10px; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 999px; border: 1px solid #fcd34d;">
                       معدّل يدويًا
                     </span>
                   </div>
-                  <div style="display: flex; gap: 10px; align-items: end; flex-wrap: wrap;">
-                    <div style="flex: 1; min-width: 140px;">
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        max="100"
-                        [(ngModel)]="shariahOverrideForm.loansPercentageOverride"
-                        name="loansPercentageOverride"
-                        class="admin-form input"
-                        placeholder="من المصدر"
-                        style="font-size: 13px; font-weight: 600;" />
-                      <div *ngIf="shariahOverrides.overrideLoansPercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 2px;">
+                  <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Override input with % suffix -->
+                    <div style="position: relative;">
+                      <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 4px;">التعديل اليدوي</label>
+                      <div style="position: relative;">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          [(ngModel)]="shariahOverrideForm.loansPercentageOverride"
+                          name="loansPercentageOverride"
+                          class="admin-form input"
+                          placeholder="من المصدر"
+                          style="font-size: 13px; font-weight: 600; padding-inline-end: 40px;" />
+                        <span style="position: absolute; inset-inline-end: 12px; top: 50%; transform: translateY(-50%); color: var(--muted-foreground); font-size: 13px; font-weight: 600; pointer-events: none;">%</span>
+                      </div>
+                      <div *ngIf="shariahOverrides.overrideLoansPercentage !== null" style="font-size: 10px; color: #92400e; margin-top: 4px;">
                         التغذية: {{ shariahOverrides.feedLoansPercentage !== null ? (shariahOverrides.feedLoansPercentage | number:'1.2-2') + '%' : '—' }}
                       </div>
                     </div>
-                    <div style="flex: 1; min-width: 140px;">
-                      <strong style="font-size: 13px; color: var(--primary);">فعال: </strong>
-                      <span style="font-size: 13px; font-weight: 600;">
-                        {{ shariahOverrides.effectiveLoansPercentage !== null ? (shariahOverrides.effectiveLoansPercentage | number:'1.2-2') + '%' : '—' }}
-                      </span>
+                    
+                    <!-- Effective and feed values display - never overlaps input -->
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap; padding-top: 4px;">
+                      <div style="flex: 1; min-width: 140px;">
+                        <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2px;">القيمة الفعّالة</label>
+                        <div style="font-size: 13px; font-weight: 600; color: var(--primary);">
+                          {{ shariahOverrides.effectiveLoansPercentage !== null ? (shariahOverrides.effectiveLoansPercentage | number:'1.2-2') + '%' : '—' }}
+                        </div>
+                      </div>
+                      <div style="flex: 1; min-width: 140px;">
+                        <label style="font-size: 11px; color: var(--muted-foreground); display: block; margin-bottom: 2x;">قيمة المصدر</label>
+                        <div style="font-size: 13px; font-weight: 500;">
+                          {{ shariahOverrides.feedLoansPercentage !== null ? (shariahOverrides.feedLoansPercentage | number:'1.2-2') + '%' : '—' }}
+                        </div>
+                      </div>
                     </div>
                   </div>
                   <div style="margin-top: 10px; display: flex; gap: 8px;">
@@ -1159,6 +1169,11 @@ interface EditableMarketForm {
           <button class="btn btn-outline" (click)="triggerShariahSeed()" [disabled]="shariahSeeding">
             <lucide-icon [img]="DatabaseIcon" size="16"></lucide-icon>
             {{ shariahSeeding ? 'جارٍ البذر...' : 'بذر خريطة الشريعة الافتراضية (Seed Shariah Map)' }}
+          </button>
+
+          <button class="btn btn-outline" (click)="backfillCoreActivityCompliant()" [disabled]="backfillingActivity" style="border-color: #22c55e; color: #16a34a;">
+            <lucide-icon [img]="CheckCircleIcon" size="16"></lucide-icon>
+            {{ backfillingActivity ? 'جارٍ تنفيذ البذر...' : 'بذر نشاط أساسي للمتطابقين (Backfill CoreActivity)' }}
           </button>
         </div>
 
@@ -1645,6 +1660,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   shariahRefreshing = false;
   shariahSeeding = false;
   verdictRecomputing = false;
+  backfillingActivity = false;
   recomputeResult?: { message?: string | null; recomputedCount: number; changedCount: number } | null;
   refreshResult?: RefreshShariahDataResult;
   seedResult?: SeedShariahResultDto;
@@ -2060,6 +2076,21 @@ export class AdminComponent implements OnInit, OnDestroy {
       haramRevenuePercentageOverride: data.overrideHaramRevenuePercentage ?? null,
       loansPercentageOverride: data.overrideLoansPercentage ?? null
     };
+    
+    // Set the checkbox to show the effective value initially
+    // The checkbox will write to the override field when toggled
+    this._coreActivityCheckboxValue = data.effectiveCoreActivityCompliant ?? false;
+  }
+
+  // Helper for the checkbox: shows effective value, writes override on change
+  private _coreActivityCheckboxValue = false;
+  get coreActivityCheckboxValue(): boolean {
+    return this._coreActivityCheckboxValue;
+  }
+  set coreActivityCheckboxValue(val: boolean) {
+    this._coreActivityCheckboxValue = val;
+    // When user toggles, write to the override field
+    this.shariahOverrideForm.coreActivityCompliantOverride = val;
   }
 
   adminEvaluation?: ReturnType<typeof evaluateStandards>;
@@ -2389,6 +2420,15 @@ export class AdminComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.recomputeResult = res;
         this.verdictRecomputing = false;
+        // Also run the core activity backfill as part of recompute
+        this.api.backfillCoreActivityCompliant().subscribe({
+          next: (backfillRes) => {
+            console.log('CoreActivity backfill:', backfillRes.message);
+          },
+          error: () => {
+            // Silent fail for backfill
+          }
+        });
       },
       error: (err) => {
         this.recomputeResult = { message: err.error?.message || err.message || 'فشل إعادة الحساب', recomputedCount: 0, changedCount: 0 };
@@ -2432,6 +2472,24 @@ export class AdminComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.shariahSeeding = false;
+      }
+    });
+  }
+
+  backfillCoreActivityCompliant(): void {
+    this.backfillingActivity = true;
+    this.api.backfillCoreActivityCompliant().subscribe({
+      next: (res) => {
+        this.backfillingActivity = false;
+        alert(res.message);
+        // Refresh the shariah tab if we're on it
+        if (this.activeTab === 'shariah-edit' && this.shariahSelectedTicker) {
+          this.loadShariahOverrides(this.shariahSelectedTicker);
+        }
+      },
+      error: (err) => {
+        this.backfillingActivity = false;
+        alert('فشل تنفيذ البذر: ' + (err.error?.message || err.message || 'خطأ غير متوقع'));
       }
     });
   }

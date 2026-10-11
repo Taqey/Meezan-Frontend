@@ -576,6 +576,8 @@ export interface ShariahOverridesDto {
   effectiveCategoryEn?: string | null;
   effectiveHaramRevenuePercentage?: number | null;
   effectiveLoansPercentage?: number | null;
+  // Source info for CoreActivityCompliant
+  coreActivityCompliantSource?: 'override' | 'feed' | null;
 }
 
 export interface SaveShariahOverridesRequest {

@@ -326,5 +326,10 @@ export class ApiService {
   resetShariahOverride(ticker: string, fieldName: string): Observable<ShariahOverridesDto> {
     return this.http.delete<ShariahOverridesDto>(`${this.baseUrl}/api/admin/market-data/${encodeURIComponent(ticker)}/shariah-overrides/${encodeURIComponent(fieldName)}`);
   }
+
+  // One-time backfill for CoreActivityCompliant
+  backfillCoreActivityCompliant(): Observable<{ updatedCount: number; message: string }> {
+    return this.http.post<{ updatedCount: number; message: string }>(`${this.baseUrl}/api/admin/market-data/shariah-backfill-core-activity`, {});
+  }
 }
 

@@ -20,19 +20,18 @@ import {
     <a [routerLink]="['/stocks', ticker]" class="stock-card">
       <div class="stock-top">
         <div class="ticker">
-          {{ ticker }}
-          <span *ngIf="nameEn">{{ nameEn }}</span>
+          <span class="ticker-symbol">{{ ticker }}</span>
+          <span class="ticker-en" [attr.title]="nameEn">{{ nameEn || '—' }}</span>
         </div>
         <div class="stock-top-side">
-          <span class="change" *ngIf="changePct !== null && changePct !== undefined"
-                [ngClass]="changePct >= 0 ? 'positive' : 'negative'">
-            {{ changePct > 0 ? '+' : '' }}{{ changePct | number:'1.2-2' }}%
+          <span class="change" [ngClass]="changePct !== null && changePct !== undefined ? (changePct >= 0 ? 'positive' : 'negative') : 'muted'">
+            {{ changePct !== null && changePct !== undefined ? (changePct > 0 ? '+' : '') + (changePct | number:'1.2-2') + '%' : '—' }}
           </span>
           <app-favorite-toggle *ngIf="showFavorite" [symbol]="ticker"></app-favorite-toggle>
         </div>
       </div>
 
-      <div class="stock-name">{{ nameAr || ticker }}</div>
+      <div class="stock-name" [attr.title]="nameAr || ticker">{{ nameAr || ticker }}</div>
 
       <div class="stock-price">
         <strong [appPriceFlash]="closingPrice">{{ closingPrice !== null && closingPrice !== undefined ? (closingPrice | number:'1.2-2') : '—' }}</strong>
@@ -50,13 +49,19 @@ import {
         <app-comparison-badge [comparison]="priceComparison" [fairValueDiffPct]="fairValueDiffPct" [closingPrice]="closingPrice" [fairValue]="fairValue"></app-comparison-badge>
       </div>
 
-      <!-- Non-compliance reason line (shown only when status is NonCompliant and reasons exist) -->
-      <div class="noncompliance-reason" *ngIf="nonComplianceReasons.length > 0">
-        <span *ngFor="let r of nonComplianceReasons; let last = last">{{ r }}<span *ngIf="!last"> · </span></span>
+      <!-- Non-compliance reason slot: always rendered with reserved height or neutral line to prevent card jump -->
+      <div class="noncompliance-reason"
+           [class.empty]="!nonComplianceReasons.length"
+           [attr.title]="nonComplianceReasons.join(' · ')">
+        <span *ngIf="nonComplianceReasons.length > 0">
+          <span *ngFor="let r of nonComplianceReasons; let last = last">{{ r }}<span *ngIf="!last"> · </span></span>
+        </span>
+        <span *ngIf="!nonComplianceReasons.length" class="empty-placeholder">&nbsp;</span>
       </div>
 
-      <div class="stock-meta" *ngIf="indexLabels && indexLabels.length">
-        <span>{{ indexLabels.join(' · ') }}</span>
+      <div class="stock-meta" [class.empty]="!indexLabels.length">
+        <span *ngIf="indexLabels && indexLabels.length">{{ indexLabels.join(' · ') }}</span>
+        <span *ngIf="!indexLabels || !indexLabels.length" class="empty-placeholder">&nbsp;</span>
       </div>
     </a>
   `
@@ -123,4 +128,3 @@ export class StockCardComponent {
     });
   }
 }
-

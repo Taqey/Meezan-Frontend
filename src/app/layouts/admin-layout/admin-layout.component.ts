@@ -24,9 +24,11 @@ import {
   FileText,
   ClipboardCheck,
   Layers,
+  PiggyBank,
   type LucideIconData
 } from 'lucide-angular';
 import { AdminAuthService } from '../../services/admin-auth.service';
+import { ToastHostComponent } from '../../components/toast-host/toast-host.component';
 
 interface AdminNavItem {
   path: string;
@@ -48,7 +50,8 @@ interface AdminNavItem {
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
-    LucideAngularModule
+    LucideAngularModule,
+    ToastHostComponent
   ],
   template: `
     <div class="admin-shell">
@@ -115,6 +118,8 @@ interface AdminNavItem {
           </div>
         </div>
       </div>
+
+      <app-toast-host></app-toast-host>
     </div>
   `,
   styles: [`
@@ -405,7 +410,8 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     { path: 'shariah-seed', label: 'تحديث وبذر بيانات الشريعة', icon: ShieldCheck },
     { path: 'shariah-reports', label: 'رفع تقارير فيصل/أسطول (PDF)', icon: FileText },
     { path: 'review-queue', label: 'قائمة المراجعة', icon: ClipboardCheck },
-    { path: 'stocks', label: 'إدارة الأسهم والقطاعات والمؤشرات', icon: Layers }
+    { path: 'stocks', label: 'إدارة الأسهم والقطاعات والمؤشرات', icon: Layers },
+    { path: 'funds', label: 'إدارة الصناديق', icon: PiggyBank }
   ];
 
   pageTitle = 'لوحة الإدارة';

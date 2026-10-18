@@ -90,6 +90,7 @@ type Chip = 'all' | 'compliance' | 'performance' | 'pe' | 'name';
           [ink]="accentFor(s.nameEn).ink"
           [pill]="s.stocksCount + ' سهم مصنّف'"
           [stats]="cardStats(s)"
+          [autoPadStats]="false"
           [footerText]="'استعرض الـ ' + s.stocksCount + ' سهم'"
           [link]="['/indices/Sectoral-Indices', s.id]">
         </app-entity-card>
@@ -151,14 +152,14 @@ export class SectorsListComponent implements OnInit {
    * numbers match everywhere by construction. Used until the backend ships
    * the matching aggregate fields (market-cap stays backend-only).
    */
-  marketLoading = true;
+  marketLoading = false;
   private marketStats = new Map<string, { total: number; compliant: number; changeSum: number; changeN: number; peSum: number; peN: number }>();
   lastSessionDate: string | null = null;
   snapshotsLoading = true;
 
-  /** Cards/table/heatmap render only after both data passes settle — never a flashing "—". */
+  /** Cards/table/heatmap render only after snapshots settle — never a flashing "—". */
   get dataPending(): boolean {
-    return this.marketLoading || this.snapshotsLoading;
+    return this.snapshotsLoading;
   }
 
   /**
@@ -223,7 +224,6 @@ export class SectorsListComponent implements OnInit {
         this.sectors = data || [];
         this.loading = false;
         this.refreshDerived();
-        this.loadMarketStats();
         this.loadSnapshots();
       },
       error: () => {
@@ -368,19 +368,14 @@ export class SectorsListComponent implements OnInit {
    * Market-cap fields stay backend-driven (absent until deployed).
    */
   private withMarketStats(s: SectorSummaryDto): SectorSummaryDto {
-    const row = this.marketStats.get((s.nameAr || '').trim());
-    if (!row || row.total === 0) return s;
-    // Daily performance is the official scraped figure, directly — no
-    // computed fallback. Missing official figure means "—", never a number.
     const official = this.officialForSector(s.id)?.changePct;
-    return {
-      ...s,
-      stocksCount: row.total,
-      compliantStocksCount: row.compliant,
-      complianceRatePct: Math.round((100 * row.compliant) / row.total * 10) / 10,
-      averageChangePct: official !== null && official !== undefined ? Number(official) : null,
-      averagePeRatio: row.peN > 0 ? row.peSum / row.peN : null
-    };
+    if (official !== null && official !== undefined) {
+      return {
+        ...s,
+        averageChangePct: Number(official)
+      };
+    }
+    return s;
   }
 
   private sortSectors(list: SectorSummaryDto[], key: CardSort): SectorSummaryDto[] {

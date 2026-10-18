@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { AdminLayoutComponent } from '../layouts/admin-layout/admin-layout.component';
 import { AdminComponent } from '../pages/admin/admin.component';
+import { AdminFundsComponent } from '../pages/admin-funds/admin-funds.component';
 import { adminAuthChildGuard } from '../guards/admin-auth.guard';
 
 /**
@@ -86,6 +87,14 @@ export const adminRoutes: Routes = [
           tab: 'stocks',
           title: 'إدارة الأسهم والقطاعات والمؤشرات',
           subtitle: 'تعيين الأسهم للقطاعات والمؤشرات يدوياً وإنشاء أسهم جديدة'
+        }
+      },
+      {
+        path: 'funds',
+        component: AdminFundsComponent,
+        data: {
+          title: 'إدارة الصناديق',
+          subtitle: 'سجل المزامنة، تصنيفات الصناديق، التجاوزات اليدوية وسجل التغييرات'
         }
       }
     ]

@@ -458,7 +458,10 @@ button, input, select, textarea {
 }
 
 .stock-card {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -473,30 +476,58 @@ button, input, select, textarea {
   box-shadow: 0 12px 30px rgba(31, 78, 58, .08);
 }
 
+.stock-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 38px;
+}
+
 .ticker {
   color: var(--ink);
   font-weight: 700;
   font-size: 17px;
   direction: ltr;
   text-align: right;
+  min-width: 0;
+  flex: 1;
 }
 
+.ticker .ticker-symbol {
+  display: block;
+  line-height: 1.2;
+}
+
+.ticker .ticker-en,
 .ticker span {
   display: block;
   color: var(--muted-foreground);
   font-size: 10px;
   font-weight: 400;
   letter-spacing: .04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
 .ticker.large {
   font-size: 28px;
 }
 
+.stock-top-side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .change {
   font-weight: 600;
   font-size: 13px;
   direction: ltr;
+  white-space: nowrap;
 }
 
 .positive {
@@ -508,10 +539,17 @@ button, input, select, textarea {
 }
 
 .stock-name {
-  margin: 10px 0 16px;
+  margin: 10px 0 12px;
   font-size: 14px;
   font-weight: 500;
   color: var(--ink);
+  height: 2.8em;
+  line-height: 1.4em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stock-price {
@@ -519,13 +557,17 @@ button, input, select, textarea {
   align-items: baseline;
   gap: 5px;
   border-bottom: 1px solid var(--border);
-  padding-bottom: 16px;
+  padding-bottom: 12px;
+  height: 36px;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .stock-price strong {
-  font-size: 28px;
+  font-size: 26px;
   letter-spacing: -.05em;
   color: var(--ink);
+  line-height: 1;
 }
 
 .stock-price span {
@@ -538,10 +580,17 @@ button, input, select, textarea {
   color: var(--muted-foreground);
   font-size: 11px;
   font-style: normal;
+  white-space: nowrap;
 }
 
 .stock-bottom {
-  padding: 14px 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 0 10px;
+  min-height: 48px;
+  box-sizing: border-box;
 }
 
 .mini-ratio {
@@ -550,6 +599,7 @@ button, input, select, textarea {
   gap: 5px;
   color: var(--muted-foreground);
   font-size: 11px;
+  flex-shrink: 0;
 }
 
 .mini-ratio lucide-icon, .mini-ratio svg {
@@ -605,6 +655,17 @@ button, input, select, textarea {
 .stock-meta {
   color: var(--muted-foreground);
   font-size: 11px;
+  min-height: 20px;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: auto;
+  padding-top: 4px;
+}
+
+.stock-meta.empty .empty-placeholder {
+  visibility: hidden;
 }
 
 /* Feature Section */
@@ -1970,6 +2031,17 @@ button, input, select, textarea {
   background: var(--primary);
   height: 100%;
   transition: width 0.3s ease;
+}
+
+.progress-bar-fill.indeterminate {
+  width: 40% !important;
+  animation: indeterminate-bar 1.4s infinite ease-in-out;
+}
+
+@keyframes indeterminate-bar {
+  0% { transform: translateX(250%); }
+  50% { transform: translateX(0%); }
+  100% { transform: translateX(-250%); }
 }
 
 .progress-stats {
@@ -3480,7 +3552,8 @@ app-shariah-standards .explainer-note {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 190px;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .sk-line {
@@ -3995,14 +4068,20 @@ app-shariah-standards .explainer-note {
 
 .entity-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
+}
+
+.entity-grid > * {
+  min-width: 0;
 }
 
 .entity-card {
   display: flex;
   flex-direction: column;
   height: 100%;
+  min-width: 0;
+  width: 100%;
   background: var(--card);
   border: 1px solid #e6ece8;
   border-top: 3px solid var(--accent, #087f5b);
@@ -4051,7 +4130,9 @@ app-shariah-standards .explainer-note {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  max-width: 75%;
+  justify-content: flex-end;
 }
 
 .entity-icon-box {
@@ -4063,6 +4144,16 @@ app-shariah-standards .explainer-note {
   background: var(--tint, var(--good-soft));
   color: var(--ink, var(--primary));
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* Real logo (funds). Object-fit contain so non-square logos are not cropped. */
+.entity-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 12px;
 }
 
 .entity-pill {
@@ -4073,12 +4164,24 @@ app-shariah-standards .explainer-note {
   font-size: 11.5px;
   font-weight: 700;
   white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 .entity-card h2 {
   font-size: 18px;
-  margin: 14px 0 2px;
+  margin: 14px 0 4px;
   color: var(--ink);
+  height: 2.8em;
+  line-height: 1.4em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .entity-en {
@@ -4087,7 +4190,11 @@ app-shariah-standards .explainer-note {
   color: var(--muted-foreground);
   direction: ltr;
   text-align: right;
-  margin-bottom: auto;
+  height: 1.4em;
+  line-height: 1.4em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .entity-stats {
@@ -4097,6 +4204,12 @@ app-shariah-standards .explainer-note {
   margin-top: 14px;
   padding-top: 14px;
   border-top: 1px solid var(--border);
+  min-height: 140px;
+  box-sizing: border-box;
+}
+
+.entity-stats.compact-stats {
+  min-height: unset;
 }
 
 .entity-stat {
@@ -4104,27 +4217,46 @@ app-shariah-standards .explainer-note {
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  height: 38px;
+  box-sizing: border-box;
 }
 
 .entity-stat span {
   font-size: 11px;
   color: var(--muted-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .entity-stat strong {
-  font-size: 14px;
+  font-size: 13.5px;
   color: var(--ink);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .entity-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 14px;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 14px;
   font-size: 12.5px;
   font-weight: 600;
   color: var(--primary);
+  height: 32px;
+  box-sizing: border-box;
+}
+
+.entity-foot span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
 }
 
 .entity-table {
@@ -4236,7 +4368,7 @@ app-shariah-standards .explainer-note {
     grid-template-columns: repeat(2, 1fr);
   }
   .entity-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -4250,9 +4382,11 @@ app-shariah-standards .explainer-note {
   .page-hero h1 {
     font-size: 32px;
   }
-  .kpi-grid,
-  .entity-grid {
+  .kpi-grid {
     grid-template-columns: 1fr;
+  }
+  .entity-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
   .kpi-card strong {
     font-size: 21px;
@@ -4276,7 +4410,7 @@ app-shariah-standards .explainer-note {
     display: none !important;
   }
   .entity-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .detail-card,
   .entity-card,
@@ -4486,10 +4620,34 @@ app-shariah-standards .explainer-note {
 /* -- Non-compliance reason line on stock cards */
 .noncompliance-reason {
   font-size: 11px;
-  color: var(--ink-muted, rgba(255, 255, 255, 0.55));
-  line-height: 1.4;
+  color: #dc2626;
+  min-height: 22px;
+  line-height: 22px;
   margin-top: 4px;
-  padding-top: 4px;
+  padding-top: 2px;
+  padding-bottom: 2px;
   border-top: 1px solid rgba(239, 68, 68, 0.15);
-  word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-sizing: border-box;
 }
+
+.noncompliance-reason.empty {
+  border-top-color: transparent;
+}
+
+.noncompliance-reason.empty .empty-placeholder {
+  visibility: hidden;
+}
+
+@keyframes spin-cw {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin-anim {
+  animation: spin-cw 0.85s linear infinite;
+  display: inline-block;
+}
+

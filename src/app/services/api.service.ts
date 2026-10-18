@@ -33,14 +33,58 @@ import {
   AssignSectorRequest,
   AddToIndexRequest,
   ShariahOverridesDto,
-  SaveShariahOverridesRequest
+  SaveShariahOverridesRequest,
+  // Funds
+  FundListItemDto,
+  FundDetailDto,
+  FundPricePointDto,
+  FundAnalysisDto,
+  FundSimilarDto,
+  FundCategoryDto,
+  FundCategoryMembershipDto,
+  FundPagedResultDto,
+  FundAssetManagerOption,
+  FundListFilter,
+  FundSortBy,
+  FundType,
+  FundRiskLevel,
+  FundSyncSettings,
+  FundSyncSettingsUpdateRequest,
+  FundSyncLog,
+  FundSyncStatusDto,
+  FundPriceSyncResultDto,
+  FundSyncLogDetail,
+  FundCategory,
+  FundCategoryOverride,
+  FundCategoryChangeLog,
+  FundCategoryChangeLogFilter,
+  CategoryChangeAction,
+  CategoryFundMember,
+  CreateCategoryRequest,
+  UpdateCategoryRequest,
+  MergeCategoriesRequest,
+  FundTypeOptionDto,
+  FundTypeDefinition,
+  FundTypeChangeLog,
+  AdminTypeFundRow,
+  CreateFundTypeRequest,
+  UpdateFundTypeRequest,
+  MergeFundTypesRequest,
+  FundClassificationTreeNode,
+  AdminClassificationNode,
+  ClassificationNodeFundRow,
+  ClassificationReview,
+  ReclassifyResult,
+  ClassificationMigrationReport,
+  CreateClassificationNodeRequest,
+  UpdateClassificationNodeRequest
 } from '../models/api.models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  private readonly baseUrl = 'https://meezaan.runasp.net';
+  private readonly baseUrl = environment.apiBaseUrl.replace(/\/$/, '');
   constructor(private http: HttpClient) {}
 
   // ── Indices ────────────────────────────────────────────────────────
@@ -330,6 +374,347 @@ export class ApiService {
   // One-time backfill for CoreActivityCompliant
   backfillCoreActivityCompliant(): Observable<{ updatedCount: number; message: string }> {
     return this.http.post<{ updatedCount: number; message: string }>(`${this.baseUrl}/api/admin/market-data/shariah-backfill-core-activity`, {});
+  }
+
+  // ── Funds ─────────────────────────────────────────────────────────────────
+
+  getFunds(filter: FundListFilter): Observable<FundPagedResultDto> {
+    const params = new URLSearchParams();
+    Object.entries(filter).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) params.set(key, String(value));
+    });
+    return this.http.get<FundPagedResultDto>(`${this.baseUrl}/api/funds?${params.toString()}`);
+  }
+
+
+  /** Lightweight KPI aggregates - single DB query, no fund records downloaded. */
+  getFundStats(): Observable<{ totalCount: number; islamicCount: number; totalAum: number; bestDailyChange: number | null; bestDailyChangeCode: string | null }> {
+    return this.http.get<{ totalCount: number; islamicCount: number; totalAum: number; bestDailyChange: number | null; bestDailyChangeCode: string | null }>(`${this.baseUrl}/api/funds/stats`);
+  }
+  getFund(id: number): Observable<FundDetailDto> {
+    return this.http.get<FundDetailDto>(`${this.baseUrl}/api/funds/${id}`);
+  }
+
+  getFundBySlug(slug: string): Observable<FundDetailDto> {
+    return this.http.get<FundDetailDto>(`${this.baseUrl}/api/funds/slug/${encodeURIComponent(slug)}`);
+  }
+
+  getFundCategories(): Observable<FundCategoryDto[]> {
+    return this.http.get<FundCategoryDto[]>(`${this.baseUrl}/api/funds/categories`);
+  }
+
+  /** Editable type catalog powering the public type dropdown (labels come from the DB). */
+  getFundTypes(): Observable<FundTypeOptionDto[]> {
+    return this.http.get<FundTypeOptionDto[]>(`${this.baseUrl}/api/funds/types`);
+  }
+
+  /** Distinct asset managers with fund counts for public filters. */
+  getFundAssetManagers(): Observable<FundAssetManagerOption[]> {
+    return this.http.get<FundAssetManagerOption[]>(`${this.baseUrl}/api/funds/managers`);
+  }
+
+  // ── Admin Fund Types ───────────────────────────────────────────────────────
+
+  getAllFundTypes(includeDeleted = false): Observable<FundTypeDefinition[]> {
+    return this.http.get<FundTypeDefinition[]>(`${this.baseUrl}/api/admin/funds/types?includeDeleted=${includeDeleted}`);
+  }
+
+  createFundType(req: CreateFundTypeRequest): Observable<FundTypeDefinition> {
+    return this.http.post<FundTypeDefinition>(`${this.baseUrl}/api/admin/funds/types`, req);
+  }
+
+  updateFundType(id: number, req: UpdateFundTypeRequest): Observable<FundTypeDefinition> {
+    return this.http.patch<FundTypeDefinition>(`${this.baseUrl}/api/admin/funds/types/${id}`, req);
+  }
+
+  deleteFundType(id: number, confirm = false): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/api/admin/funds/types/${id}?confirm=${confirm}`);
+  }
+
+  restoreFundType(id: number): Observable<FundTypeDefinition> {
+    return this.http.post<FundTypeDefinition>(`${this.baseUrl}/api/admin/funds/types/${id}/restore`, {});
+  }
+
+  mergeFundTypes(req: MergeFundTypesRequest): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/admin/funds/types/merge`, req);
+  }
+
+  reorderFundTypes(orderedIds: number[]): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/admin/funds/types/reorder`, { orderedIds });
+  }
+
+  getFundTypeMembers(
+    typeId: number,
+    search?: string,
+    page = 1,
+    pageSize = 50
+  ): Observable<{ totalCount: number; totalPages: number; page: number; pageSize: number; items: AdminTypeFundRow[] }> {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    params.set('page', String(page));
+    params.set('pageSize', String(pageSize));
+    return this.http.get<{ totalCount: number; totalPages: number; page: number; pageSize: number; items: AdminTypeFundRow[] }>(
+      `${this.baseUrl}/api/admin/funds/types/${typeId}/funds?${params.toString()}`);
+  }
+
+  setFundTypeOverride(fundId: number, typeId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/admin/funds/types/funds/${fundId}/${typeId}`, {});
+  }
+
+  clearFundTypeOverride(fundId: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/api/admin/funds/types/funds/${fundId}`);
+  }
+
+  /** Move a fund to a different type (targetTypeId=null to reset to auto). */
+  moveFundType(fundId: number, targetTypeId: number | null): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/admin/funds/types/funds/${fundId}/move`, { targetTypeId });
+  }
+
+  /** Bulk-override many funds into one type. */
+  bulkAddFundsToType(typeId: number, fundIds: number[]): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/admin/funds/types/${typeId}/funds/bulk`, { fundIds });
+  }
+
+  getFundTypeChanges(page = 1, pageSize = 50): Observable<{ items: FundTypeChangeLog[]; totalCount: number }> {
+    return this.http.get<{ items: FundTypeChangeLog[]; totalCount: number }>(
+      `${this.baseUrl}/api/admin/funds/types/changes?page=${page}&pageSize=${pageSize}`);
+  }
+
+  backfillFundLogos(): Observable<{ stored: number; message: string }> {
+    return this.http.post<{ stored: number; message: string }>(`${this.baseUrl}/api/admin/funds/logos/backfill`, {});
+  }
+
+  /** Public classification tree: visible nodes that contain funds (empty + hidden excluded). */
+  getClassificationTree(): Observable<FundClassificationTreeNode[]> {
+    return this.http.get<FundClassificationTreeNode[]>(`${this.baseUrl}/api/funds/classification-tree`);
+  }
+
+  // ── Admin Classification Tree ─────────────────────────────────────────────
+
+  seedMigrateClassification(): Observable<ClassificationMigrationReport> {
+    return this.http.post<ClassificationMigrationReport>(`${this.baseUrl}/api/admin/funds/classification/seed-migrate`, {});
+  }
+
+  getClassificationAdminTree(includeDeleted = false): Observable<AdminClassificationNode[]> {
+    return this.http.get<AdminClassificationNode[]>(`${this.baseUrl}/api/admin/funds/classification/tree?includeDeleted=${includeDeleted}`);
+  }
+
+  createClassificationNode(req: CreateClassificationNodeRequest): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/admin/funds/classification/nodes`, req);
+  }
+
+  updateClassificationNode(id: number, req: UpdateClassificationNodeRequest): Observable<AdminClassificationNode> {
+    return this.http.patch<AdminClassificationNode>(`${this.baseUrl}/api/admin/funds/classification/nodes/${id}`, req);
+  }
+
+  moveClassificationNode(id: number, newParentId: number | null): Observable<AdminClassificationNode> {
+    return this.http.post<AdminClassificationNode>(`${this.baseUrl}/api/admin/funds/classification/nodes/${id}/move`, { newParentId });
+  }
+
+  mergeClassificationNodes(sourceId: number, targetId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/admin/funds/classification/nodes/merge`, { sourceId, targetId });
+  }
+
+  deleteClassificationNodePreview(id: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/api/admin/funds/classification/nodes/${id}/delete-preview`);
+  }
+
+  deleteClassificationNode(id: number, confirm = false, moveFundsToNodeId?: number | null, resetFundsToAuto = false, moveChildrenToNodeId?: number | null): Observable<any> {
+    const params = new URLSearchParams();
+    params.set('confirm', String(confirm));
+    if (moveFundsToNodeId != null) params.set('moveFundsToNodeId', String(moveFundsToNodeId));
+    if (resetFundsToAuto) params.set('resetFundsToAuto', 'true');
+    if (moveChildrenToNodeId != null) params.set('moveChildrenToNodeId', String(moveChildrenToNodeId));
+    return this.http.delete(`${this.baseUrl}/api/admin/funds/classification/nodes/${id}?${params.toString()}`);
+  }
+
+  restoreClassificationNode(id: number): Observable<AdminClassificationNode> {
+    return this.http.post<AdminClassificationNode>(`${this.baseUrl}/api/admin/funds/classification/nodes/${id}/restore`, {});
+  }
+
+  getClassificationNodeFunds(nodeId: number, search = '', source = '', page = 1, pageSize = 25): Observable<{ node: any; path: any[]; items: ClassificationNodeFundRow[]; totalCount: number; page: number; pageSize: number; totalPages: number }> {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (source) params.set('source', source);
+    params.set('page', String(page));
+    params.set('pageSize', String(pageSize));
+    return this.http.get<{ node: any; path: any[]; items: ClassificationNodeFundRow[]; totalCount: number; page: number; pageSize: number; totalPages: number }>(`${this.baseUrl}/api/admin/funds/classification/nodes/${nodeId}/funds?${params.toString()}`);
+  }
+
+  bulkAddFundsToNode(nodeId: number, fundIds: number[]): Observable<{ added: number; failed: number; errors: string[] }> {
+    return this.http.post<{ added: number; failed: number; errors: string[] }>(`${this.baseUrl}/api/admin/funds/classification/nodes/${nodeId}/funds/bulk`, { fundIds });
+  }
+
+  bulkRemoveFundsFromNode(nodeId: number, fundIds: number[], destinationNodeId?: number | null, resetToAuto = false): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/api/admin/funds/classification/nodes/${nodeId}/funds/bulk`, { body: { fundIds, destinationNodeId, resetToAuto } });
+  }
+
+  assignFundToNode(fundId: number, nodeId: number, reason?: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/admin/funds/classification/funds/${fundId}/assign`, { nodeId, reason });
+  }
+
+  resetFundClassification(fundId: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/api/admin/funds/classification/funds/${fundId}/assign`);
+  }
+
+  getClassificationReview(): Observable<ClassificationReview> {
+    return this.http.get<ClassificationReview>(`${this.baseUrl}/api/admin/funds/classification/review`);
+  }
+
+  reclassifyUnclassified(): Observable<ReclassifyResult> {
+    return this.http.post<ReclassifyResult>(`${this.baseUrl}/api/admin/funds/classification/reclassify-unclassified`, {});
+  }
+
+  getClassificationChanges(page = 1, pageSize = 50, fundId?: number | null, nodeId?: number | null): Observable<{ items: any[]; totalCount: number; page: number; pageSize: number; totalPages: number }> {
+    const params = new URLSearchParams();
+    params.set('page', String(page));
+    params.set('pageSize', String(pageSize));
+    if (fundId != null) params.set('fundId', String(fundId));
+    if (nodeId != null) params.set('nodeId', String(nodeId));
+    return this.http.get<{ items: any[]; totalCount: number; page: number; pageSize: number; totalPages: number }>(`${this.baseUrl}/api/admin/funds/classification/changes?${params.toString()}`);
+  }
+
+  getClassificationBackup(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/api/admin/funds/classification/backup`);
+  }
+
+  // ── Admin Funds ───────────────────────────────────────────────────────────
+
+  // Sync settings
+  getFundSyncSettings(): Observable<FundSyncSettings> {
+    return this.http.get<FundSyncSettings>(`${this.baseUrl}/api/admin/funds/sync/settings`);
+  }
+
+  updateFundSyncSettings(request: FundSyncSettingsUpdateRequest): Observable<FundSyncSettings> {
+    return this.http.patch<FundSyncSettings>(`${this.baseUrl}/api/admin/funds/sync/settings`, request);
+  }
+
+  // Sync runs
+  getFundSyncStatus(): Observable<FundSyncStatusDto> {
+    return this.http.get<FundSyncStatusDto>(`${this.baseUrl}/api/admin/funds/sync/status`);
+  }
+
+  getLatestFundSyncRun(): Observable<FundSyncLog> {
+    return this.http.get<FundSyncLog>(`${this.baseUrl}/api/admin/funds/sync/latest`);
+  }
+
+  getFundSyncHistory(page = 1, pageSize = 20): Observable<{ items: FundSyncLog[]; totalCount: number; page: number; pageSize: number; totalPages: number }> {
+    return this.http.get<{ items: FundSyncLog[]; totalCount: number; page: number; pageSize: number; totalPages: number }>(`${this.baseUrl}/api/admin/funds/sync/history?page=${page}&pageSize=${pageSize}`);
+  }
+
+  runFundSyncNow(): Observable<FundSyncLog> {
+    return this.http.post<FundSyncLog>(`${this.baseUrl}/api/admin/funds/sync/run`, {});
+  }
+
+  runFundPriceSyncNow(): Observable<FundPriceSyncResultDto> {
+    return this.http.post<FundPriceSyncResultDto>(`${this.baseUrl}/api/admin/funds/sync/prices`, {});
+  }
+
+  getFundSyncRunDetails(runId: number): Observable<FundSyncLogDetail[]> {
+    return this.http.get<FundSyncLogDetail[]>(`${this.baseUrl}/api/admin/funds/sync/${runId}/details`);
+  }
+
+  getCategoryFunds(categoryId: number, search = '', source = '', page = 1, pageSize = 50): Observable<{ items: CategoryFundMember[]; totalCount: number; page: number; pageSize: number; totalPages: number }> {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (source) params.set('source', source);
+    params.set('page', String(page));
+    params.set('pageSize', String(pageSize));
+    return this.http.get<{ items: CategoryFundMember[]; totalCount: number; page: number; pageSize: number; totalPages: number }>(`${this.baseUrl}/api/admin/funds/categories/${categoryId}/funds?${params.toString()}`);
+  }
+
+  resetFundOverrides(fundId: number): Observable<{ message: string; clearedCount: number }> {
+    return this.http.delete<{ message: string; clearedCount: number }>(`${this.baseUrl}/api/admin/funds/funds/${fundId}/overrides`);
+  }
+
+  resetCategoryOverrides(categoryId: number): Observable<{ message: string; clearedCount: number }> {
+    return this.http.delete<{ message: string; clearedCount: number }>(`${this.baseUrl}/api/admin/funds/categories/${categoryId}/overrides`);
+  }
+
+  // Categories
+  getAllFundCategories(includeDeleted = false): Observable<FundCategory[]> {
+    return this.http.get<FundCategory[]>(`${this.baseUrl}/api/admin/funds/categories?includeDeleted=${includeDeleted}`);
+  }
+
+  getFundCategory(id: number): Observable<FundCategory> {
+    return this.http.get<FundCategory>(`${this.baseUrl}/api/admin/funds/categories/${id}`);
+  }
+
+  createFundCategory(request: CreateCategoryRequest): Observable<FundCategory> {
+    return this.http.post<FundCategory>(`${this.baseUrl}/api/admin/funds/categories`, request);
+  }
+
+  updateFundCategory(id: number, request: UpdateCategoryRequest): Observable<FundCategory> {
+    return this.http.patch<FundCategory>(`${this.baseUrl}/api/admin/funds/categories/${id}`, request);
+  }
+
+  deleteFundCategory(id: number, confirm = false): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/api/admin/funds/categories/${id}?confirm=${confirm}`);
+  }
+
+  restoreFundCategory(id: number): Observable<FundCategory> {
+    return this.http.post<FundCategory>(`${this.baseUrl}/api/admin/funds/categories/${id}/restore`, {});
+  }
+
+  mergeFundCategories(request: MergeCategoriesRequest): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/admin/funds/categories/merge`, request);
+  }
+
+  // Category overrides
+  getFundCategoryOverrides(fundId: number): Observable<FundCategoryOverride[]> {
+    return this.http.get<FundCategoryOverride[]>(`${this.baseUrl}/api/admin/funds/funds/${fundId}/category-overrides`);
+  }
+
+  getFundCategoriesWithOverrides(fundId: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/api/admin/funds/funds/${fundId}/categories`);
+  }
+
+  includeFundInCategory(fundId: number, categoryId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/admin/funds/funds/${fundId}/categories/${categoryId}/include`, {});
+  }
+
+  excludeFundFromCategory(fundId: number, categoryId: number): Observable<any> {
+    return this.http.post(`${this.baseUrl}/api/admin/funds/funds/${fundId}/categories/${categoryId}/exclude`, {});
+  }
+
+  resetFundCategoryOverride(fundId: number, categoryId: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/api/admin/funds/funds/${fundId}/categories/${categoryId}/override`);
+  }
+
+  // Category change log
+  getFundCategoryChanges(filter: FundCategoryChangeLogFilter): Observable<{ items: FundCategoryChangeLog[]; totalCount: number; page: number; pageSize: number; totalPages: number }> {
+    const params = new URLSearchParams();
+    Object.entries(filter).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) params.set(key, String(value));
+    });
+    return this.http.get<{ items: FundCategoryChangeLog[]; totalCount: number; page: number; pageSize: number; totalPages: number }>(`${this.baseUrl}/api/admin/funds/category-changes?${params.toString()}`);
+  }
+
+  // Admin fund management
+  getAllFundsAdmin(search?: string, type?: string, page = 1, pageSize = 50): Observable<{ items: FundListItemDto[]; totalCount: number; page: number; pageSize: number; totalPages: number }> {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (type) params.set('type', type);
+    params.set('page', String(page));
+    params.set('pageSize', String(pageSize));
+    return this.http.get<{ items: FundListItemDto[]; totalCount: number; page: number; pageSize: number; totalPages: number }>(`${this.baseUrl}/api/admin/funds/funds?${params.toString()}`);
+  }
+
+  getFundAdmin(id: number): Observable<FundListItemDto> {
+    return this.http.get<FundListItemDto>(`${this.baseUrl}/api/admin/funds/funds/${id}`);
+  }
+
+  // Cache management
+  getFundCacheStatus(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/admin/funds/cache/status`);
+  }
+
+  clearFundCache(): Observable<string> {
+    return this.http.post<string>(`${this.baseUrl}/api/admin/funds/cache/clear`, {});
+  }
+
+  rebuildFundCache(): Observable<string> {
+    return this.http.post<string>(`${this.baseUrl}/api/admin/funds/cache/rebuild`, {});
   }
 }
 

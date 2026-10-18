@@ -101,6 +101,7 @@ interface IndexStats {
           [ink]="accentFor(idx.code).ink"
           [pill]="idx.constituentsCount + ' سهم مكوّن'"
           [stats]="cardStats(idx)"
+          [autoPadStats]="false"
           [footerText]="footerFor(idx)"
           [link]="linkFor(idx)"
           [ribbon]="isFeatured(idx.code) ? 'المؤشر الشرعي الرسمي' : null"
@@ -582,10 +583,7 @@ export class IndicesListComponent implements OnInit {
     // Umbrella entries (Sectoral) show the same two stat slots but with null
     // values so the card body keeps the identical height as every other card.
     if (!indexShowsAggregates(idx.code)) {
-      return [
-        { label: 'معدل التوافق', value: null },
-        { label: 'الأداء اليومي', value: null }
-      ];
+      return [];
     }
     const rate = this.rateOf(idx);
     const change = this.changeOf(idx);

@@ -14,7 +14,6 @@ import {
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { ClassificationCascadeComponent } from '../../components/classification-cascade/classification-cascade.component';
 import { EntityCardComponent, EntityStat } from '../../components/entity-card/entity-card.component';
-import { FilterChipsComponent, ChipOption } from '../../components/filter-chips/filter-chips.component';
 import { SectionHeaderComponent } from '../../components/section-header/section-header.component';
 import { LoadingSkeletonsComponent } from '../../components/loading-skeletons/loading-skeletons.component';
 import { EmptyStateComponent } from '../../components/empty-state/empty-state.component';
@@ -25,7 +24,7 @@ import { KpiStripComponent, KpiData } from '../../components/kpi-strip/kpi-strip
 @Component({
   selector: 'app-funds-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, PageHeaderComponent, ClassificationCascadeComponent, EntityCardComponent, FilterChipsComponent, SectionHeaderComponent, LoadingSkeletonsComponent, EmptyStateComponent, KpiStripComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, PageHeaderComponent, ClassificationCascadeComponent, EntityCardComponent, SectionHeaderComponent, LoadingSkeletonsComponent, EmptyStateComponent, KpiStripComponent],
   template: `
     <div class="entity-page">
       <app-page-header
@@ -774,10 +773,6 @@ export class FundsListComponent implements OnInit, OnDestroy {
     { id: 'featured', label: 'مميز', param: 'featured', value: 'true' },
     { id: 'top_return', label: 'أعلى عائد', param: 'sortBy', value: 'return1y' }
   ];
-
-  get chipOptions(): ChipOption[] {
-    return this.quickChips.map(c => ({ id: c.id, label: c.label }));
-  }
 
   kpiList: KpiData[] = [];
 

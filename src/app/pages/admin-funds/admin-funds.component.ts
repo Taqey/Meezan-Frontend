@@ -665,7 +665,7 @@ export class AdminFundsComponent implements OnInit {
 
   // ── Editable fund types ──
   types: FundTypeDefinition[] = [];
-  typeCounts: Record<number, number> = {};
+  typeCounts: Record<number, number | undefined> = {};
   typeDraft = { nameAr: '', nameEn: '' };
   typeChanges: FundTypeChangeLog[] = [];
   typeMergeSource: FundTypeDefinition | null = null;
@@ -850,7 +850,7 @@ export class AdminFundsComponent implements OnInit {
 
   // Categories
   categories: FundCategory[] = [];
-  counts: Record<number, number> = {};
+  counts: Record<number, number | undefined> = {};
   catsLoading = false;
   catsBusy = false;
   showDeleted = false;

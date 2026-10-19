@@ -20,6 +20,7 @@ import { EmptyStateComponent } from '../../components/empty-state/empty-state.co
 import { FormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject, switchMap, Subscription, timeout, catchError, of } from 'rxjs';
 import { KpiStripComponent, KpiData } from '../../components/kpi-strip/kpi-strip.component';
+import { ScrollRestorationService } from '../../services/scroll-restoration.service';
 
 @Component({
   selector: 'app-funds-list',
@@ -236,7 +237,7 @@ import { KpiStripComponent, KpiData } from '../../components/kpi-strip/kpi-strip
       </div>
 
       <!-- Results summary header -->
-      <div class="results-head" *ngIf="!initialLoading && !loadError">
+      <div id="results-head" class="results-head" *ngIf="!initialLoading && !loadError">
         <span>عرض <strong class="results-count">{{ totalCount }}</strong> نتيجة مطابقة (الصفحة {{ currentPage }} من {{ totalPages || 1 }})</span>
       </div>
 
@@ -257,8 +258,8 @@ import { KpiStripComponent, KpiData } from '../../components/kpi-strip/kpi-strip
       </app-empty-state>
 
       <!-- Results Grid Container: Initial skeletons or cards grid with filtering state -->
-      <div class="results-area" [class.is-filtering]="loading && !initialLoading">
-        <app-loading-skeletons *ngIf="initialLoading && !loadError" variant="card" [count]="6"></app-loading-skeletons>
+      <div class="results-area" [class.is-filtering]="loading">
+        <app-loading-skeletons *ngIf="initialLoading && !loadError && funds.length === 0" variant="card" [count]="6"></app-loading-skeletons>
 
         <div class="entity-grid" *ngIf="funds.length && !loadError">
           <app-entity-card
@@ -280,6 +281,7 @@ import { KpiStripComponent, KpiData } from '../../components/kpi-strip/kpi-strip
           </app-entity-card>
         </div>
       </div>
+
 
       <div *ngIf="!initialLoading && !loadError && totalPages > 1" class="pagination" style="display: flex; justify-content: center; gap: 8px; margin-top: 24px; padding: 0 24px 24px;">
         <button class="btn btn-outline" (click)="goToPage(currentPage - 1)" [disabled]="currentPage <= 1">
@@ -649,7 +651,7 @@ import { KpiStripComponent, KpiData } from '../../components/kpi-strip/kpi-strip
     /* Results Area & Reduced-Opacity Loading state */
     .results-area {
       position: relative;
-      min-height: 200px;
+      min-height: 400px;
       transition: opacity 0.2s ease;
     }
     .results-area.is-filtering {
@@ -781,7 +783,8 @@ export class FundsListComponent implements OnInit, OnDestroy {
   constructor(
     private api: ApiService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private scrollRestoration: ScrollRestorationService
   ) {}
 
   ngOnInit(): void {
@@ -1196,6 +1199,7 @@ export class FundsListComponent implements OnInit, OnDestroy {
     if (page < 1 || page > this.totalPages) return;
     this.currentPage = page;
     this.loadFunds();
+    this.scrollRestoration.scrollToGrid('#results-head');
   }
 
   resetFilters(): void {

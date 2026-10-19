@@ -7,7 +7,7 @@ import { adminAuthInterceptor } from './services/admin-auth.interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes, withHashLocation(), withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })),
+    provideRouter(routes, withHashLocation(), withInMemoryScrolling({ scrollPositionRestoration: 'disabled' })),
     provideHttpClient(withInterceptors([adminAuthInterceptor]))
   ]
 };

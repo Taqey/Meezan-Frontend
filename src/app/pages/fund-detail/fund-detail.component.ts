@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, AfterViewChecked, ViewChild, ElementRef, NgZone } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
 import { LucideAngularModule, ArrowLeft, TrendingUp, TrendingDown, AlertCircle, DollarSign, ShieldCheck, Star, Building2, Calendar, PieChart, BarChart3, FileText, ExternalLink, Loader2 } from 'lucide-angular';
 import { ApiService } from '../../services/api.service';
@@ -44,9 +44,9 @@ async function ensureChartJs(): Promise<typeof import('chart.js') | null> {
 
     <div *ngIf="!loading && fund">
       <div class="detail-hero">
-        <a routerLink="/funds" class="back-link">
+        <button type="button" (click)="goBack()" class="back-link">
           <lucide-icon [img]="ArrowLeftIcon" size="15"></lucide-icon> العودة إلى الصناديق
-        </a>
+        </button>
 
         <div class="detail-heading">
           <div>
@@ -437,7 +437,17 @@ export class FundDetailComponent implements OnInit, AfterViewInit, AfterViewChec
     private router: Router,
     private api: ApiService,
     private ngZone: NgZone,
+    private location: Location,
   ) {}
+
+  /** Navigate back to the funds list, restoring scroll position via popstate. */
+  goBack(): void {
+    if (window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigateByUrl('/funds');
+    }
+  }
 
   ngOnInit(): void {
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {

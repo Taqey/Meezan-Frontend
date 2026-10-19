@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
   apiBaseUrl: 'https://localhost:7278',
-  adminApiKey: 'dev-only-admin-key-change-me'
+  adminApiKey: '131980ba8cd03572a1532f93bd04ede9ba25f831cb901a134efdfb511d98ad54'
 };

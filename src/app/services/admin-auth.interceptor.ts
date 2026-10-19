@@ -1,16 +1,23 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 
+const PROTECTED_PREFIXES = [
+  '/api/admin/',
+  '/api/scraping/',
+  '/api/job-settings'
+];
+
 /**
- * Attaches the admin shared-secret to every /api/admin/* call.
- * Read from a runtime global so the Vercel build can inject it without a rebuild.
+ * Attaches the admin shared-secret (X-Admin-Key) to protected API paths.
  */
 export const adminAuthInterceptor: HttpInterceptorFn = (req, next) => {
-  const runtimeKey = (globalThis as any).__MEEZAN_ADMIN_KEY__;
-  const key = environment.adminApiKey || runtimeKey || '';
+  const key = environment.adminApiKey;
+  if (!key) {
+    return next(req);
+  }
 
-  const isAdmin = req.url.includes('/api/admin/');
-  if (!isAdmin || !key) {
+  const isProtected = PROTECTED_PREFIXES.some(prefix => req.url.includes(prefix));
+  if (!isProtected) {
     return next(req);
   }
 

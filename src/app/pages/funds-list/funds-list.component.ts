@@ -953,12 +953,21 @@ export class FundsListComponent implements OnInit, OnDestroy {
           if (full.length) {
             this.classPath = full;
             this.staleNodeNotice = null;
+            this.applyClassPathToFilter();
+            this.advancedOpen = true;
           } else {
             this.classPath = [];
             this.staleNodeNotice = `التصنيف "${this.pendingLegacySlug}" لم يعد متاحاً وتم الرجوع للكل`;
             this.updateUrlParams({ node: null });
           }
           this.pendingLegacySlug = null;
+        } else if (this.classPath.length) {
+          const deepest = this.classPath[this.classPath.length - 1];
+          const full = this.pathForSlug(deepest);
+          if (full.length) {
+            this.classPath = full;
+            this.advancedOpen = true;
+          }
         }
       },
       error: () => {}

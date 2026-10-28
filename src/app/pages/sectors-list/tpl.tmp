@@ -1,0 +1,22 @@
+  template: `
+    <mz-listing-page [config]="config" [customView]="view !== 'grid'" (tabChange)="setChip($event)" (retry)="load()">
+      <ng-container actions>
+        <app-view-switcher [view]="view" (viewChange)="setView($event)"></app-view-switcher>
+        <button type="button" class="mz-btn" (click)="printReport()">
+          <lucide-icon [img]="PrintIcon" size="15"></lucide-icon> تقرير PDF
+        </button>
+      </ng-container>
+      <ng-container view>
+        <app-entity-table
+          *ngIf="sectors.length && view === 'table' && !dataPending"
+          [columns]="tableColumns" [rows]="tableRows" [sortKey]="tableSortKey" [sortDir]="tableSortDir"
+          (sortChange)="setTableSort($event)" ariaLabel="جدول القطاعات الاقتصادية">
+        </app-entity-table>
+        <app-entity-heatmap
+          *ngIf="sectors.length && view === 'heatmap' && !dataPending"
+          [tiles]="heatTiles"
+          [sizeNote]="hasAnyMarketCap ? 'حجم المربع يعكس القيمة السوقية للقطاع' : null">
+        </app-entity-heatmap>
+      </ng-container>
+    </mz-listing-page>
+  `

@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { navigateQueryParams } from '../../utils/navigation-utils';
 import { LucideAngularModule, Search, ChevronDown, ShieldCheck, TrendingUp, Star, Building2, DollarSign, AlertCircle, SlidersHorizontal, RotateCcw, X } from 'lucide-angular';
 import { ApiService } from '../../services/api.service';
 import { SessionCacheService } from '../../services/session-cache.service';
@@ -505,11 +506,7 @@ export class FundsListComponent implements OnInit, OnDestroy {
   }
 
   updateUrlParams(params: Record<string, string | number | null | undefined>): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: params,
-      queryParamsHandling: 'merge'
-    });
+    navigateQueryParams(this.router, this.route, params, 'merge');
   }
 
   toggleAdvanced(): void {

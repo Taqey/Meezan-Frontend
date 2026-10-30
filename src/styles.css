@@ -739,24 +739,31 @@ button, input, select, textarea {
   font-size: 13px;
 }
 
+.status-badge {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 4px 0;
+}
+
 .status-badge.status-good {
   color: var(--good);
-  background: var(--good-soft);
+  background: transparent !important;
 }
 
 .status-badge.status-bad {
   color: var(--bad);
-  background: var(--bad-soft);
+  background: transparent !important;
 }
 
 .status-badge.status-warn {
   color: var(--warn);
-  background: var(--warn-soft);
+  background: transparent !important;
 }
 
 .status-badge.status-neutral {
   color: var(--muted-foreground);
-  background: var(--muted);
+  background: transparent !important;
 }
 
 .status-dot {

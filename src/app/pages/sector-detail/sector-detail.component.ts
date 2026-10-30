@@ -176,7 +176,7 @@ export class SectorDetailComponent implements OnInit, OnDestroy {
   shariahStatuses: string[] = [];
   priceComparison = '';
   minCompliantSources = '';
-  sortBy = 'changePct';
+  sortBy = 'weight';
   sortDir = 'desc';
 
   minPe: number | null = null;
@@ -239,7 +239,7 @@ export class SectorDetailComponent implements OnInit, OnDestroy {
           this.minPb = saved.minPb ?? null;
           this.maxPb = saved.maxPb ?? null;
           this.nonComplianceType = saved.nonComplianceType || '';
-          this.sortBy = saved.sortBy || 'changePct';
+          this.sortBy = saved.sortBy || 'weight';
           this.sortDir = saved.sortDir || 'desc';
           this.advancedOpen = saved.advancedOpen || false;
           this.view = saved.view || 'grid';
@@ -272,7 +272,7 @@ export class SectorDetailComponent implements OnInit, OnDestroy {
 
       this.priceComparison = params['priceComparison'] || '';
       this.minCompliantSources = params['minCompliantSources'] || '';
-      this.sortBy = params['sortBy'] || 'changePct';
+      this.sortBy = params['sortBy'] || 'weight';
       this.sortDir = params['sortDir'] || 'desc';
 
       this.minPe = params['minPe'] !== undefined && params['minPe'] !== null ? Number(params['minPe']) : null;
@@ -769,7 +769,7 @@ export class SectorDetailComponent implements OnInit, OnDestroy {
       minPb: this.minPb !== null ? this.minPb : null,
       maxPb: this.maxPb !== null ? this.maxPb : null,
       nonComplianceType: this.nonComplianceType || null,
-      sortBy: this.sortBy !== 'changePct' ? this.sortBy : null,
+      sortBy: this.sortBy !== 'weight' ? this.sortBy : null,
       sortDir: this.sortDir !== 'desc' ? this.sortDir : null,
       view: this.view !== 'grid' ? this.view : null
     };

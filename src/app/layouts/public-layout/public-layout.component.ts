@@ -346,6 +346,7 @@ export class PublicLayoutComponent implements AfterViewInit, OnDestroy {
   private remeasureTimer: ReturnType<typeof setTimeout> | null = null;
   private scrollResetTimer: ReturnType<typeof setTimeout> | null = null;
   private lastNavTrigger: string | null = null;
+  private lastNavPathname: string | null = null;
 
   constructor(
     readonly favorites: FavoritesService,
@@ -363,10 +364,15 @@ export class PublicLayoutComponent implements AfterViewInit, OnDestroy {
         this.lastNavTrigger = e.navigationTrigger ?? null;
       }
       if (e instanceof NavigationEnd) {
+        const newPathname = e.urlAfterRedirects.split('?')[0].split('#')[0];
+        const pathnameChanged = newPathname !== this.lastNavPathname;
+        this.lastNavPathname = newPathname;
+
         // Reset scroll AFTER the new route component has been inserted into the
         // outlet (setTimeout defers past the current microtask/render cycle).
-        // Skip on browser Back/Forward — withInMemoryScrolling restores those.
-        if (this.lastNavTrigger !== 'popstate') {
+        // Skip on browser Back/Forward (withInMemoryScrolling restores those).
+        // Skip on query-param-only changes so filter/sort changes never jump to top.
+        if (this.lastNavTrigger !== 'popstate' && pathnameChanged) {
           if (this.scrollResetTimer !== null) clearTimeout(this.scrollResetTimer);
           this.scrollResetTimer = setTimeout(() => {
             document.documentElement.scrollTop = 0;

@@ -22,10 +22,10 @@ import { CommonModule } from '@angular/common';
           <div class="mz-lcard-top">
             <div class="mz-lcard-head">
               <div class="mz-lcard-id">
-                <span class="sk-line" style="width:20px;height:20px;border-radius:6px;flex-shrink:0;"></span>
                 <div class="mz-lcard-text">
-                  <h3 class="mz-lcard-title"><span class="sk-line" style="display:block;width:72%;height:18px;margin-top:2px;"></span></h3>
-                  <span class="mz-lcard-sub"><span class="sk-line" style="display:block;width:44px;height:12px;margin-top:2px;"></span></span>
+                  <span class="mz-lcard-sub" style="padding:0;border:none;background:transparent;"><span class="sk-line" style="display:block;width:44px;height:20px;border-radius:6px;"></span></span>
+                  <h3 class="mz-lcard-title"><span class="sk-line" style="display:block;width:100%;height:18px;"></span></h3>
+                  <span class="sk-line" style="width:24px;height:24px;border-radius:4px;flex-shrink:0;"></span>
                 </div>
               </div>
               <div class="mz-lcard-badges">

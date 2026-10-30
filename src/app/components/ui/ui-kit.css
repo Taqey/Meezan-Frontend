@@ -157,10 +157,10 @@
 .mz-select-option-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mz-select-option-check { display: inline-flex; align-items: center; justify-content: center; color: var(--mz-primary); flex-shrink: 0; }
 .mz-fav { display: inline-flex; align-items: center; color: var(--mz-outline); }
-.mz-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-.mz-tag.good { color: var(--mz-secondary); background: rgba(151,245,204,.2); }
-.mz-tag.bad { color: var(--mz-error); background: rgba(255,218,214,.4); }
-.mz-tag.neutral { color: var(--mz-on-surface-variant); background: var(--mz-surface-container); }
+.mz-tag { display: inline-flex; align-items: center; gap: 4px; padding: 2px 0; border-radius: 0; font-size: 11px; font-weight: 600; background: transparent !important; border: none !important; box-shadow: none !important; }
+.mz-tag.good { color: var(--mz-secondary); background: transparent !important; }
+.mz-tag.bad { color: var(--mz-error); background: transparent !important; }
+.mz-tag.neutral { color: var(--mz-on-surface-variant); background: transparent !important; }
 .mz-tag-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 
 /* ---------- Level 2 ---------- */
@@ -271,42 +271,52 @@
 .mz-legend-item { display: inline-flex; align-items: center; gap: 4px; }
 .mz-legend-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--mz-secondary); }
 .mz-legend-dot.bad { background: var(--mz-error); }
-.mz-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 32px; }
+.mz-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 32px; align-items: stretch; }
 @media (min-width: 640px) { .mz-grid.cols-4 { grid-template-columns: repeat(2, 1fr); gap: 16px; } }
 @media (min-width: 768px) { .mz-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; } }
 @media (min-width: 1024px) { .mz-grid.cols-4 { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
 @media (min-width: 1280px) { .mz-grid.cols-3 { grid-template-columns: repeat(3, 1fr); } }
 .mz-grid.cols-2 { grid-template-columns: 1fr; }
 @media (min-width: 768px) { .mz-grid.cols-2 { grid-template-columns: repeat(2, 1fr); } }
-.mz-grid.cols-3-details { grid-template-columns: 1fr; gap: 16px; margin-bottom: 0; }
+.mz-grid.cols-3-details { grid-template-columns: 1fr; gap: 16px; margin-bottom: 0; align-items: stretch; }
 @media (min-width: 768px) { .mz-grid.cols-3-details { grid-template-columns: repeat(3, 1fr); } }
 .mz-lcard { display: flex; flex-direction: column; justify-content: flex-start; padding: 16px; color: inherit; text-decoration: none; position: relative; min-width: 0; height: 100%; box-sizing: border-box; }
 .mz-lcard-top { display: flex; flex-direction: column; flex-shrink: 0; min-width: 0; }
-.mz-lcard-bottom { display: flex; flex-direction: column; flex-shrink: 0; min-width: 0; margin-top: auto; }
-.mz-lcard-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.mz-lcard-bottom { display: flex; flex-direction: column; flex-grow: 1; flex-shrink: 0; min-width: 0; }
+.mz-lcard-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; min-height: 48px; }
 .mz-lcard-id { display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1; }
-.mz-lcard-text { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-.mz-lcard-title { margin: 0; font-size: 15px; line-height: 1.45; font-weight: 700; color: var(--mz-on-surface); overflow: visible; text-overflow: clip; white-space: normal; display: block; height: auto; min-height: 22px; word-break: break-word; overflow-wrap: break-word; }
-.mz-lcard-sub { font-size: 11px; line-height: 16px; height: 16px; font-weight: 500; color: var(--mz-outline); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+/* Default (non-stock: sectors, indices, funds): column layout */
+.mz-lcard-text { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: flex-start; gap: 4px; min-width: 0; flex: 1; }
+/* Stock-card only: row layout with ticker pill + name + star */
+.mz-lcard.is-stock-card .mz-lcard-text { flex-direction: row; gap: 8px; }
+/* Default title: block in column layout */
+.mz-lcard-title { margin: 0; font-size: 14px; line-height: 1.45; font-weight: 700; color: var(--mz-on-surface); overflow: visible; text-overflow: clip; white-space: normal; display: block; height: auto; word-break: break-word; overflow-wrap: break-word; min-width: 0; }
+/* Stock-card only: title as flex-1 in row layout with min-height for alignment */
+.mz-lcard.is-stock-card .mz-lcard-title { flex: 1 1 0%; min-height: 42px; }
+/* Default subtitle (non-stock): simple muted block text */
+.mz-lcard-sub { display: block; font-size: 11px; line-height: 16px; font-weight: 500; color: var(--mz-outline); text-transform: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+/* Stock-card only: monospace ticker pill */
+.mz-lcard.is-stock-card .mz-lcard-sub { display: inline-flex; align-items: center; justify-content: center; padding: 2px 8px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-weight: 600; background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; letter-spacing: 0.05em; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; box-sizing: border-box; margin-top: 1px; }
 .mz-lcard-sub.empty { visibility: hidden; }
-.mz-lcard-badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; flex-shrink: 0; }
+.mz-lcard-badges { display: flex; align-items: flex-start; gap: 6px; flex-wrap: wrap; justify-content: flex-end; flex-shrink: 0; }
 .mz-lcard-main { display: flex; align-items: baseline; gap: 6px; margin: 6px 0 8px; min-height: 34px; }
 .mz-lcard-main-value { font-size: 26px; line-height: 1.2; font-weight: 800; color: var(--mz-on-surface); }
 .mz-lcard-main-unit { font-size: 12px; font-weight: 700; color: var(--mz-outline); }
 .mz-lcard-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 6px 0 10px; }
-.mz-lcard-ribbon-wrap { height: 28px; margin-bottom: 8px; display: flex; align-items: stretch; }
-.mz-lcard-ribbon { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 10px; border-radius: 8px; font-size: 11px; width: 100%; box-sizing: border-box; background: var(--mz-surface-container); color: var(--mz-on-surface-variant); white-space: nowrap; overflow: hidden; }
-.mz-lcard-ribbon span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mz-lcard-ribbon-wrap { height: 28px; margin-bottom: 8px; display: flex; align-items: stretch; flex-shrink: 0; }
+.mz-lcard-ribbon { display: flex; align-items: center; justify-content: center; text-align: center; gap: 6px; padding: 4px 10px; border-radius: 8px; font-size: 11px; width: 100%; box-sizing: border-box; background: var(--mz-surface-container); color: var(--mz-on-surface-variant); white-space: normal; overflow: hidden; }
+.mz-lcard-ribbon span { text-align: center; }
 .mz-lcard-ribbon.empty { background: transparent; visibility: hidden; }
 .mz-lcard-ribbon.good { background: rgba(151,245,204,.4); color: #007353; font-weight: 600; }
 .mz-lcard-ribbon.bad { background: rgba(255,218,214,.4); color: var(--mz-on-error-container); }
 .mz-lcard-tags { display: flex; flex-direction: column; gap: 4px; padding-top: 2px; }
 .mz-lcard-tag-row { display: flex; align-items: center; gap: 6px; min-height: 24px; }
 .mz-lcard-tag-note { font-size: 11px; line-height: 15px; color: var(--mz-outline); overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; margin-top: 2px; }
-.mz-lcard-foot { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(188,202,192,.2); display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--mz-outline); font-weight: 500; min-height: 26px; }
-.mz-lcard-foot-start { display: flex; align-items: center; gap: 6px; flex: 0 1 60%; min-width: 0; }
-.mz-lcard-foot-end { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; flex: 1 1 auto; min-width: 0; }
-.mz-sector-badge { max-width: 100%; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; line-height: 16px; border: none; box-sizing: border-box; vertical-align: middle; }
+.mz-lcard-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(188,202,192,.2); display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--mz-outline); font-weight: 500; min-height: 26px; height: 26px; box-sizing: content-box; flex-wrap: nowrap; }
+.mz-lcard-foot-start { display: flex; align-items: center; gap: 6px; flex-shrink: 0; min-width: 0; }
+.mz-lcard-foot-end { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; justify-content: flex-end; flex: 1 1 0%; min-width: 0; overflow: hidden; white-space: nowrap; }
+.mz-lcard-foot-end > span { white-space: nowrap; flex-shrink: 0; }
+.mz-sector-badge { max-width: 100%; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; line-height: 16px; border: none; box-sizing: border-box; vertical-align: middle; flex-shrink: 0; }
 .mz-lcard.featured { border-color: rgba(0,105,72,.45); }
 .mz-pagination { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 8px 0 32px; }
 .mz-state { text-align: center; padding: 48px 16px; color: var(--mz-on-surface-variant); }
@@ -1168,4 +1178,55 @@ button:active:not(:disabled) {
   .mz-card.hoverable:hover {
     transform: none !important;
   }
+}
+
+/* Listing card favorite star: plain icon button fixed on first line next to name */
+.mz-lcard .mz-fav {
+  display: inline-flex;
+  flex-shrink: 0;
+  margin-inline-start: 0;
+}
+.mz-lcard .fav-toggle {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  border-radius: 4px;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  color: #cbd5e1;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: color 150ms ease, transform 150ms ease;
+  flex-shrink: 0;
+  margin-top: -1px;
+}
+.mz-lcard .fav-toggle:hover {
+  color: #fbbf24;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+.mz-lcard .fav-toggle.active {
+  color: #fbbf24;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+.mz-lcard .fav-toggle.active lucide-icon svg,
+.mz-lcard .fav-toggle.active svg {
+  fill: currentColor;
+}
+.mz-lcard .fav-toggle:focus-visible {
+  outline: 2px solid #fbbf24;
+  outline-offset: 2px;
+}
+.mz-lcard .fav-toggle lucide-icon,
+.mz-lcard .fav-toggle svg {
+  width: 16px;
+  height: 16px;
 }

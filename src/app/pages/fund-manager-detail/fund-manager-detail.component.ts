@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { navigateQueryParams } from '../../utils/navigation-utils';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, ChevronDown, ShieldCheck, TrendingUp, Star, Building2, DollarSign, SlidersHorizontal, RotateCcw, X } from 'lucide-angular';
 import { ApiService } from '../../services/api.service';
@@ -677,11 +678,7 @@ export class FundManagerDetailComponent implements OnInit, OnDestroy {
   }
 
   updateUrlParams(params: Record<string, string | number | null | undefined>): void {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: params,
-      queryParamsHandling: 'merge'
-    });
+    navigateQueryParams(this.router, this.route, params, 'merge');
   }
 
   rebuild(): void {

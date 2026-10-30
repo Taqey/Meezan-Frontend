@@ -189,22 +189,22 @@ export interface MzListingCardData {
   imports: [CommonModule, RouterLink, LucideAngularModule, MzBadgeComponent, MzFavoriteButtonComponent, MzMetricItemComponent, MzStatusTagComponent],
   host: { class: 'mz', style: 'display:block;min-width:0' },
   template: `
-    <a class="mz-card hoverable mz-lcard" [class.featured]="card.featured" [routerLink]="card.link || null">
+    <a class="mz-card hoverable mz-lcard" [class.is-stock-card]="!!card.favoriteSymbol" [class.featured]="card.featured" [routerLink]="card.link || null">
       <div class="mz-lcard-top">
         <div class="mz-lcard-head">
           <div class="mz-lcard-id">
-            <mz-favorite-button *ngIf="card.favoriteSymbol" [symbol]="card.favoriteSymbol"></mz-favorite-button>
             <div *ngIf="card.logoUrl && !logoFailed" class="mz-lcard-logo-wrap" style="width:48px;height:48px;flex-shrink:0;border-radius:10px;border:1px solid rgba(188,202,192,.35);background:#fff;display:flex;align-items:center;justify-content:center;padding:3px;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
               <img [src]="card.logoUrl" [alt]="card.title" style="width:100%;height:100%;object-fit:contain;border-radius:6px;" loading="lazy" (error)="logoFailed = true" />
             </div>
             <span *ngIf="(!card.logoUrl || logoFailed) && card.icon" class="mz-stat-icon" style="width:48px;height:48px;"><lucide-icon [img]="card.icon" [size]="22"></lucide-icon></span>
             <div class="mz-lcard-text">
-              <h3 class="mz-lcard-title" [attr.title]="card.title">{{ card.title }}</h3>
               <span class="mz-lcard-sub" *ngIf="card.subtitle">{{ card.subtitle }}</span>
+              <h3 class="mz-lcard-title" [attr.title]="card.title">{{ card.title }}</h3>
+              <mz-favorite-button *ngIf="card.favoriteSymbol" [symbol]="card.favoriteSymbol"></mz-favorite-button>
             </div>
           </div>
           <div class="mz-lcard-badges" *ngIf="card.badges?.length">
-            <mz-badge *ngFor="let b of card.badges" [tone]="b.tone || 'default'"><span class="mz-ltr">{{ b.label }}</span></mz-badge>
+            <mz-badge *ngFor="let b of card.badges" [tone]="b.tone || 'default'"><span class="mz-ltr" style="white-space:nowrap">{{ b.label }}</span></mz-badge>
           </div>
         </div>
         <div class="mz-lcard-main" *ngIf="card.mainValue != null">

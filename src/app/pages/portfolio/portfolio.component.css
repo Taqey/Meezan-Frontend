@@ -3,12 +3,15 @@
 }
 .portfolio-subtabs {
   display: inline-flex;
+  flex-wrap: wrap;
   gap: 8px;
   background: var(--mz-surface-low, #f2f3ff);
   padding: 6px;
   border-radius: 999px;
   border: 1px solid rgba(188, 202, 192, 0.35);
   margin-bottom: 24px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .subtab-btn {
   display: inline-flex;
@@ -361,5 +364,24 @@ details.coll summary {
   }
   .twocol {
     grid-template-columns: 1fr;
+  }
+  .portfolio-subtabs {
+    border-radius: 16px;
+    width: 100%;
+  }
+  .subtab-btn {
+    flex: 1 1 calc(50% - 8px);
+    justify-content: center;
+    padding: 10px 12px;
+    text-align: center;
+    font-size: 13px;
+    min-width: 0;
+  }
+  .secname {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .sector h4 {
+    flex-wrap: wrap;
   }
 }

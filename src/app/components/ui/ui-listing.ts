@@ -264,7 +264,7 @@ export interface MzListingCardData {
                   [attr.title]="sb.label"
                   [style.background]="sb.bg"
                   [style.color]="sb.color">
-              {{ sb.label }}
+              <span>{{ sb.label }}</span>
             </span>
           </div>
           <div class="mz-lcard-foot-end">

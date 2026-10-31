@@ -220,36 +220,90 @@ import {
       border: 1px solid rgba(188, 202, 192, 0.3);
     }
     @media (max-width: 767px) {
+      .mz-table-scroll {
+        border: none;
+        background: transparent;
+        overflow: visible;
+      }
       .mz-std-table thead {
         display: none;
       }
-      .mz-std-table, .mz-std-table tbody, .mz-std-table tr, .mz-std-table td {
-        display: block;
+      .mz-std-table, .mz-std-table tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
         width: 100%;
       }
       .mz-std-table tr {
-        padding: 12px;
-        border-bottom: 1px solid rgba(188, 202, 192, 0.35);
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        background: var(--mz-surface, #fff);
+        border: 1px solid rgba(188, 202, 192, 0.35);
+        border-radius: 14px;
+        padding: 16px;
+        overflow: visible;
+      }
+      .mz-std-table tr.scholars-row {
+        background: rgba(255, 244, 217, 0.3);
       }
       .mz-std-table td {
-        padding: 6px 4px;
-        border-bottom: 0;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
+        gap: 10px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(188, 202, 192, 0.2);
+        font-size: 13px;
+      }
+      .mz-std-table td:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
       }
       .mz-std-table td:first-child {
-        display: block;
-        padding-bottom: 10px;
-        margin-bottom: 6px;
-        border-bottom: 1px dashed rgba(188, 202, 192, 0.35);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding-top: 0;
+        padding-bottom: 12px;
+        margin-bottom: 4px;
+        border-bottom: 1px solid rgba(188, 202, 192, 0.35);
+      }
+      .mz-std-table .std-name {
+        font-size: 16px;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+      .mz-std-table .std-en {
+        font-size: 11px;
+        overflow-wrap: anywhere;
+      }
+      .mz-std-table .std-sub {
+        font-size: 12px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+        word-break: break-word;
       }
       .mz-std-table td[data-label]::before {
         content: attr(data-label);
         font-size: 12px;
         font-weight: 700;
         color: var(--mz-on-surface-variant, #3d4a42);
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow-wrap: anywhere;
+      }
+      .mz-std-pill {
+        flex-shrink: 0;
       }
     }
   `]

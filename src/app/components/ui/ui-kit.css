@@ -444,20 +444,47 @@
 .mz-lcard-main-value { font-size: 26px; line-height: 1.2; font-weight: 800; color: var(--mz-on-surface); }
 .mz-lcard-main-unit { font-size: 12px; font-weight: 700; color: var(--mz-outline); }
 .mz-lcard-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 6px 0 10px; }
-.mz-lcard-ribbon-wrap { height: 28px; margin-bottom: 8px; display: flex; align-items: stretch; flex-shrink: 0; }
-.mz-lcard-ribbon { display: flex; align-items: center; justify-content: center; text-align: center; gap: 6px; padding: 4px 10px; border-radius: 8px; font-size: 11px; width: 100%; box-sizing: border-box; background: var(--mz-surface-container); color: var(--mz-on-surface-variant); white-space: normal; overflow: hidden; }
-.mz-lcard-ribbon span { text-align: center; }
-.mz-lcard-ribbon.empty { background: transparent; visibility: hidden; }
+.mz-lcard-ribbon-wrap { min-height: 28px; margin-bottom: 8px; display: flex; align-items: stretch; flex-shrink: 0; }
+.mz-lcard-ribbon { display: flex; align-items: center; justify-content: center; text-align: center; gap: 6px; padding-block: 6px; padding-inline: 10px; border-radius: 8px; font-size: 11px; line-height: 1.5; width: 100%; min-height: 28px; box-sizing: border-box; background: var(--mz-surface-container); color: var(--mz-on-surface-variant); white-space: normal; overflow-wrap: anywhere; word-break: break-word; }
+.mz-lcard-ribbon span { text-align: center; line-height: 1.5; }
+.mz-lcard-ribbon.empty { background: transparent; visibility: hidden; min-height: 28px; }
 .mz-lcard-ribbon.good { background: rgba(151,245,204,.4); color: #007353; font-weight: 600; }
 .mz-lcard-ribbon.bad { background: rgba(255,218,214,.4); color: var(--mz-on-error-container); }
 .mz-lcard-tags { display: flex; flex-direction: column; gap: 4px; padding-top: 2px; }
 .mz-lcard-tag-row { display: flex; align-items: center; gap: 6px; min-height: 24px; }
-.mz-lcard-tag-note { font-size: 11px; line-height: 15px; color: var(--mz-outline); overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; margin-top: 2px; }
-.mz-lcard-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(188,202,192,.2); display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--mz-outline); font-weight: 500; min-height: 26px; height: 26px; box-sizing: content-box; flex-wrap: nowrap; }
+.mz-lcard-tag-note { font-size: 11px; line-height: 1.5; color: var(--mz-outline); overflow-wrap: anywhere; word-break: break-word; margin-top: 2px; }
+.mz-lcard-foot { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(188,202,192,.2); display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--mz-outline); font-weight: 500; min-height: 28px; box-sizing: content-box; flex-wrap: nowrap; }
 .mz-lcard-foot-start { display: flex; align-items: center; gap: 6px; flex-shrink: 0; min-width: 0; }
 .mz-lcard-foot-end { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; justify-content: flex-end; flex: 1 1 0%; min-width: 0; overflow: hidden; white-space: nowrap; }
 .mz-lcard-foot-end > span { white-space: nowrap; flex-shrink: 0; }
-.mz-sector-badge { max-width: 100%; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; line-height: 16px; border: none; box-sizing: border-box; vertical-align: middle; flex-shrink: 0; }
+.mz-sector-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  box-sizing: border-box;
+  padding-inline: 10px;
+  padding-block: 0;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  text-align: center;
+  max-width: 100%;
+  border: none;
+  flex-shrink: 0;
+  overflow: visible;
+}
+.mz-sector-badge > span {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-block: 2px;
+  box-sizing: border-box;
+}
 .mz-lcard.featured { border-color: rgba(0,105,72,.45); }
 .mz-pagination { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 8px 0 32px; }
 .mz-state { text-align: center; padding: 48px 16px; color: var(--mz-on-surface-variant); }

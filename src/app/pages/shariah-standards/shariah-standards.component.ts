@@ -226,21 +226,23 @@ import {
         overflow: visible;
       }
       .mz-std-table thead {
-        display: none;
+        display: none !important;
       }
       .mz-std-table, .mz-std-table tbody {
-        display: flex;
-        flex-direction: column;
+        display: flex !important;
+        flex-direction: column !important;
         gap: 12px;
-        width: 100%;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
       }
       .mz-std-table tr {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-        box-sizing: border-box;
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
         background: var(--mz-surface, #fff);
         border: 1px solid rgba(188, 202, 192, 0.35);
         border-radius: 14px;
@@ -251,29 +253,30 @@ import {
         background: rgba(255, 244, 217, 0.3);
       }
       .mz-std-table td {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
         gap: 10px;
-        width: 100%;
-        max-width: 100%;
-        min-width: 0;
-        box-sizing: border-box;
-        padding: 8px 0;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        padding: 8px 0 !important;
         border-bottom: 1px solid rgba(188, 202, 192, 0.2);
         font-size: 13px;
+        text-align: right !important;
       }
       .mz-std-table td:last-child {
         border-bottom: none;
-        padding-bottom: 0;
+        padding-bottom: 0 !important;
       }
       .mz-std-table td:first-child {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
         gap: 4px;
-        padding-top: 0;
-        padding-bottom: 12px;
+        padding-top: 0 !important;
+        padding-bottom: 12px !important;
         margin-bottom: 4px;
         border-bottom: 1px solid rgba(188, 202, 192, 0.35);
       }
@@ -286,6 +289,7 @@ import {
       .mz-std-table .std-en {
         font-size: 11px;
         overflow-wrap: anywhere;
+        text-align: right !important;
       }
       .mz-std-table .std-sub {
         font-size: 12px;
@@ -303,7 +307,12 @@ import {
         overflow-wrap: anywhere;
       }
       .mz-std-pill {
-        flex-shrink: 0;
+        flex: 0 0 auto !important;
+        white-space: nowrap !important;
+      }
+      .mz-std-dash {
+        flex: 0 0 auto !important;
+        white-space: nowrap !important;
       }
     }
   `]

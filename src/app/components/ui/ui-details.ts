@@ -542,6 +542,7 @@ export class MzNumberLineComponent implements OnInit, AfterViewInit, OnDestroy {
 
 // temporarily disabled until fund descriptions are standardized
 export const SHOW_NUMBER_LINE = false;
+export const SHOW_FUND_ALLOCATION_BAR = false;
 
 @Component({
   selector: 'mz-allocation-breakdown',
@@ -607,20 +608,23 @@ export const SHOW_NUMBER_LINE = false;
 
     <!-- Original Allocation Breakdown View (restored look: bar + cards below) -->
     <ng-template #originalView>
-      <div class="mz-alloc-bar" role="img" [attr.aria-label]="ariaLabel">
-        <span *ngFor="let a of displayItems" [style.width.%]="a.pct" [style.background]="a.color"></span>
-      </div>
-      <div class="mz-alloc-items">
-        <div class="mz-alloc-item" *ngFor="let a of displayItems">
-          <span class="mz-alloc-swatch" [style.background]="a.color"></span>
-          {{ a.label }} <strong class="mz-ltr">{{ a.pct }}%</strong>
+      <ng-container *ngIf="showAllocationBar">
+        <div class="mz-alloc-bar" role="img" [attr.aria-label]="ariaLabel">
+          <span *ngFor="let a of displayItems" [style.width.%]="a.pct" [style.background]="a.color"></span>
         </div>
-      </div>
+        <div class="mz-alloc-items">
+          <div class="mz-alloc-item" *ngFor="let a of displayItems">
+            <span class="mz-alloc-swatch" [style.background]="a.color"></span>
+            {{ a.label }} <strong class="mz-ltr">{{ a.pct }}%</strong>
+          </div>
+        </div>
+      </ng-container>
     </ng-template>
   `
 })
 export class MzAllocationBreakdownComponent {
   readonly showNumberLine = SHOW_NUMBER_LINE;
+  readonly showAllocationBar = SHOW_FUND_ALLOCATION_BAR;
   @Input() instanceId = 'alloc_default';
   @Input() badgeText = 'معايير الالتزام والسياسة الاستثمارية';
   @Input() bands: MzNumberLineBand[] = [];

@@ -19,7 +19,8 @@ import {
   MzListingCardData,
   MzAllocationBreakdownComponent,
   MzNumberLineComponent,
-  MzSpinnerComponent
+  MzSpinnerComponent,
+  SHOW_FUND_ALLOCATION_BAR
 } from '../../components/ui';
 import { Subject, forkJoin, takeUntil } from 'rxjs';
 import { fundLogoUrl, managerRouteParam, parseFundAllocations, type FundAllocationModel } from '../../models/fund-display';
@@ -79,14 +80,14 @@ async function ensureChartJs(): Promise<typeof import('chart.js') | null> {
         [title]="fund.displayName || fund.nameAr"
         [code]="fund.code"
         [secondaryName]="fund.nameEn"
-        [favoriteSymbol]="fund.code"
+        [favoriteSymbol]="'FUND:' + fund.code"
         [tags]="headerTags"
         priceLabel="السعر الحالي"
         [price]="fund.currentPrice != null ? (fund.currentPrice | number:'1.4-4') : '—'"
         [currency]="fund.currency || 'EGP'"
         [changeText]="fund.dailyChange != null ? ((fund.dailyChange > 0 ? '+' : '') + fund.dailyChange.toFixed(2) + '%') : null"
         [changeTone]="fund.dailyChange != null ? (fund.dailyChange > 0 ? 'positive' : (fund.dailyChange < 0 ? 'negative' : 'muted')) : 'muted'">
-        <span titleBadge *ngIf="fund.isIslamic" class="mz-badge" style="background:#dcfce7;color:#166534;border:1px solid #bbf7d0;font-size:11px;gap:4px">
+        <span titleBadge *ngIf="fund.isIslamic" class="mz-badge" style="background:#dcfce7;color:#166534;border:1px solid #bbf7d0">
           <lucide-icon [img]="ShieldCheckIcon" [size]="12"></lucide-icon> متوافق شرعياً
         </span>
       </mz-details-header-card>
@@ -138,11 +139,11 @@ async function ensureChartJs(): Promise<typeof import('chart.js') | null> {
 
         <!-- Section: Investment Strategy & Target Asset Allocation (NumberLine) -->
         <mz-details-section
-          *ngIf="fund && (fund.descriptionAr || fund.investmentStrategy || allocationModel.bands.length > 0)"
+          *ngIf="fund && (allocationModel.paragraphs.length > 0 || (showAllocationBreakdown && (fund.descriptionAr || fund.investmentStrategy || allocationModel.bands.length > 0)))"
           eyebrow="الاستراتيجية والمحفظة"
           title="استراتيجية وهيكل الاستثمار">
           <!-- Strategy & Fund Description Text Block -->
-          <div *ngIf="allocationModel.paragraphs.length > 0" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+          <div *ngIf="allocationModel.paragraphs.length > 0" style="display: flex; flex-direction: column; gap: 12px;">
             <p *ngFor="let p of allocationModel.paragraphs" class="mz-authority-note" style="font-size: 13.5px; line-height: 1.8; color: #334155; margin: 0; text-align: justify;">
               {{ p }}
             </p>
@@ -150,6 +151,8 @@ async function ensureChartJs(): Promise<typeof import('chart.js') | null> {
 
           <!-- Reusable Visual NumberLine & Breakdown Component -->
           <mz-allocation-breakdown
+            *ngIf="showAllocationBreakdown"
+            style="margin-top: 20px;"
             [instanceId]="'alloc_' + fund.code"
             [bands]="allocationModel.bands"
             [cards]="allocationModel.cards"
@@ -373,6 +376,7 @@ export class FundDetailComponent implements OnInit, AfterViewInit, AfterViewChec
   readonly FileTextIcon = FileText;
   readonly ExternalLinkIcon = ExternalLink;
   readonly Loader2Icon = Loader2;
+  readonly showAllocationBreakdown = SHOW_FUND_ALLOCATION_BAR;
 
   fund: FundDetailDto | null = null;
   allocationModel: FundAllocationModel = { bands: [], cards: [], fallbackAllocations: [], paragraphs: [] };
@@ -956,18 +960,12 @@ export class FundDetailComponent implements OnInit, AfterViewInit, AfterViewChec
     return [
       { label: 'الاسم الكامل', value: f.fullNameAr || f.nameAr || '—' },
       { label: 'كود الصندوق', value: f.code, ltr: true },
-      {
-        label: 'المدير',
-        value: mgrName,
-        link: mgrName !== '—' ? this.managerLink : null,
-        ariaLabel: mgrName !== '—' ? `عرض جميع صناديق شركة ${mgrName}` : null
-      },
+      { label: 'المدير', value: mgrName },
       { label: 'العملة', value: f.currency, ltr: true },
       { label: 'تاريخ التأسيس', value: f.inceptionDate ? new Date(f.inceptionDate).toISOString().slice(0, 10) : '—', ltr: true },
       { label: 'الحد الأدنى للاستثمار', value: f.minimumInvestment || '—' },
       { label: 'الرسوم السنوية', value: f.managementFee !== null ? f.managementFee + '%' : '—', ltr: true },
-      { label: 'إجمالي الأصول (AUM)', value: f.aum !== null ? (f.aum >= 1e9 ? (f.aum / 1e9).toFixed(2) + ' مليار ج.م' : (f.aum / 1e6).toFixed(1) + ' مليون ج.م') : '—', ltr: true },
-      { label: 'مستوى المخاطر', value: this.getRiskLabel(f.riskLevel) }
+      { label: 'إجمالي الأصول (AUM)', value: f.aum !== null ? (f.aum >= 1e9 ? (f.aum / 1e9).toFixed(2) + ' مليار ج.م' : (f.aum / 1e6).toFixed(1) + ' مليون ج.م') : '—', ltr: true }
     ];
   }
 

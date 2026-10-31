@@ -33,11 +33,21 @@ export class FavoritesService {
   private adapter: FavoritesStorageAdapter;
   private readonly symbols = signal<string[]>([]);
 
-  /** Live list of favorite symbols (uppercase tickers). */
+  /** Live list of favorite symbols (uppercase tickers and prefixed keys). */
   readonly favorites: Signal<string[]> = this.symbols.asReadonly();
 
-  /** Favorite count (nav badge). */
+  /** Favorite count (nav badge) - includes both stocks and funds. */
   readonly count = computed(() => this.symbols().length);
+
+  /** List of stock tickers only (without FUND: prefix). */
+  readonly stockFavorites = computed(() =>
+    this.symbols().filter((s) => !s.startsWith('FUND:'))
+  );
+
+  /** List of fund codes only (with FUND: prefix stripped). */
+  readonly fundFavorites = computed(() =>
+    this.symbols().filter((s) => s.startsWith('FUND:')).map((s) => s.slice(5))
+  );
 
   /**
    * False when persistence is unavailable (private mode, quota, disabled):
@@ -87,7 +97,16 @@ export class FavoritesService {
    */
   pruneUnknown(knownTickers: string[]): void {
     const known = new Set((knownTickers || []).map((t) => FavoritesService.normalize(t)));
-    const pruned = this.symbols().filter((s) => known.has(s));
+    // Preserve any non-stock favorites (e.g. FUND:) while pruning unknown stocks
+    const pruned = this.symbols().filter((s) => s.startsWith('FUND:') || known.has(s));
+    if (pruned.length !== this.symbols().length) {
+      this.commit(pruned);
+    }
+  }
+
+  pruneUnknownFunds(knownFundCodes: string[]): void {
+    const known = new Set((knownFundCodes || []).map((c) => 'FUND:' + FavoritesService.normalize(c)));
+    const pruned = this.symbols().filter((s) => !s.startsWith('FUND:') || known.has(s));
     if (pruned.length !== this.symbols().length) {
       this.commit(pruned);
     }

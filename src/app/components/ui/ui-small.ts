@@ -60,9 +60,10 @@ export class MzButtonComponent {
   standalone: true,
   imports: [CommonModule],
   host: { class: 'mz', style: 'display:inline-flex' },
-  template: `<span class="mz-badge" [ngClass]="[tone, pill ? 'pill' : '']"><ng-content></ng-content></span>`
+  template: `<span class="mz-badge" [ngClass]="[tone, pill ? 'pill' : '']" [attr.title]="titleText || null"><span class="mz-badge-content"><ng-content></ng-content></span></span>`
 })
 export class MzBadgeComponent {
+  @Input() titleText = '';
   @Input() tone: 'default' | 'neutral' | 'danger' | 'warn' | 'outline' = 'default';
   @Input() pill = false;
 }
@@ -549,7 +550,7 @@ export class MzPaginationButtonComponent {
     <div class="mz-indicator">
       <span class="mz-indicator-label">{{ label }}</span>
       <ng-container *ngIf="link && value != null && value !== '' && value !== '—'; else plainValue">
-        <span class="mz-indicator-value" [class.mz-ltr]="ltr">
+        <span class="mz-indicator-value" [class.mz-ltr]="ltr" [attr.title]="value">
           <a class="mz-manager-link" [routerLink]="link" [attr.aria-label]="ariaLabel || ('عرض جميع صناديق ' + value)">
             <span>{{ value }}</span>
             <span class="mz-manager-arrow" aria-hidden="true">←</span>
@@ -562,7 +563,7 @@ export class MzPaginationButtonComponent {
         </span>
       </ng-container>
       <ng-template #plainValue>
-        <span class="mz-indicator-value" [class.mz-ltr]="ltr">{{ value == null || value === '' ? '—' : value }}</span>
+        <span class="mz-indicator-value" [class.mz-ltr]="ltr" [attr.title]="value">{{ value == null || value === '' ? '—' : value }}</span>
       </ng-template>
       <span class="mz-indicator-hint" *ngIf="hint">{{ hint }}</span>
     </div>

@@ -861,6 +861,8 @@ export class FundsListComponent implements OnInit, OnDestroy {
       id: fund.code,
       title: fund.displayName || fund.nameAr,
       subtitle: '',
+      isFundCard: true,
+      favoriteSymbol: 'FUND:' + fund.code,
       icon: this.getFundIcon(rawType),
       logoUrl: fundLogoUrl(fund.localLogoPath, fund.logoUrl),
       featured: fund.isFeatured,

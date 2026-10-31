@@ -2,15 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LucideAngularModule, Search, Star, Trash2 } from 'lucide-angular';
-import { EMPTY, Observable, expand, map, reduce } from 'rxjs';
+import { EMPTY, Observable, expand, map, reduce, forkJoin, of, catchError } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import { FavoritesService } from '../../services/favorites.service';
-import { StockListItemDto } from '../../models/api.models';
+import { StockListItemDto, FundListItemDto } from '../../models/api.models';
 import {
   MzListingPageComponent,
   MzButtonComponent,
   MzBadgeComponent,
   stockToCard,
+  fundToCard,
   type MzListingConfig
 } from '../../components/ui';
 
@@ -28,6 +29,7 @@ import {
   template: `
     <mz-listing-page
       [config]="listingConfig"
+      (tabChange)="activeTab = $event"
       (searchChange)="search = $event"
       (sortChange)="onSortChange($event)"
       (retry)="reload()">
@@ -58,6 +60,8 @@ import {
 
       <div footer *ngIf="!loading && !loadError && favCount === 0" class="fav-empty-cta">
         <mz-button variant="primary" link="/stocks">تصفح الأسهم</mz-button>
+        <span style="width: 12px; display: inline-block;"></span>
+        <mz-button variant="default" link="/funds">تصفح الصناديق</mz-button>
       </div>
     </mz-listing-page>
   `,
@@ -88,6 +92,7 @@ import {
     .fav-empty-cta {
       display: flex;
       justify-content: center;
+      align-items: center;
       margin-top: -20px;
       margin-bottom: 32px;
     }
@@ -99,6 +104,7 @@ export class FavoritesComponent implements OnInit {
   readonly TrashIcon = Trash2;
 
   search = '';
+  activeTab = 'all';
   sortBy: 'name' | 'changePct' | 'shariahStatus' = 'name';
   confirmingClear = false;
   loading = false;
@@ -111,6 +117,7 @@ export class FavoritesComponent implements OnInit {
   ];
 
   private allStocks: StockListItemDto[] = [];
+  private allFunds: FundListItemDto[] = [];
 
   constructor(
     private readonly api: ApiService,
@@ -125,9 +132,17 @@ export class FavoritesComponent implements OnInit {
     return this.favorites.count();
   }
 
-  /** Favorite stocks with live data, searched + sorted. Unknown symbols vanish here. */
+  get stockFavCount(): number {
+    return this.favorites.stockFavorites().length;
+  }
+
+  get fundFavCount(): number {
+    return this.favorites.fundFavorites().length;
+  }
+
+  /** Favorite stocks with live data, searched + sorted. */
   get visibleStocks(): StockListItemDto[] {
-    const favs = new Set(this.favorites.favorites());
+    const favs = new Set(this.favorites.stockFavorites());
     let list = this.allStocks.filter((s) => favs.has(FavoritesService.normalize(s.ticker)));
     const q = this.search.trim();
     if (q) {
@@ -145,21 +160,73 @@ export class FavoritesComponent implements OnInit {
     });
   }
 
+  /** Favorite funds with live data, searched + sorted. */
+  get visibleFunds(): FundListItemDto[] {
+    const favs = new Set(this.favorites.fundFavorites().map((c) => FavoritesService.normalize(c)));
+    let list = this.allFunds.filter((f) => favs.has(FavoritesService.normalize(f.code)));
+    const q = this.search.trim();
+    if (q) {
+      const needle = q.toUpperCase();
+      list = list.filter((f) =>
+        f.code.toUpperCase().includes(needle) ||
+        (f.nameAr || '').includes(q) ||
+        (f.displayName || '').includes(q) ||
+        (f.nameEn || '').toUpperCase().includes(needle));
+    }
+    const by = this.sortBy;
+    return [...list].sort((a, b) => {
+      if (by === 'changePct') return (b.dailyChange ?? -Infinity) - (a.dailyChange ?? -Infinity);
+      if (by === 'shariahStatus') return (b.isIslamic ? 0 : 1) - (a.isIslamic ? 0 : 1);
+      return (a.displayName || a.nameAr || a.code).localeCompare(b.displayName || b.nameAr || b.code, 'ar');
+    });
+  }
+
   get listingConfig(): MzListingConfig {
     const count = this.favCount;
-    const visible = this.visibleStocks;
-    const cards = visible.map((s) => stockToCard(s));
+    const sFav = this.stockFavCount;
+    const fFav = this.fundFavCount;
+
+    const tabs = [
+      { id: 'all', label: 'الكل', count: count },
+      { id: 'stocks', label: 'الأسهم', count: sFav },
+      { id: 'funds', label: 'الصناديق', count: fFav }
+    ];
+
+    let cards: any[] = [];
+    let visibleCount = 0;
+
+    const stockCards = this.visibleStocks.map((s) => stockToCard(s));
+    const fundCards = this.visibleFunds.map((f) => fundToCard(f));
+
+    if (this.activeTab === 'stocks') {
+      cards = stockCards;
+      visibleCount = stockCards.length;
+    } else if (this.activeTab === 'funds') {
+      cards = fundCards;
+      visibleCount = fundCards.length;
+    } else {
+      cards = [...stockCards, ...fundCards];
+      visibleCount = cards.length;
+    }
+
+    const countLabel = fFav > 0 && sFav > 0
+      ? `${sFav} سهم • ${fFav} صندوق`
+      : fFav > 0
+        ? `${fFav} صندوق`
+        : `${count} سهم`;
 
     return {
       header: {
         badge: 'قائمتك الخاصة',
-        count: `${count} سهم`,
+        count: countLabel,
         title: 'المفضلة',
-        description: 'الأسهم التي حفظتها بنجمة، ببياناتها الحية نفسها: الحكم الشرعي ونسبة التغير.'
+        description: 'الأسهم والصناديق التي حفظتها بنجمة، ببياناتها الحية نفسها: الحكم الشرعي والتغير اليومي.'
       },
+      tabs: count > 0 ? tabs : undefined,
+      activeTab: this.activeTab,
       filters: count > 0 ? {
         searchValue: this.search,
-        searchPlaceholder: 'ابحث في المفضلة باسم السهم أو رمزه...',
+        searchPlaceholder: 'ابحث في المفضلة بالاسم أو الرمز...',
         controls: [],
         sort: {
           value: this.sortBy,
@@ -168,19 +235,19 @@ export class FavoritesComponent implements OnInit {
         }
       } : null,
       results: count > 0 && !this.loading && !this.loadError ? {
-        text: `عرض ${visible.length} من أصل ${count} سهم في المفضلة`
+        text: `عرض ${visibleCount} من أصل ${count} عنصر في المفضلة`
       } : null,
       cards,
       skeletonCount: Math.max(1, Math.min(count || 4, 8)),
-      cardType: 'stock',
+      cardType: this.activeTab === 'funds' ? 'fund' : 'stock',
       loading: this.loading,
       error: !this.loading && this.loadError ? {
-        title: 'تعذّر تحميل بيانات الأسهم',
+        title: 'تعذّر تحميل بيانات المفضلة',
         message: 'تحقق من الاتصال ثم حاول مرة أخرى.'
       } : null,
       empty: count === 0 ? {
-        title: 'لا توجد أسهم في المفضلة بعد',
-        message: 'اضغط على النجمة في أي سهم لحفظه هنا ومتابعته.'
+        title: 'لا توجد عناصر في المفضلة بعد',
+        message: 'اضغط على النجمة في أي سهم أو صندوق لحفظه هنا ومتابعته.'
       } : {
         title: 'لا توجد نتائج مطابقة للبحث في المفضلة',
         message: 'جرّب كلمة بحث مختلفة.'
@@ -197,20 +264,32 @@ export class FavoritesComponent implements OnInit {
   reload(): void {
     if (this.favCount === 0) {
       this.allStocks = [];
+      this.allFunds = [];
       this.loading = false;
       this.loadError = false;
       return;
     }
     this.loading = true;
     this.loadError = false;
-    this.fetchAllStocks().subscribe({
-      next: (stocks) => {
+
+    forkJoin({
+      stocks: this.fetchAllStocks().pipe(catchError(() => of([]))),
+      funds: this.fetchAllFunds().pipe(catchError(() => of([])))
+    }).subscribe({
+      next: ({ stocks, funds }) => {
         this.allStocks = stocks;
-        this.favorites.pruneUnknown(stocks.map((s) => s.ticker));
+        this.allFunds = funds;
+        if (stocks.length > 0) {
+          this.favorites.pruneUnknown(stocks.map((s) => s.ticker));
+        }
+        if (funds.length > 0) {
+          this.favorites.pruneUnknownFunds(funds.map((f) => f.code));
+        }
         this.loading = false;
       },
       error: () => {
         this.allStocks = [];
+        this.allFunds = [];
         this.loading = false;
         this.loadError = true;
       }
@@ -246,6 +325,20 @@ export class FavoritesComponent implements OnInit {
       }),
       map((res) => res.items || []),
       reduce((acc, items) => acc.concat(items), [] as StockListItemDto[])
+    );
+  }
+
+  /** Collects every funds page (100/page) so no favorite fund is missed. */
+  private fetchAllFunds(): Observable<FundListItemDto[]> {
+    return this.api.getFunds({ page: 1, pageSize: 100 } as any).pipe(
+      expand((res, index) => {
+        const collected = (index + 1) * 100;
+        return collected < (res.totalCount || 0)
+          ? this.api.getFunds({ page: index + 2, pageSize: 100 } as any)
+          : EMPTY;
+      }),
+      map((res) => res.items || []),
+      reduce((acc, items) => acc.concat(items), [] as FundListItemDto[])
     );
   }
 }

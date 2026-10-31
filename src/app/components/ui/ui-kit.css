@@ -43,12 +43,54 @@
 .mz-btn.primary:hover:not(:disabled) { color: #fff; opacity: .92; }
 .mz-btn.soft { background: var(--mz-surface-low); color: var(--mz-on-surface); }
 .mz-btn.block { width: 100%; }
-.mz-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; background: rgba(151,245,204,.3); color: var(--mz-secondary); white-space: nowrap; }
+.mz-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 28px;
+  box-sizing: border-box;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  background: rgba(151,245,204,.3);
+  color: var(--mz-secondary);
+  border: 1px solid rgba(0, 105, 72, 0.2);
+  white-space: nowrap;
+  flex-shrink: 0;
+  overflow: visible;
+}
+.mz-badge lucide-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 .mz-badge.pill { border-radius: 999px; }
-.mz-badge.neutral { background: var(--mz-surface-container); color: var(--mz-on-surface-variant); }
-.mz-badge.danger { background: rgba(255,218,214,.5); color: var(--mz-error); }
-.mz-badge.warn { background: var(--mz-warn-soft); color: var(--mz-warn); }
-.mz-badge.outline { background: transparent; border: 1px solid rgba(188,202,192,.5); color: var(--mz-outline); }
+.mz-badge.neutral {
+  background: var(--mz-surface-container);
+  color: var(--mz-on-surface-variant);
+  border: 1px solid rgba(188, 202, 192, 0.4);
+}
+.mz-badge.danger {
+  background: rgba(255,218,214,.5);
+  color: var(--mz-error);
+  border: 1px solid rgba(225, 29, 72, 0.2);
+}
+.mz-badge.warn {
+  background: var(--mz-warn-soft);
+  color: var(--mz-warn);
+  border: 1px solid rgba(217, 119, 6, 0.25);
+}
+.mz-badge.outline {
+  background: transparent;
+  border: 1px solid rgba(188,202,192,.5);
+  color: var(--mz-outline);
+}
 .mz-chip { white-space: nowrap; flex-shrink: 0; padding: 8px 16px; border-radius: 999px; font: 600 12px/18px inherit; font-family: inherit; background: var(--mz-surface); border: 1px solid rgba(188,202,192,.3); color: var(--mz-on-surface); cursor: pointer; box-shadow: 0 1px 2px rgba(19,27,46,.05); transition: all .15s; }
 .mz-chip:hover { border-color: rgba(0,105,72,.4); color: var(--mz-primary); }
 .mz-chip.active { background: var(--mz-primary); border-color: var(--mz-primary); color: var(--mz-on-primary); font-weight: 700; }
@@ -180,9 +222,9 @@
 .mz-metric-value.positive { color: var(--mz-secondary); }
 .mz-metric-value.negative { color: var(--mz-error); }
 .mz-metric-value.muted { color: var(--mz-outline); font-weight: 500; }
-.mz-indicator { background: var(--mz-surface-low); border: 1px solid rgba(188,202,192,.25); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; text-align: center; }
+.mz-indicator { background: var(--mz-surface-low); border: 1px solid rgba(188,202,192,.25); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; text-align: center; height: 100%; box-sizing: border-box; justify-content: flex-start; min-height: 92px; }
 .mz-indicator-label { font-size: 12px; color: var(--mz-outline); font-weight: 500; margin-bottom: 2px; }
-.mz-indicator-value { font-size: 16px; font-weight: 900; color: var(--mz-on-surface); }
+.mz-indicator-value { font-size: 16px; font-weight: 900; color: var(--mz-on-surface); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; line-height: 1.35; margin: auto 0; word-break: break-word; }
 @media (min-width: 640px) { .mz-indicator-value { font-size: 18px; } }
 .mz-indicator-hint { font-size: 11px; color: var(--mz-outline); font-weight: 500; }
 .mz-pgbtn { min-width: 36px; height: 36px; padding: 0 10px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border-radius: 8px; border: 1px solid rgba(188,202,192,.3); background: var(--mz-surface); color: var(--mz-on-surface); font: 600 13px/1 inherit; font-family: inherit; cursor: pointer; transition: all .15s; }
@@ -288,8 +330,106 @@
 .mz-lcard-id { display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1; }
 /* Default (non-stock: sectors, indices, funds): column layout */
 .mz-lcard-text { display: flex; flex-direction: column; flex-wrap: nowrap; align-items: flex-start; gap: 4px; min-width: 0; flex: 1; }
+
+/* Fund-card specific single header row & alignment styling */
+.mz-lcard-fund-head {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px; /* gap-3 */
+  min-height: 100px; /* fits both a 3-line name and 3 stacked 28px badges: 3x28px + 2x8px gap = 100px */
+  margin-bottom: 8px;
+  box-sizing: border-box;
+  overflow: visible;
+}
+.mz-lcard-fund-logo {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+}
+.mz-lcard-fund-name-wrap {
+  flex: 1 1 0%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.mz-lcard-title.fund-card-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: calc(3 * 1.45 * 14px); /* ~61px for 3 lines */
+  line-height: 1.45;
+  font-size: 14px;
+  margin: 0;
+  word-break: break-word;
+  color: var(--mz-on-surface);
+  font-weight: 700;
+}
+.mz-lcard-fund-star-col {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 24px;
+  min-width: 24px;
+  padding-top: 0;
+}
+.mz-lcard-fund-star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+}
+.mz-lcard-fund-star .fav-toggle {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.mz-lcard-fund-badges-col {
+  flex-shrink: 0;
+  width: 132px;
+  min-width: 132px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px; /* gap-2 */
+}
+.mz-lcard-fund-badges-col mz-badge {
+  display: flex;
+  width: 100%;
+}
+.mz-lcard-fund-badges-col mz-badge .mz-badge {
+  width: 100%;
+}
+.mz-badge-content {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.5;
+  padding-block: 2px;
+  box-sizing: border-box;
+}
+.mz-lcard-logo-placeholder {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: transparent;
+}
 /* Stock-card only: row layout with ticker pill + name + star */
-.mz-lcard.is-stock-card .mz-lcard-text { flex-direction: row; gap: 8px; }
+.mz-lcard.is-stock-card:not(.is-fund-card) .mz-lcard-text { flex-direction: row; gap: 8px; }
 /* Default title: block in column layout */
 .mz-lcard-title { margin: 0; font-size: 14px; line-height: 1.45; font-weight: 700; color: var(--mz-on-surface); overflow: visible; text-overflow: clip; white-space: normal; display: block; height: auto; word-break: break-word; overflow-wrap: break-word; min-width: 0; }
 /* Stock-card only: title as flex-1 in row layout with min-height for alignment */
@@ -434,7 +574,7 @@ app-fund-detail {
 .mz-sharia-ratio-sub.positive { color: #059669; }
 .mz-sharia-ratio-sub.negative { color: #e11d48; }
 .mz-sharia-ratio-sub.neutral { color: #94a3b8; font-weight: 500; }
-.mz-infogrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.mz-infogrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; grid-auto-rows: 1fr; align-items: stretch; }
 @media (min-width: 768px) { .mz-infogrid { grid-template-columns: repeat(4, 1fr); } }
 .mz-infocard { display: flex; flex-direction: column; gap: 6px; padding: 16px; color: inherit; text-decoration: none; }
 .mz-infocard-label { font-size: 11px; font-weight: 700; color: var(--mz-primary); }

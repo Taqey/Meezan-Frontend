@@ -11,7 +11,8 @@ import {
   LineChart
 } from 'lucide-angular';
 import { ApiService } from '../../services/api.service';
-import { StockCardComponent } from '../../components/stock-card/stock-card.component';
+import { MzListingCardComponent, type MzListingCardData } from '../../components/ui/ui-listing';
+import { stockToCard } from '../../components/ui/ui-mappers';
 import { StatusBadgeComponent } from '../../components/status-badge/status-badge.component';
 import { CountUpDirective } from '../../directives/count-up.directive';
 import { RevealDirective } from '../../directives/reveal.directive';
@@ -20,7 +21,7 @@ import { IndexSummaryDto, StockListItemDto } from '../../models/api.models';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule, StockCardComponent, StatusBadgeComponent, CountUpDirective, RevealDirective],
+  imports: [CommonModule, RouterLink, LucideAngularModule, MzListingCardComponent, StatusBadgeComponent, CountUpDirective, RevealDirective],
   template: `
     <section class="hero">
       <div class="hero-copy">
@@ -97,31 +98,15 @@ import { IndexSummaryDto, StockListItemDto } from '../../models/api.models';
         <a routerLink="/stocks" class="text-link">عرض كل الأسهم <lucide-icon [img]="ChevronLeftIcon" size="15"></lucide-icon></a>
       </div>
 
-      <div class="leader-grid" *ngIf="topStocks.length">
-        <app-stock-card
-          *ngFor="let s of topStocks; let i = index"
-          [style.--item-index]="i"
-          [ticker]="s.ticker"
-          [nameAr]="s.nameAr"
-          [nameEn]="s.nameEn"
-          [closingPrice]="s.closingPrice"
-          [changePct]="s.changePct"
-          [fairValue]="s.fairValue"
-          [priceComparison]="s.priceComparison"
-          [fairValueDiffPct]="s.fairValueDiffPct"
-          [shariahStatus]="s.shariahStatus"
-          [indices]="s.indices"
-          [currency]="s.currency"
-          [sectorNameAr]="s.sectorNameAr"
-          [coreActivityCompliant]="s.coreActivityCompliant"
-          [categoryAr]="s.categoryAr"
-          [spHaramEarningPercentage]="s.spHaramEarningPercentage"
-          [loansPercentage]="s.loansPercentage"
-          [showFavorite]="true">
-        </app-stock-card>
+      <div class="leader-grid" *ngIf="topCards.length">
+        <mz-listing-card
+          *ngFor="let c of topCards; let i = index; trackBy: trackCard"
+          [card]="c"
+          [style.--item-index]="i">
+        </mz-listing-card>
       </div>
 
-      <div *ngIf="!topStocks.length && !loading" class="empty-state">
+      <div *ngIf="!topCards.length && !loading" class="empty-state">
         <p>لا توجد بيانات أسهم حالياً. يرجى مراجعة لوحة الإدارة لإجراء السحب أو الرفع.</p>
       </div>
     </section>
@@ -159,6 +144,8 @@ export class HomeComponent implements OnInit {
   totalStocksCount = 0;
   indicesCount = 8;
   topStocks: StockListItemDto[] = [];
+  topCards: MzListingCardData[] = [];
+  trackCard = (_: number, c: MzListingCardData) => c.id;
   loading = true;
 
   sampleSources = [
@@ -179,9 +166,10 @@ export class HomeComponent implements OnInit {
 
   loadData(): void {
     this.loading = true;
-    this.api.getStocks({ page: 1, pageSize: 6, sortBy: 'changePct', sortDir: 'desc' }).subscribe({
+    this.api.getStocks({ page: 1, pageSize: 9, sortBy: 'changePct', sortDir: 'desc' }).subscribe({
       next: (res) => {
-        this.topStocks = res.items || [];
+        this.topStocks = (res.items || []).slice(0, 9);
+        this.topCards = this.topStocks.map((s) => stockToCard(s));
         this.totalStocksCount = res.totalCount || 0;
         this.loading = false;
       },

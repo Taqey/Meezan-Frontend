@@ -25,7 +25,8 @@ import {
   X,
   AlertCircle,
   Check,
-  ShieldCheck
+  ShieldCheck,
+  Layers
 } from 'lucide-angular';
 import { ApiService } from '../../services/api.service';
 import { AdminAuthService } from '../../services/admin-auth.service';
@@ -497,6 +498,99 @@ interface EditableMarketForm {
             <div *ngIf="scrapeStatus?.lastRun" style="font-size: 12px; color: var(--muted-foreground);">
               آخر تشغيل: <strong>{{ scrapeStatus!.lastRun!.triggeredBy }}</strong> ({{ scrapeStatus!.lastRun!.succeededStocks }} ناجح من {{ scrapeStatus!.lastRun!.totalStocks }})
             </div>
+          </div>
+        </div>
+
+        <!-- Daily Sector Changes Calculation Admin Panel -->
+        <div class="admin-card" style="margin-top: 24px; border-top: 4px solid #10b981;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+            <div>
+              <h2 style="margin: 0; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                <lucide-icon [img]="LayersIcon" size="20" style="color: #10b981;"></lucide-icon>
+                تغير القطاعات اليومي (حساب القيمة السوقية)
+              </h2>
+              <p class="muted" style="margin: 4px 0 0; font-size: 13px;">
+                حساب يومي تلقائي لأداء كل قطاع وفق أوزان أسهمه الرأسمالية (w_i × r_i) عقب سحب أسعار الـ 4 عصراً.
+              </p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span class="badge" [style.background]="sectorDailyStatus?.externalSectorPullEnabled ? '#fee2e2' : '#dcfce7'" [style.color]="sectorDailyStatus?.externalSectorPullEnabled ? '#b91c1c' : '#15803d'" style="font-size: 12px; font-weight: 600;">
+                السحب الخارجي للقطاعات: {{ sectorDailyStatus?.externalSectorPullStatus || 'متوقف' }}
+              </span>
+              <button class="btn btn-primary" (click)="recalculateSectorDailyToday()" [disabled]="sectorDailyRecalculating" style="background: #10b981; border-color: #10b981; gap: 6px; font-size: 13px;">
+                <lucide-icon *ngIf="!sectorDailyRecalculating" [img]="RotateCcwIcon" size="15"></lucide-icon>
+                <lucide-icon *ngIf="sectorDailyRecalculating" [img]="RotateCcwIcon" size="15" class="spin-anim"></lucide-icon>
+                {{ sectorDailyRecalculating ? 'جارٍ إعادة الحساب...' : 'إعادة حساب اليوم' }}
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="sectorDailyMessage" class="admin-result" [style.color]="sectorDailyIsError ? 'var(--bad)' : '#10b981'" style="margin-bottom: 12px;">
+            {{ sectorDailyMessage }}
+          </div>
+
+          <!-- Configuration and Date Range Tools -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+            <div>
+              <div style="font-weight: 600; font-size: 13px; margin-bottom: 6px;">إعدادات الحساب:</div>
+              <div style="font-size: 12px; color: var(--muted-foreground); display: flex; flex-direction: column; gap: 4px;">
+                <div>طريقة الوزن الحالية: <strong>{{ sectorDailyStatus?.weightingMethod === 'displayedWeight' ? 'الأوزان المعروضة' : 'القيمة السوقية (marketCap)' }}</strong></div>
+                <div>سعر صرف USD/EGP: <strong>{{ sectorDailyStatus?.usdEgpRate || 55.35 }}</strong></div>
+                <div>آخر جلسة محسوبة: <strong>{{ sectorDailyStatus?.latestTradingDate || '—' }}</strong></div>
+                <div>وقت آخر احتساب: <strong>{{ sectorDailyStatus?.lastComputedAt | date:'yyyy-MM-dd HH:mm:ss' }}</strong></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-weight: 600; font-size: 13px; margin-bottom: 6px;">إعادة حساب فترة تاريخية (حتى 30 يوماً):</div>
+              <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <input type="date" [(ngModel)]="rangeFromDate" class="form-input" style="font-size: 12px; padding: 4px 8px;" />
+                <span>إلى</span>
+                <input type="date" [(ngModel)]="rangeToDate" class="form-input" style="font-size: 12px; padding: 4px 8px;" />
+                <button class="btn btn-outline" (click)="recomputeSectorDailyRange()" [disabled]="sectorDailyRangeRunning" style="font-size: 12px; padding: 4px 10px;">
+                  {{ sectorDailyRangeRunning ? 'جارٍ المعالجة...' : 'إعادة حساب الفترة' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Latest Computed Sectors Table -->
+          <div *ngIf="sectorDailyStatus?.sectors?.length" class="table-scroll-x">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>القطاع</th>
+                  <th>جلسة التداول</th>
+                  <th>نسبة التغير</th>
+                  <th>القيمة السوقية (جنيه)</th>
+                  <th>نسبة التغطية</th>
+                  <th>الأسهم المحسوبة</th>
+                  <th>(صاعد / هابط / ثابت)</th>
+                  <th>الحالة</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let sec of sectorDailyStatus!.sectors">
+                  <td><strong>{{ getSectorName(sec.sectorId) }}</strong></td>
+                  <td>{{ sec.tradingDate }}</td>
+                  <td [style.color]="(sec.changePct || 0) > 0 ? 'var(--good)' : ((sec.changePct || 0) < 0 ? 'var(--bad)' : 'inherit')" style="font-weight: 700;">
+                    {{ sec.changePct !== null && sec.changePct !== undefined ? ((sec.changePct > 0 ? '+' : '') + sec.changePct.toFixed(2) + '%') : '—' }}
+                  </td>
+                  <td>{{ (sec.marketCapTotal || 0) | number:'1.0-0' }}</td>
+                  <td>{{ (sec.coverage || 0).toFixed(1) }}%</td>
+                  <td>{{ sec.stocksUsed }} / {{ sec.stocksTotal }}</td>
+                  <td>
+                    <span style="color: var(--good);">▲ {{ sec.advancers }}</span> | 
+                    <span style="color: var(--bad);">▼ {{ sec.decliners }}</span> | 
+                    <span>• {{ sec.unchanged }}</span>
+                  </td>
+                  <td>
+                    <span *ngIf="sec.approximate" class="badge" style="background: #fef3c7; color: #b45309; font-size: 11px;">تقريبي (&lt;70%)</span>
+                    <span *ngIf="!sec.approximate" class="badge" style="background: #dcfce7; color: #15803d; font-size: 11px;">مكتمل</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -1787,6 +1881,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   readonly CheckCircleIcon = CheckCircle;
   readonly CheckIcon = Check;
   readonly ShieldCheckIcon = ShieldCheck;
+  readonly LayersIcon = Layers;
 
   activeTab: 'scraping' | 'market-data' | 'upload' | 'shariah' | 'pdf-upload' | 'review' | 'stocks' | 'shariah-edit' = 'scraping';
 
@@ -1869,6 +1964,15 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   // Scraping tab
   scrapeStatus?: ScrapeStatusResponse;
+
+  // Sector Daily Job panel state
+  sectorDailyStatus: any = null;
+  sectorDailyRecalculating = false;
+  sectorDailyRangeRunning = false;
+  sectorDailyMessage = '';
+  sectorDailyIsError = false;
+  rangeFromDate = '';
+  rangeToDate = '';
   private pollInterval?: any;
   activeTriggerBucket?: 'LiveDaily' | 'SlowQuarterly';
   jobSettings: Record<string, boolean> = {
@@ -2910,6 +3014,62 @@ export class AdminComponent implements OnInit, OnDestroy {
         }
       }
     });
+    this.fetchSectorDailyStatus();
+  }
+
+  fetchSectorDailyStatus(): void {
+    this.api.getSectorDailyStatus().subscribe({
+      next: (data) => {
+        this.sectorDailyStatus = data;
+      },
+      error: () => { }
+    });
+  }
+
+  recalculateSectorDailyToday(): void {
+    this.sectorDailyRecalculating = true;
+    this.sectorDailyMessage = '';
+    this.sectorDailyIsError = false;
+    this.api.recalculateSectorDailyToday().subscribe({
+      next: (res) => {
+        this.sectorDailyRecalculating = false;
+        this.sectorDailyMessage = `تمت إعادة حساب اليوم بنجاح لـ ${res.count || 0} قطاعاً (جلسة: ${res.tradingDate}).`;
+        this.fetchSectorDailyStatus();
+      },
+      error: (err) => {
+        this.sectorDailyRecalculating = false;
+        this.sectorDailyIsError = true;
+        this.sectorDailyMessage = 'فشلت إعادة حساب القطاعات: ' + (err.error?.message || err.message || 'خطأ غير معروف');
+      }
+    });
+  }
+
+  recomputeSectorDailyRange(): void {
+    if (!this.rangeFromDate || !this.rangeToDate) {
+      this.sectorDailyIsError = true;
+      this.sectorDailyMessage = 'يرجى تحديد تاريخ البداية والنهاية.';
+      return;
+    }
+    this.sectorDailyRangeRunning = true;
+    this.sectorDailyMessage = '';
+    this.sectorDailyIsError = false;
+    this.api.recomputeSectorDailyRange(this.rangeFromDate, this.rangeToDate).subscribe({
+      next: (res) => {
+        this.sectorDailyRangeRunning = false;
+        this.sectorDailyMessage = `تمت إعادة حساب الفترة بنجاح (${res.rowsRecomputed} سجل تم تحديثه عبر ${res.daysProcessed} يوماً).`;
+        this.fetchSectorDailyStatus();
+      },
+      error: (err) => {
+        this.sectorDailyRangeRunning = false;
+        this.sectorDailyIsError = true;
+        this.sectorDailyMessage = 'فشلت إعادة حساب الفترة: ' + (err.error?.message || err.message || 'خطأ غير معروف');
+      }
+    });
+  }
+
+  getSectorName(sectorId: number): string {
+    const sec = this.mgmtSectors?.find((s: any) => s.id === sectorId);
+    return sec?.nameAr || `قطاع #${sectorId}`;
   }
 
   onFileSelected(event: any): void {

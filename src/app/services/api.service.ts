@@ -726,5 +726,21 @@ export class ApiService {
   rebuildFundCache(): Observable<string> {
     return this.http.post<string>(`${this.baseUrl}/api/admin/funds/cache/rebuild`, {});
   }
-}
 
+  // Sector Daily Job & Admin Management
+  getSectorDailyStatus(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/api/admin/sector-daily/status`);
+  }
+
+  recalculateSectorDailyToday(): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/api/admin/sector-daily/recalculate-today`, {});
+  }
+
+  recomputeSectorDailyRange(fromDate: string, toDate: string): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/api/admin/sector-daily/recompute-range`, { fromDate, toDate });
+  }
+
+  updateSectorDailyConfig(payload: { usdEgpRate?: number; weightingMethod?: string; externalSectorPullEnabled?: boolean }): Observable<any> {
+    return this.http.put<any>(`${this.baseUrl}/api/admin/sector-daily/config`, payload);
+  }
+}

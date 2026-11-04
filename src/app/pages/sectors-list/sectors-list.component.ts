@@ -116,7 +116,7 @@ export class SectorsListComponent implements OnInit, OnDestroy {
 
   /** Cards/table/heatmap render only after snapshots settle — never a flashing "—". */
   get dataPending(): boolean {
-    return this.snapshotsLoading;
+    return this.loading;
   }
 
   /**
@@ -132,29 +132,15 @@ export class SectorsListComponent implements OnInit, OnDestroy {
 
   /** Session label: official source date wins, support-resistance fallback. */
   get sessionLabel(): string | null {
-    const dates = this.snapshots
-      .filter((s) => s.kind === 'Sector' && s.sourceDateText)
-      .map((s) => s.sourceDateText as string);
-    if (dates.length) {
-      const counts = new Map<string, number>();
-      for (const d of dates) counts.set(d, (counts.get(d) || 0) + 1);
-      let best: string | null = null;
-      let bestN = 0;
-      counts.forEach((n, d) => {
-        if (n > bestN) {
-          bestN = n;
-          best = d;
-        }
-      });
-      if (best) return best;
+    const dates = this.sectors.map(s => s.tradingDate).filter(Boolean);
+    if (dates.length > 0) {
+      return 'جلسة تداول: ' + dates[0];
     }
-    return this.lastSessionDate;
+    return this.lastSessionDate ? 'جلسة تداول: ' + this.lastSessionDate : null;
   }
 
   get sourceNote(): string | null {
-    if (this.snapshots.some((s) => s.kind === 'Sector')) return 'المصدر: مباشر';
-    if (this.marketLoading) return null;
-    return this.sectors.length ? 'حساب تقديري من بيانات الأسهم' : null;
+    return 'محسوب تلقائياً حسب القيمة السوقية للأسهم';
   }
 
   constructor(
@@ -434,13 +420,7 @@ export class SectorsListComponent implements OnInit, OnDestroy {
    * Market-cap fields stay backend-driven (absent until deployed).
    */
   private withMarketStats(s: SectorSummaryDto): SectorSummaryDto {
-    const official = this.officialForSector(s.id)?.changePct;
-    if (official !== null && official !== undefined) {
-      return {
-        ...s,
-        averageChangePct: Number(official)
-      };
-    }
+    // SectorDaily is single source of truth for averageChangePct and marketCapTotal
     return s;
   }
 

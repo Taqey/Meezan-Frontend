@@ -141,6 +141,14 @@ export interface SectorSummaryDto {
   compliantMarketCapTotal?: number | null;
   /** Mean P/E over positive values. Absent on older API responses. */
   averagePeRatio?: number | null;
+  tradingDate?: string | null;
+  computedAt?: string | null;
+  approximate?: boolean;
+  stocksUsed?: number | null;
+  advancers?: number | null;
+  decliners?: number | null;
+  unchanged?: number | null;
+  topContributorsJson?: string | null;
 }
 
 export interface IndexInStockDto {

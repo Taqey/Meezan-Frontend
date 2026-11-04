@@ -4062,6 +4062,12 @@ app-shariah-standards .explainer-note {
   overflow-x: auto;
   padding-bottom: 4px;
   max-width: 100%;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.chip-row::-webkit-scrollbar {
+  display: none;
 }
 
 .chip {

@@ -17,7 +17,7 @@ import { type KpiData } from '../../components/kpi-strip/kpi-strip.component';
 import { type ChipOption } from '../../components/filter-chips/filter-chips.component';
 import { type EntityStat } from '../../components/entity-card/entity-card.component';
 import { EntityTableComponent, type EntityTableColumn, type EntityTableRow } from '../../components/entity-table/entity-table.component';
-import { EntityHeatmapComponent, type HeatTileData } from '../../components/entity-heatmap/entity-heatmap.component';
+import { TreemapComponent, type TreemapItem } from '../../components/treemap/treemap.component';
 
 type CardSort = 'compliantCount' | 'name' | 'performance' | 'compliance' | 'pe' | 'change' | 'stocks';
 type Chip = 'all' | 'compliance' | 'performance' | 'pe' | 'name';
@@ -25,7 +25,7 @@ type Chip = 'all' | 'compliance' | 'performance' | 'pe' | 'name';
 @Component({
   selector: 'app-sectors-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, MzListingPageComponent, MzButtonComponent, MzSelectComponent, ViewSwitcherComponent, EntityTableComponent, EntityHeatmapComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, MzListingPageComponent, MzButtonComponent, MzSelectComponent, ViewSwitcherComponent, EntityTableComponent, TreemapComponent],
     template: `
     <mz-listing-page
       [config]="config"
@@ -46,11 +46,11 @@ type Chip = 'all' | 'compliance' | 'performance' | 'pe' | 'name';
           [columns]="tableColumns" [rows]="tableRows" [sortKey]="tableSortKey" [sortDir]="tableSortDir"
           (sortChange)="setTableSort($event)" ariaLabel="جدول القطاعات الاقتصادية">
         </app-entity-table>
-        <app-entity-heatmap
+        <app-treemap
           *ngIf="sectors.length && view === 'heatmap' && !dataPending"
-          [tiles]="heatTiles"
-          [sizeNote]="hasAnyMarketCap ? 'حجم المربع يعكس القيمة السوقية للقطاع' : null">
-        </app-entity-heatmap>
+          [items]="treemapItems"
+          sizeNote="حجم المربع يعكس القيمة السوقية للقطاع">
+        </app-treemap>
       </ng-container>
       <div advanced class="mz-adv-grid">
         <label class="mz-slicer">
@@ -79,7 +79,7 @@ export class SectorsListComponent implements OnInit, OnDestroy {
   displayedSectors: SectorSummaryDto[] = [];
   tableColumns: EntityTableColumn[] = [];
   tableRows: EntityTableRow[] = [];
-  heatTiles: HeatTileData[] = [];
+  treemapItems: TreemapItem[] = [];
   kpiList: KpiData[] = [];
   loading = true;
   loadError = false;
@@ -394,18 +394,23 @@ export class SectorsListComponent implements OnInit, OnDestroy {
     this.tableColumns = this.buildTableColumns();
     this.tableRows = this.sortTable([...list]).map((s) => this.toTableRow(s));
     const heatBase = [...list].sort((a, b) => (b.marketCapTotal ?? -1) - (a.marketCapTotal ?? -1));
-    this.heatTiles = heatBase.map((s) => ({
-      id: s.id,
-      title: s.nameAr,
-      valueText: s.averageChangePct !== null && s.averageChangePct !== undefined
-        ? `${this.perfArrow(s.averageChangePct)} ${this.formatSignedPct(s.averageChangePct)}`
-        : null,
-      grow: this.heatGrow(s),
-      color: this.heatColor(s.averageChangePct),
-      ink: this.heatInk(s.averageChangePct),
-      link: ['/indices/Sectoral-Indices', s.id],
-      tooltip: this.heatLabel(s)
-    }));
+    this.treemapItems = heatBase.map((s) => {
+      const cap = Number(s.marketCapTotal) || 0;
+      const capFormatted = this.formatMarketCapShort(s.marketCapTotal);
+      const chgFormatted = s.averageChangePct !== null && s.averageChangePct !== undefined
+        ? this.formatSignedPct(s.averageChangePct)
+        : '—';
+      const stocksCount = s.stocksCount || 0;
+      return {
+        id: s.id,
+        label: s.nameAr,
+        subLabel: chgFormatted,
+        value: cap > 0 ? cap : 1,
+        changePct: s.averageChangePct,
+        link: ['/indices/Sectoral-Indices', s.id],
+        tooltip: `${s.nameAr}${s.nameEn ? ' (' + s.nameEn + ')' : ''}\nالتغير: ${chgFormatted}\nالقيمة السوقية: ${capFormatted} جنيه\nعدد الأسهم: ${stocksCount}`
+      };
+    });
     this.kpiList = this.buildKpis();
     this.rebuild();
   }
@@ -701,28 +706,7 @@ export class SectorsListComponent implements OnInit, OnDestroy {
     return parts.join(' — ');
   }
 
-  /** Flex share ∝ market-cap share (equal shares when caps are missing). */
-  heatGrow(s: SectorSummaryDto): number {
-    const total = this.enrichedSectors.reduce((n, x) => n + (Number(x.marketCapTotal) || 0), 0);
-    const cap = Number(s.marketCapTotal) || 0;
-    if (!total || !cap) return 1;
-    return Math.max(1, Math.round((cap / total) * this.enrichedSectors.length * 2));
-  }
 
-  /** Green → red by daily performance; gray when unknown. */
-  heatColor(value: number | null | undefined): string {
-    if (value === null || value === undefined) return 'var(--muted)';
-    const t = Math.max(-1, Math.min(1, Number(value) / 5));
-    if (t > 0) return `rgba(8, 127, 91, ${(0.25 + 0.65 * t).toFixed(2)})`;
-    if (t < 0) return `rgba(200, 68, 61, ${(0.25 + 0.65 * -t).toFixed(2)})`;
-    return 'var(--muted)';
-  }
-
-  /** White text on saturated tiles, ink text on pale/gray ones. */
-  heatInk(value: number | null | undefined): string {
-    if (value === null || value === undefined) return 'var(--muted-foreground)';
-    return Math.abs(Number(value)) >= 2.5 ? '#fff' : 'var(--ink)';
-  }
 
   /** Single config object for the shared ListingPage. */
   config: MzListingConfig = { header: { badge: '', title: '', description: '' }, cards: [], empty: { title: '', message: '' } };

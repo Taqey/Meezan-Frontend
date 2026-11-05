@@ -1,0 +1,55 @@
+<div class="admin-card">
+        <h2>سجل عمليات المزامنة</h2>
+        <p class="muted">كل تشغيل للمزامنة مع نتيجته، وبالضغط على أي صف تظهر أخطاء الصناديق الفردية.</p>
+        <div *ngIf="sync.syncLoading" class="muted af1" >جارٍ التحميل...</div>
+        <div class="table-scroll-x" *ngIf="!sync.syncLoading">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>التاريخ</th>
+                <th>النوع</th>
+                <th>الحالة</th>
+                <th>الإجمالي</th>
+                <th>تم تحديثه</th>
+                <th>فشل</th>
+                <th>المدة</th>
+                <th>المشغّل</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let run of sync.syncRuns" (click)="sync.toggleRunDetails(run.id)" class="af2" [style.background]="sync.selectedRunId === run.id ? 'var(--muted)' : 'transparent'">
+                <td>{{ run.runAt | date:'yyyy-MM-dd HH:mm' }}</td>
+                <td><span class="chip" [style.background]="run.mode === 'Prices' ? '#ecfdf5' : run.mode === 'SingleFundMissingPrices' ? '#eff6ff' : '#f5f3ff'" [style.color]="run.mode === 'Prices' ? '#059669' : run.mode === 'SingleFundMissingPrices' ? '#2563eb' : '#7c3aed'">{{ run.mode === 'Prices' ? 'أسعار' : run.mode === 'SingleFundMissingPrices' ? 'سحب ناقص' : 'شامل' }}</span></td>
+                <td><span [style.color]="sync.syncStatusColor(run.status)" class="af3">{{ sync.syncStatusLabel(run.status) }}</span></td>
+                <td>{{ run.totalFunds }}</td>
+                <td class="af4">{{ run.updatedFunds }}</td>
+                <td [style.color]="run.failedFunds > 0 ? 'var(--bad)' : 'inherit'">{{ run.failedFunds }}</td>
+                <td>{{ run.durationSeconds }} ث</td>
+                <td class="af5">{{ run.triggeredBy }}</td>
+              </tr>
+              <tr *ngIf="!sync.syncRuns.length"><td colspan="7" class="muted af6" >لا توجد عمليات مسجلة.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="af7" *ngIf="sync.syncTotalPages > 1">
+          <button type="button" class="btn btn-outline btn-sm" (click)="sync.loadSyncHistory(sync.syncPage - 1)" [disabled]="sync.syncPage <= 1">السابق</button>
+          <span class="muted af8" >صفحة {{ sync.syncPage }} من {{ sync.syncTotalPages }}</span>
+          <button type="button" class="btn btn-outline btn-sm" (click)="sync.loadSyncHistory(sync.syncPage + 1)" [disabled]="sync.syncPage >= sync.syncTotalPages">التالي</button>
+        </div>
+        <div *ngIf="sync.selectedRunId && sync.runDetailsLoading" class="muted af9" >جارٍ تحميل تفاصيل التشغيل...</div>
+        <div class="table-scroll-x" *ngIf="sync.selectedRunId && !sync.runDetailsLoading">
+          <h3 class="af10">أخطاء الصناديق في التشغيل المحدد ({{ sync.runDetails.length }})</h3>
+          <table class="admin-table">
+            <thead><tr><th>الكود</th><th>الحالة</th><th>الخطأ</th><th>وقت المحاولة</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let d of sync.runDetails">
+                <td><strong class="af11">{{ d.fundCode }}</strong></td>
+                <td>{{ sync.detailStatusLabel(d.status) }}</td>
+                <td class="af12">{{ d.errorMessage || '—' }}</td>
+                <td class="af5">{{ d.attemptedAt | date:'yyyy-MM-dd HH:mm' }}</td>
+              </tr>
+              <tr *ngIf="!sync.runDetails.length"><td colspan="4" class="muted af6" >لا توجد أخطاء — كل الصناديق نجحت.</td></tr>
+            </tbody>
+          </table>
+        </div>
+</div>

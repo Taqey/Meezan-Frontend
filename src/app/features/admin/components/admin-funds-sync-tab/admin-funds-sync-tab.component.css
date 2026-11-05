@@ -1,0 +1,12 @@
+.af1.af1 { padding: 16px 0; }
+.af2.af2 { cursor: pointer; }
+.af3.af3 { font-weight: 600; }
+.af4.af4 { color: var(--good); }
+.af5.af5 { font-size: 12px; }
+.af6.af6 { text-align: center; }
+.af7.af7 { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+.af8.af8 { align-self: center; font-size: 12px; }
+.af9.af9 { padding: 12px 0; }
+.af10.af10 { margin: 16px 0 8px; font-size: 15px; }
+.af11.af11 { font-family: monospace; }
+.af12.af12 { font-size: 11px; color: var(--muted-foreground); max-width: 420px; overflow: hidden; text-overflow: ellipsis; }

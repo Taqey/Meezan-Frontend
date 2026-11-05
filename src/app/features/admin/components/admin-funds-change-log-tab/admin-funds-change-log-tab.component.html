@@ -1,0 +1,36 @@
+<div class="admin-card">
+        <div class="af1">
+          <h2 class="af2">سجل تغييرات التصنيفات</h2>
+          <button type="button" class="btn btn-outline btn-sm" (click)="categories.loadChangeLog()">
+            <lucide-icon [img]="RefreshIcon" size="14"></lucide-icon> تحديث
+          </button>
+        </div>
+        <div class="af3">
+          <select [(ngModel)]="categories.logCategoryId" (ngModelChange)="categories.loadChangeLog(1)" class="admin-form input af4"  aria-label="تصفية حسب التصنيف">
+            <option [ngValue]="null">كل التصنيفات</option>
+            <option *ngFor="let c of categories.categories" [ngValue]="c.id">{{ c.nameAr }}</option>
+          </select>
+        </div>
+        <div *ngIf="categories.logLoading" class="muted af5" >جارٍ التحميل...</div>
+        <div class="table-scroll-x" *ngIf="!categories.logLoading">
+          <table class="admin-table">
+            <thead><tr><th>التاريخ</th><th>التصنيف</th><th>الصندوق</th><th>الإجراء</th><th>المنفذ</th><th>السبب</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let e of categories.changeLog">
+                <td class="af6">{{ e.createdAt | date:'yyyy-MM-dd HH:mm' }}</td>
+                <td>{{ e.category?.nameAr || ('#' + e.categoryId) }}</td>
+                <td>{{ e.fund?.code || '—' }}</td>
+                <td>{{ categories.changeActionLabel(e.action) }}</td>
+                <td class="af6">{{ e.performedBy }}</td>
+                <td class="af7">{{ e.reason || '—' }}</td>
+              </tr>
+              <tr *ngIf="!categories.changeLog.length"><td colspan="6" class="muted af8" >لا توجد تغييرات مسجلة.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="af9" *ngIf="categories.logTotalPages > 1">
+          <button type="button" class="btn btn-outline btn-sm" (click)="categories.loadChangeLog(categories.logPage - 1)" [disabled]="categories.logPage <= 1">السابق</button>
+          <span class="muted af10" >صفحة {{ categories.logPage }} من {{ categories.logTotalPages }}</span>
+          <button type="button" class="btn btn-outline btn-sm" (click)="categories.loadChangeLog(categories.logPage + 1)" [disabled]="categories.logPage >= categories.logTotalPages">التالي</button>
+        </div>
+</div>

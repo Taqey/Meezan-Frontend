@@ -1,0 +1,211 @@
+<div class="admin-card">
+        <h2>صناديق الاستثمار</h2>
+        <p class="muted">ابحث عن صندوق بالاسم أو الكود، أو عدّل الاسم والوصف، أو اسحب الأسعار التاريخية الناقصة، أو عدّل التصنيفات.</p>
+        <div class="af1">
+          <div class="af2">
+            <input type="text" [(ngModel)]="funds.fundQuery" (ngModelChange)="funds.searchAdminFunds(1)" placeholder="ابحث باسم الصندوق أو رمزه..." class="admin-form input" />
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" (click)="funds.searchAdminFunds(1)">
+            <lucide-icon [img]="SearchIcon" size="14"></lucide-icon> بحث
+          </button>
+        </div>
+        <div class="table-scroll-x" *ngIf="funds.fundResults.length">
+          <table class="admin-table">
+            <thead><tr><th>الكود</th><th>اسم العرض / الاسم الكامل</th><th>إجراءات</th></tr></thead>
+            <tbody>
+              <ng-container *ngFor="let f of funds.fundResults">
+                <tr [style.background]="(funds.selectedFundId === f.id || funds.editingFundId === f.id) ? 'var(--muted)' : 'transparent'">
+                  <td><strong class="af3">{{ f.code }}</strong></td>
+                  <td>
+                    <div><strong>{{ f.displayName || f.nameAr }}</strong></div>
+                    <div *ngIf="f.displayName && f.displayName !== f.nameAr" class="muted af4" >الاسم الكامل: {{ f.nameAr }}</div>
+                  </td>
+                  <td>
+                    <div class="af5">
+                      <button type="button" class="btn btn-outline btn-sm"
+                              [attr.data-testid]="'edit-fund-details-' + f.code"
+                              (click)="funds.openFundDetailsEditor(f)">
+                        <lucide-icon [img]="EditIcon" size="13"></lucide-icon> تعديل الاسم والوصف
+                      </button>
+                      <button type="button" class="btn btn-outline btn-sm" (click)="funds.openFund(f.id)">التصنيفات</button>
+                      <button type="button" class="btn btn-primary btn-sm"
+                              [attr.data-testid]="'fetch-missing-prices-' + f.code"
+                              [disabled]="funds.fetchingMissingPrices[f.id]"
+                              (click)="funds.fetchMissingPrices(f.id)">
+                        <lucide-icon [img]="RefreshIcon" size="13"></lucide-icon>
+                        {{ funds.fetchingMissingPrices[f.id] ? 'جارٍ السحب...' : 'سحب الأسعار الناقصة' }}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="funds.missingPricesResults[f.id] || funds.missingPricesErrors[f.id]" [attr.data-testid]="'missing-prices-result-' + f.code">
+                  <td colspan="3" class="af6">
+                    <div *ngIf="funds.missingPricesErrors[f.id]" class="af7">
+                      {{ funds.missingPricesErrors[f.id] }}
+                    </div>
+                    <div *ngIf="funds.missingPricesResults[f.id] as res" class="af8">
+                      <div [style.color]="res.addedCount > 0 ? 'var(--good, #16a34a)' : 'var(--foreground)'" __INLINE_CLS__="af9">
+                        {{ res.message }}
+                      </div>
+                      <div *ngIf="res.missingRangesFound?.length" class="muted af10" >
+                        النطاقات الناقصة المرصودة: <span dir="ltr">{{ res.missingRangesFound.join(' , ') }}</span>
+                        (النافذة المطلوبة: <code>{{ res.timeframeRequested }}</code>)
+                      </div>
+                      <div *ngIf="res.addedCount > 0" __INLINE_CLS__="af10">
+                        عدد النقاط المضافة: <strong>{{ res.addedCount }}</strong>
+                        <span *ngIf="res.addedDates?.length" class="muted"> — ({{ res.addedDates.join('، ') }})</span>
+                      </div>
+                      <div *ngIf="res.sourceMissingDates?.length" class="af11">
+                        تواريخ غير متوفرة في المصدر (عطلات / لا يوجد تسعير): <span dir="ltr">{{ res.sourceMissingDates.join(' , ') }}</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+        <div class="af12" *ngIf="funds.fundTotalPages > 1">
+          <button type="button" class="btn btn-outline btn-sm" (click)="funds.searchAdminFunds(funds.fundPage - 1)" [disabled]="funds.fundPage <= 1">السابق</button>
+          <span class="muted af13" >صفحة {{ funds.fundPage }} من {{ funds.fundTotalPages }}</span>
+          <button type="button" class="btn btn-outline btn-sm" (click)="funds.searchAdminFunds(funds.fundPage + 1)" [disabled]="funds.fundPage >= funds.fundTotalPages">التالي</button>
+        </div>
+
+        <!-- Fund Names & Description Editor Panel -->
+        <div *ngIf="funds.editingFundId" data-testid="fund-details-editor-panel" class="af14">
+          <div class="af15">
+            <div>
+              <h3 class="af16">تعديل الاسم والوصف — <span class="af3">{{ funds.editingFundCode }}</span></h3>
+              <small class="muted">التعديلات اليدوية تُحفظ ولا تُستبدل تلقائياً عند مزامنة المصدر.</small>
+            </div>
+            <div class="af17">
+              <span *ngIf="funds.isFundDetailsDirty" data-testid="unsaved-changes-badge" class="af18">
+                تغييرات غير محفوظة
+              </span>
+              <button type="button" class="btn btn-outline btn-sm" (click)="funds.closeFundDetailsEditor()">
+                <lucide-icon [img]="XIcon" size="13"></lucide-icon> إغلاق
+              </button>
+            </div>
+          </div>
+
+          <div class="af19">
+            <div>
+              <label class="af20">الاسم الكامل *</label>
+              <input type="text"
+                     data-testid="input-full-name-ar"
+                     [(ngModel)]="funds.fundDetailsDraft.nameAr"
+                     maxlength="250"
+                     placeholder="الاسم الرسمي الكامل للصندوق..."
+                     class="admin-form input af21"
+                      />
+              <small class="muted af22" >الاسم الرسمي الكامل كما يظهر في قسم "بيانات سريعة" بصفحة الصندوق ({{ funds.fundDetailsDraft.nameAr.length }}/250).</small>
+            </div>
+
+            <div>
+              <label class="af20">اسم العرض</label>
+              <input type="text"
+                     data-testid="input-display-name"
+                     [(ngModel)]="funds.fundDetailsDraft.displayName"
+                     maxlength="250"
+                     placeholder="الاسم المختصر للعرض في البطاقات والقوائم (اتركه فارغاً لاستخدام الاسم الكامل)..."
+                     class="admin-form input af21"
+                      />
+              <small class="muted af22" >يظهر في بطاقات الصناديق، القوائم، البحث، وعنوان صفحة الصندوق. إذا تُرك فارغاً يُستخدم الاسم الكامل تلقائياً ({{ funds.fundDetailsDraft.displayName.length }}/250).</small>
+            </div>
+          </div>
+
+          <div class="af23">
+            <div class="af24">
+              <label class="af20">وصف الصندوق</label>
+              <textarea data-testid="input-description-ar"
+                        [(ngModel)]="funds.fundDetailsDraft.descriptionAr"
+                        rows="6"
+                        maxlength="10000"
+                        placeholder="أدخل وصف الصندوق والسياسة الاستثمارية (يدعم تقسيم الفقرات بأسطر جديدة)..."
+                        class="admin-form input af25"
+                        ></textarea>
+              <small class="muted af22" >يتم الحفاظ على فواصل الأسطر والفقرات ({{ funds.fundDetailsDraft.descriptionAr.length }}/10000).</small>
+            </div>
+
+            <div class="af24">
+              <label class="af20">معاينة حية (كما يظهر في صفحة الصندوق)</label>
+              <div data-testid="description-live-preview"
+                   class="af26">
+                <div class="af27">
+                  <strong>العنوان المعروض:</strong> {{ funds.fundDetailsDraft.displayName.trim() || funds.fundDetailsDraft.nameAr.trim() || '—' }}
+                  <span class="af28">|</span>
+                  <strong>الاسم الكامل:</strong> {{ funds.fundDetailsDraft.nameAr.trim() || '—' }}
+                </div>
+                <h4 class="af29">وصف الصندوق</h4>
+                <p *ngIf="funds.fundDetailsDraft.descriptionAr.trim()"
+                   class="af30">{{ funds.fundDetailsDraft.descriptionAr }}</p>
+                <p *ngIf="!funds.fundDetailsDraft.descriptionAr.trim()" class="muted af31" >لا يوجد وصف مكتوب حالياً.</p>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="funds.fundDetailsSaveError" data-testid="fund-details-save-error" class="af32">
+            {{ funds.fundDetailsSaveError }}
+          </div>
+          <div *ngIf="funds.fundDetailsSaveSuccess" data-testid="fund-details-save-success" class="af33">
+            {{ funds.fundDetailsSaveSuccess }}
+          </div>
+
+          <div class="af34">
+            <button type="button" class="btn btn-outline btn-sm" (click)="funds.revertFundDetailsDraft()" [disabled]="!funds.isFundDetailsDirty || funds.savingFundDetails">
+              <lucide-icon [img]="UndoIcon" size="13"></lucide-icon> تراجع عن التعديلات
+            </button>
+            <button type="button" class="btn btn-primary btn-sm"
+                    data-testid="save-fund-details-btn"
+                    (click)="funds.saveFundDetails()"
+                    [disabled]="funds.savingFundDetails || !funds.fundDetailsDraft.nameAr.trim()">
+              <lucide-icon [img]="SaveIcon" size="13"></lucide-icon>
+              {{ funds.savingFundDetails ? 'جارٍ الحفظ...' : 'حفظ الاسم والوصف' }}
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="funds.selectedFundId && funds.fundCatRows.length !== undefined" class="af35">
+          <div class="af36">
+            <h3 class="af37">تصنيفات الصندوق المحدد</h3>
+            <div class="af38">
+              <button type="button" class="btn btn-primary btn-sm"
+                      data-testid="selected-fund-fetch-missing-prices"
+                      [disabled]="funds.fetchingMissingPrices[funds.selectedFundId]"
+                      (click)="funds.fetchMissingPrices(funds.selectedFundId)">
+                <lucide-icon [img]="RefreshIcon" size="13"></lucide-icon>
+                {{ funds.fetchingMissingPrices[funds.selectedFundId] ? 'جارٍ السحب...' : 'سحب الأسعار الناقصة' }}
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" (click)="funds.resetFund(funds.selectedFundId)">
+                <lucide-icon [img]="RotateIcon" size="13"></lucide-icon> إعادة الكل للتلقائي
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" (click)="funds.selectedFundId = null">
+                <lucide-icon [img]="XIcon" size="13"></lucide-icon> إغلاق
+              </button>
+            </div>
+          </div>
+          <div class="table-scroll-x af39" >
+            <table class="admin-table">
+              <thead><tr><th>التصنيف</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let r of funds.fundCatRows">
+                  <td><strong>{{ r.category.nameAr }}</strong><br /><small class="muted">{{ r.category.nameEn }}</small></td>
+                  <td>
+                    <span *ngIf="!r.overrideId && r.isIncluded" class="af40">تلقائي</span>
+                    <span *ngIf="r.overrideId && r.isIncluded" class="af41">يدوي (مضمّن)</span>
+                    <span *ngIf="r.overrideId && !r.isIncluded" class="af42">مستبعد يدوياً</span>
+                    <span *ngIf="!r.overrideId && !r.isIncluded" class="muted af4" >خارج التصنيف</span>
+                  </td>
+                  <td>
+                    <div class="af43">
+                      <button type="button" class="btn btn-outline btn-sm" (click)="funds.setFundCategory(funds.selectedFundId, r.category.id, 'include')">تضمين</button>
+                      <button type="button" class="btn btn-outline btn-sm" (click)="funds.setFundCategory(funds.selectedFundId, r.category.id, 'exclude')">استبعاد</button>
+                      <button type="button" class="btn btn-outline btn-sm" [disabled]="!r.overrideId" (click)="funds.setFundCategory(funds.selectedFundId, r.category.id, 'reset')">إعادة للتلقائي</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+</div>

@@ -1,0 +1,22 @@
+.af1.af1 { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.af2.af2 { margin: 0; }
+.af3.af3 { margin: 4px 0 0; }
+.af4.af4 { display: flex; gap: 8px; flex-wrap: wrap; }
+.af5.af5 { display: flex; align-items: center; gap: 8px; margin: 14px 0; font-size: 13px; cursor: pointer; }
+.af6.af6 { width: 16px; height: 16px; accent-color: var(--primary); }
+.af7.af7 { padding: 16px 0; }
+.af8.af8 { font-family: monospace; color: var(--muted-foreground); }
+.af9.af9 { display: flex; gap: 6px; flex-wrap: wrap; }
+.af10.af10 { border-color: #fecaca; color: var(--bad); }
+.af11.af11 { text-align: center; }
+.af12.af12 { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+.af13.af13 { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; align-items: center; }
+.af14.af14 { position: relative; flex: 1; min-width: 200px; }
+.af15.af15 { max-width: 160px; }
+.af16.af16 { font-family: monospace; }
+.af17.af17 { font-size: 11px; padding: 2px 8px; border-radius: 999px; }
+.af18.af18 { font-size: 11px; color: var(--muted-foreground); max-width: 260px; }
+.af19.af19 { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+.af20.af20 { align-self: center; font-size: 12px; }
+.af21.af21 { margin: 20px 0 8px; }
+.af22.af22 { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }

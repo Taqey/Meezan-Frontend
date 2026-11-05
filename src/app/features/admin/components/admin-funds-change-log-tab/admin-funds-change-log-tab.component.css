@@ -1,0 +1,10 @@
+.af1.af1 { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.af2.af2 { margin: 0; }
+.af3.af3 { display: flex; gap: 8px; margin: 12px 0; flex-wrap: wrap; }
+.af4.af4 { max-width: 240px; }
+.af5.af5 { padding: 12px 0; }
+.af6.af6 { font-size: 12px; }
+.af7.af7 { font-size: 11px; color: var(--muted-foreground); max-width: 280px; }
+.af8.af8 { text-align: center; }
+.af9.af9 { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+.af10.af10 { align-self: center; font-size: 12px; }

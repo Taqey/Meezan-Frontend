@@ -1,0 +1,93 @@
+      <div *ngIf="categories.editorOpen" class="af1">
+        <div class="af2">
+          <div class="af3">
+            <h3 class="af4">{{ categories.editingCategory ? 'تعديل التصنيف' : 'تصنيف جديد' }}</h3>
+            <button type="button" class="btn btn-outline btn-sm" (click)="categories.editorOpen = false"><lucide-icon [img]="XIcon" size="16"></lucide-icon></button>
+          </div>
+          <div class="af5">
+            <div class="af6">
+              <div>
+                <label class="af7">الاسم بالعربية *</label>
+                <input type="text" [(ngModel)]="categories.editorForm.nameAr" class="admin-form input af8"  />
+              </div>
+              <div>
+                <label class="af7">الاسم بالإنجليزية *</label>
+                <input type="text" [(ngModel)]="categories.editorForm.nameEn" class="admin-form input af8"  />
+              </div>
+            </div>
+            <div>
+              <label class="af7">الرابط (Slug) — ثابت حتى لا تنكسر روابط الفلاتر</label>
+              <input type="text" [(ngModel)]="categories.editorForm.slug" class="admin-form input af8"  dir="ltr" />
+            </div>
+            <div class="af9">
+              <div>
+                <label class="af7">الأيقونة</label>
+                <input type="text" [(ngModel)]="categories.editorForm.icon" class="admin-form input af8"  placeholder="shield-check" />
+              </div>
+              <div>
+                <label class="af7">اللون</label>
+                <input type="text" [(ngModel)]="categories.editorForm.color" class="admin-form input af8"  placeholder="#7c3aed" dir="ltr" />
+              </div>
+              <div>
+                <label class="af7">الترتيب</label>
+                <input type="number" [(ngModel)]="categories.editorForm.displayOrder" class="admin-form input af8"  min="0" />
+              </div>
+            </div>
+            <label class="af10">
+              <input type="checkbox" [(ngModel)]="categories.editorForm.isAutoDerived" class="af11" />
+              قاعدة استنتاج تلقائي (كلمات مفتاحية في الاسم/الوصف)
+            </label>
+            <div *ngIf="categories.editorForm.isAutoDerived">
+              <label class="af7">الكلمات المفتاحية (افصل بفاصلة)</label>
+              <input type="text" [(ngModel)]="categories.editorKeywords" class="admin-form input af8"  placeholder="EGX30, EGX 30" dir="ltr" />
+              <small class="muted">اتركها فارغة مع تفعيل الخيار لاستخدام قاعدة isIslamic للشريعة فقط عبر JSON مخصص.</small>
+            </div>
+            <label class="af10">
+              <input type="checkbox" [(ngModel)]="categories.editorForm.isVisible" class="af11" />
+              مرئي في فلاتر الصفحة العامة
+            </label>
+            <div class="af12">
+              <button type="button" class="btn btn-outline" (click)="categories.editorOpen = false">إلغاء</button>
+              <button type="button" class="btn btn-primary" (click)="categories.saveCategory()" [disabled]="categories.catsBusy">
+                <lucide-icon [img]="SaveIcon" size="14"></lucide-icon> {{ categories.catsBusy ? 'جارٍ الحفظ...' : 'حفظ' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Merge modal -->
+      <div *ngIf="categories.mergeSource" class="af1">
+        <div class="af13">
+          <div class="af3">
+            <h3 class="af4">دمج التصنيفات</h3>
+            <button type="button" class="btn btn-outline btn-sm" (click)="categories.mergeSource = null"><lucide-icon [img]="XIcon" size="16"></lucide-icon></button>
+          </div>
+          <div class="af5">
+            <p class="muted af4" >سيتم نقل صناديق <strong>{{ categories.mergeSource.nameAr }}</strong> إلى التصنيف الهدف، مع الاحتفاظ بالتعديلات اليدوية، ثم أرشفة المصدر.</p>
+            <div>
+              <label class="af7">التصنيف الهدف</label>
+              <select [(ngModel)]="categories.mergeTargetId" class="admin-form input af8" >
+                <option [ngValue]="0">— اختر —</option>
+                <option *ngFor="let c of categories.mergeTargets" [ngValue]="c.id">{{ c.nameAr }} ({{ categories.counts[c.id] ?? '…' }})</option>
+              </select>
+            </div>
+            <div class="af12">
+              <button type="button" class="btn btn-outline" (click)="categories.mergeSource = null">إلغاء</button>
+              <button type="button" class="btn btn-primary" (click)="categories.doMerge()" [disabled]="!categories.mergeTargetId || categories.catsBusy">دمج</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generic confirm -->
+      <div *ngIf="categories.confirmBox" class="af14">
+        <div class="af15">
+          <h3 class="af16">{{ categories.confirmBox.title }}</h3>
+          <p class="muted af17" >{{ categories.confirmBox.body }}</p>
+          <div class="af12">
+            <button type="button" class="btn btn-outline" (click)="categories.confirmBox = null">إلغاء</button>
+            <button type="button" class="btn btn-primary af18"  (click)="categories.runConfirm()">{{ categories.confirmBox.confirmLabel }}</button>
+          </div>
+        </div>
+      </div>

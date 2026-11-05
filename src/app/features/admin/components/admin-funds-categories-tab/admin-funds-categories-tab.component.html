@@ -1,0 +1,152 @@
+<div class="admin-card">
+        <div class="af1">
+          <div>
+            <h2 class="af2">تصنيفات الصناديق</h2>
+            <p class="muted af3" >العدد = العضوية النهائية (تلقائي + يدوي − مستبعد).</p>
+          </div>
+          <div class="af4">
+            <button type="button" class="btn btn-outline btn-sm" (click)="categories.loadCategories()">
+              <lucide-icon [img]="RefreshIcon" size="15"></lucide-icon> تحديث
+            </button>
+            <button type="button" class="btn btn-primary btn-sm" (click)="categories.openEditor()">
+              <lucide-icon [img]="PlusIcon" size="15"></lucide-icon> تصنيف جديد
+            </button>
+          </div>
+        </div>
+
+        <label class="af5">
+          <input type="checkbox" [(ngModel)]="categories.showDeleted" (ngModelChange)="categories.loadCategories()" class="af6" />
+          إظهار التصنيفات المحذوفة (قابلة للاستعادة)
+        </label>
+
+        <div *ngIf="categories.catsLoading" class="muted af7" >جارٍ تحميل التصنيفات...</div>
+        <div class="table-scroll-x" *ngIf="!categories.catsLoading">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>الاسم (عربي / إنجليزي)</th>
+                <th>النوع</th>
+                <th>عدد الصناديق</th>
+                <th>مرئي</th>
+                <th>الحالة</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of categories.categories" [style.opacity]="c.isDeleted ? 0.65 : 1">
+                <td>
+                  <strong>{{ c.nameAr }}</strong><br />
+                  <small class="muted">{{ c.nameEn }}</small><br />
+                  <small class="af8">{{ c.slug }}</small>
+                </td>
+                <td>{{ c.isAutoDerived ? 'تلقائي' : 'يدوي' }}</td>
+                <td><strong>{{ categories.counts[c.id] ?? '…' }}</strong></td>
+                <td>{{ c.isVisible ? 'نعم' : 'لا' }}</td>
+                <td>{{ c.isDeleted ? 'محذوف' : 'نشط' }}</td>
+                <td>
+                  <div class="af9">
+                    <button *ngIf="!c.isDeleted" type="button" class="btn btn-outline btn-sm" (click)="categories.selectCategory(c.id)">إدارة الصناديق</button>
+                    <button type="button" class="btn btn-outline btn-sm" (click)="categories.openEditor(c)">
+                      <lucide-icon [img]="EditIcon" size="13"></lucide-icon> تعديل
+                    </button>
+                    <button *ngIf="!c.isDeleted" type="button" class="btn btn-outline btn-sm" (click)="categories.openMerge(c)">دمج</button>
+                    <button *ngIf="!c.isDeleted" type="button" class="btn btn-outline btn-sm af10"  (click)="categories.askDeleteCategory(c)">حذف</button>
+                    <button *ngIf="c.isDeleted" type="button" class="btn btn-outline btn-sm" (click)="categories.restoreCategory(c.id)">
+                      <lucide-icon [img]="UndoIcon" size="13"></lucide-icon> استعادة
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="!categories.categories.length"><td colspan="6" class="muted af11" >لا توجد تصنيفات.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Category detail -->
+        <div *ngIf="categories.selectedCategory" class="af12">
+          <div class="af1">
+            <h3 class="af2">صناديق: {{ categories.selectedCategory.nameAr }} ({{ categories.memberTotal }})</h3>
+            <div class="af4">
+              <button type="button" class="btn btn-outline btn-sm" (click)="categories.resetCategory(categories.selectedCategory.id)">
+                <lucide-icon [img]="RotateIcon" size="13"></lucide-icon> إعادة للتلقائي
+              </button>
+              <button type="button" class="btn btn-outline btn-sm" (click)="categories.selectedCategory = null; categories.members = []">
+                <lucide-icon [img]="XIcon" size="13"></lucide-icon> إغلاق
+              </button>
+            </div>
+          </div>
+
+          <div class="af13">
+            <div class="af14">
+              <input type="text" [(ngModel)]="categories.memberSearch" (ngModelChange)="categories.loadMembers(1)" placeholder="بحث داخل التصنيف بالاسم أو الكود..." class="admin-form input" />
+            </div>
+            <select [(ngModel)]="categories.memberSource" (ngModelChange)="categories.loadMembers(1)" class="admin-form input af15"  aria-label="مصدر العضوية">
+              <option value="">الكل (تلقائي + يدوي)</option>
+              <option value="Auto">تلقائي فقط</option>
+              <option value="Manual">يدوي فقط</option>
+            </select>
+            <button type="button" class="btn btn-outline btn-sm" [disabled]="!categories.checkedMembers.size" (click)="categories.bulkRemoveFromCategory()">
+              إزالة المحدد ({{ categories.checkedMembers.size }})
+            </button>
+          </div>
+
+          <div class="table-scroll-x">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th><input type="checkbox" [checked]="categories.allMembersChecked" (change)="categories.toggleAllMembers($any($event).target.checked)" aria-label="تحديد الكل" /></th>
+                  <th>الكود</th>
+                  <th>الاسم</th>
+                  <th>المصدر</th>
+                  <th>السبب</th>
+                  <th>إجراء</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let m of categories.members">
+                  <td><input type="checkbox" [checked]="categories.checkedMembers.has(m.id)" (change)="categories.toggleMemberCheck(m.id, $any($event).target.checked)" /></td>
+                  <td><strong class="af16">{{ m.code }}</strong></td>
+                  <td>{{ m.nameAr }}</td>
+                  <td>
+                    <span class="af17"
+                          [style.background]="m.source === 'Auto' ? '#e0e7ff' : '#fef3c7'"
+                          [style.color]="m.source === 'Auto' ? '#3730a3' : '#92400e'">
+                      {{ m.source === 'Auto' ? 'تلقائي' : 'يدوي' }}
+                    </span>
+                  </td>
+                  <td class="af18">{{ m.reason || '—' }}</td>
+                  <td><button type="button" class="btn btn-outline btn-sm af10"  (click)="categories.removeFundFromCategory(m)">إزالة</button></td>
+                </tr>
+                <tr *ngIf="!categories.members.length"><td colspan="6" class="muted af11" >لا توجد صناديق مطابقة.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="af19" *ngIf="categories.memberTotalPages > 1">
+            <button type="button" class="btn btn-outline btn-sm" (click)="categories.loadMembers(categories.memberPage - 1)" [disabled]="categories.memberPage <= 1">السابق</button>
+            <span class="muted af20" >صفحة {{ categories.memberPage }} من {{ categories.memberTotalPages }}</span>
+            <button type="button" class="btn btn-outline btn-sm" (click)="categories.loadMembers(categories.memberPage + 1)" [disabled]="categories.memberPage >= categories.memberTotalPages">التالي</button>
+          </div>
+
+          <h4 class="af21">إضافة صناديق للتصنيف</h4>
+          <div class="af22">
+            <div class="af14">
+              <input type="text" [(ngModel)]="categories.addSearch" (ngModelChange)="categories.searchFundsToAdd()" placeholder="ابحث بالاسم أو الكود لإضافة صناديق..." class="admin-form input" />
+            </div>
+            <button type="button" class="btn btn-primary btn-sm" [disabled]="!categories.checkedAdd.size" (click)="categories.bulkAddToCategory()">
+              <lucide-icon [img]="PlusIcon" size="13"></lucide-icon> إضافة المحدد ({{ categories.checkedAdd.size }})
+            </button>
+          </div>
+          <div class="table-scroll-x" *ngIf="categories.addResults.length">
+            <table class="admin-table">
+              <thead><tr><th></th><th>الكود</th><th>الاسم</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let f of categories.addResults">
+                  <td><input type="checkbox" [checked]="categories.checkedAdd.has(f.id)" (change)="categories.toggleAddCheck(f.id, $any($event).target.checked)" /></td>
+                  <td><strong class="af16">{{ f.code }}</strong></td>
+                  <td>{{ f.nameAr }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+</div>

@@ -1,0 +1,18 @@
+.af1.af1 { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.af2.af2 { background: white; border-radius: 12px; max-width: 560px; width: 100%; max-height: 90vh; overflow: auto; }
+.af3.af3 { padding: 18px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+.af4.af4 { margin: 0; }
+.af5.af5 { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+.af6.af6 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.af7.af7 { font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px; }
+.af8.af8 { width: 100%; box-sizing: border-box; }
+.af9.af9 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.af10.af10 { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.af11.af11 { width: 16px; height: 16px; accent-color: var(--primary); }
+.af12.af12 { display: flex; gap: 8px; justify-content: flex-end; }
+.af13.af13 { background: white; border-radius: 12px; max-width: 480px; width: 100%; }
+.af14.af14 { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1100; padding: 20px; }
+.af15.af15 { background: white; border-radius: 12px; max-width: 460px; width: 100%; padding: 22px; }
+.af16.af16 { margin: 0 0 8px; }
+.af17.af17 { margin: 0 0 18px; white-space: pre-line; }
+.af18.af18 { background: var(--bad); border-color: var(--bad); }

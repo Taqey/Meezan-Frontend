@@ -15,6 +15,7 @@ export interface KpiData {
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   templateUrl: './kpi-strip.component.html',
+  styleUrl: './kpi-strip.component.css',
 })
 export class KpiStripComponent {
   @Input() kpis: KpiData[] = [];

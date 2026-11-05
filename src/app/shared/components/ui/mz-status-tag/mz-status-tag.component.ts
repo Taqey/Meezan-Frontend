@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   host: { class: 'mz', style: 'display:inline-flex' },
   templateUrl: './mz-status-tag.component.html',
+  styleUrl: './mz-status-tag.component.css',
 })
 export class MzStatusTagComponent {
   @Input() tone: 'good' | 'bad' | 'neutral' = 'neutral';

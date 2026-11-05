@@ -14,6 +14,7 @@ import { ToastService } from '../../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   templateUrl: './favorite-toggle.component.html',
+  styleUrl: './favorite-toggle.component.css',
 })
 export class FavoriteToggleComponent {
   @Input() symbol = '';

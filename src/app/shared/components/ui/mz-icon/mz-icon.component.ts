@@ -9,6 +9,7 @@ import { LucideAngularModule, type LucideIconData } from 'lucide-angular';
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   templateUrl: './mz-icon.component.html',
+  styleUrl: './mz-icon.component.css',
 })
 export class MzIconComponent {
   @Input() icon?: LucideIconData | null;

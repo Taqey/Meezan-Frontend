@@ -9,6 +9,7 @@ import { type MzStat } from '../models/mz-stat.model';
   imports: [CommonModule, LucideAngularModule],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-stat-card.component.html',
+  styleUrl: './mz-stat-card.component.css',
 })
 export class MzStatCardComponent {
   @Input() stat!: MzStat;

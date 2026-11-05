@@ -12,6 +12,7 @@ import { type MzHeaderTag } from '../models/mz-header-tag.model';
   imports: [CommonModule, RouterLink, LucideAngularModule, MzBadgeComponent, MzFavoriteButtonComponent],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-details-header-card.component.html',
+  styleUrl: './mz-details-header-card.component.css',
 })
 export class MzDetailsHeaderCardComponent {
   readonly ExternalLinkIcon = ExternalLink;

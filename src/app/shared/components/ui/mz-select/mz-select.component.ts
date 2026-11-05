@@ -19,6 +19,7 @@ let nextSelectId = 1;
     }
   ],
   templateUrl: './mz-select.component.html',
+  styleUrl: './mz-select.component.css',
 })
 export class MzSelectComponent implements ControlValueAccessor, OnDestroy {
   readonly ChevronIcon = ChevronDown;

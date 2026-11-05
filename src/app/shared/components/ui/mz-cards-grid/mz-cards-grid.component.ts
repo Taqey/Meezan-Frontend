@@ -10,6 +10,7 @@ import { MzListingCardComponent } from '../mz-listing-card/mz-listing-card.compo
   imports: [CommonModule, MzListingCardComponent],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-cards-grid.component.html',
+  styleUrl: './mz-cards-grid.component.css',
 })
 export class MzCardsGridComponent {
   @Input() cards: MzListingCardData[] = [];

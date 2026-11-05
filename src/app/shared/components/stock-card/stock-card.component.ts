@@ -17,6 +17,7 @@ import {
   standalone: true,
   imports: [CommonModule, RouterLink, LucideAngularModule, ComparisonBadgeComponent, StatusBadgeComponent, FavoriteToggleComponent, PriceFlashDirective],
   templateUrl: './stock-card.component.html',
+  styleUrl: './stock-card.component.css',
 })
 export class StockCardComponent {
   @Input() ticker = '';

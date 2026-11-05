@@ -7,6 +7,7 @@ import { LucideAngularModule, Search } from 'lucide-angular';
   imports: [LucideAngularModule],
   host: { class: 'mz', style: 'display:block;width:100%' },
   templateUrl: './mz-search-input.component.html',
+  styleUrl: './mz-search-input.component.css',
 })
 export class MzSearchInputComponent {
   readonly SearchIcon = Search;

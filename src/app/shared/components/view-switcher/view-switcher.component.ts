@@ -10,6 +10,7 @@ export type EntityView = 'grid' | 'table' | 'heatmap';
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   templateUrl: './view-switcher.component.html',
+  styleUrl: './view-switcher.component.css',
 })
 export class ViewSwitcherComponent {
   readonly GridIcon = LayoutGrid;

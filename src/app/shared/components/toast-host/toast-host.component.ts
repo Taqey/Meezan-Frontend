@@ -7,6 +7,7 @@ import { ToastService } from '../../../core/services/toast.service';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './toast-host.component.html',
+  styleUrl: './toast-host.component.css',
 })
 export class ToastHostComponent {
   constructor(readonly toast: ToastService) {}

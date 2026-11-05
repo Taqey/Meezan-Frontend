@@ -10,6 +10,7 @@ import { MZ_DEFAULT_PERF_PERIODS } from '../constants/mz_default_perf_periods.co
   imports: [CommonModule, MzChipComponent],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-performance-chart.component.html',
+  styleUrl: './mz-performance-chart.component.css',
 })
 export class MzPerformanceChartComponent {
   @Input() periods: MzPerfPeriod[] = MZ_DEFAULT_PERF_PERIODS;

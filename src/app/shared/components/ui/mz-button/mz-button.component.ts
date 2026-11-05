@@ -11,6 +11,7 @@ import { MzSpinnerComponent } from '../mz-spinner/mz-spinner.component';
   imports: [CommonModule, RouterLink, LucideAngularModule, MzSpinnerComponent],
   host: { class: 'mz', style: 'display:inline-flex' },
   templateUrl: './mz-button.component.html',
+  styleUrl: './mz-button.component.css',
 })
 export class MzButtonComponent {
   @Input() variant: 'default' | 'primary' | 'soft' = 'default';

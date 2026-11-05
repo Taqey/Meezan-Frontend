@@ -8,6 +8,7 @@ import { FavoriteToggleComponent } from '../../favorite-toggle/favorite-toggle.c
   imports: [FavoriteToggleComponent],
   host: { class: 'mz mz-fav' },
   templateUrl: './mz-favorite-button.component.html',
+  styleUrl: './mz-favorite-button.component.css',
 })
 export class MzFavoriteButtonComponent {
   @Input() symbol = '';

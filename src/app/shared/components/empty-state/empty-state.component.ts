@@ -10,6 +10,7 @@ import { MzSpinnerComponent } from '../ui/mz-spinner/mz-spinner.component';
   standalone: true,
   imports: [CommonModule, RouterLink, LucideAngularModule, MzSpinnerComponent],
   templateUrl: './empty-state.component.html',
+  styleUrl: './empty-state.component.css',
 })
 export class EmptyStateComponent {
   @Input() icon?: LucideIconData;

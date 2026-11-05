@@ -23,6 +23,7 @@ import { TreemapComponent, type TreemapItem } from '../../../shared/components/t
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule, MzListingPageComponent, MzSelectComponent, ViewSwitcherComponent, TreemapComponent],
   templateUrl: './sector-detail.component.html',
+  styleUrl: './sector-detail.component.css',
 })
 export class SectorDetailComponent implements OnInit, OnDestroy {
   readonly LayersIcon = Layers;

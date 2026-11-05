@@ -8,6 +8,7 @@ import { type MzLegendItem } from '../models/mz-legend-item.model';
   imports: [CommonModule],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-results-info.component.html',
+  styleUrl: './mz-results-info.component.css',
 })
 export class MzResultsInfoComponent {
   @Input() text = '';

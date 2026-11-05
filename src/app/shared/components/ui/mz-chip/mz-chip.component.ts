@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   host: { class: 'mz', style: 'display:inline-flex' },
   templateUrl: './mz-chip.component.html',
+  styleUrl: './mz-chip.component.css',
 })
 export class MzChipComponent {
   @Input() active = false;

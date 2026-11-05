@@ -28,6 +28,7 @@ export interface EntityTableRow {
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './entity-table.component.html',
+  styleUrl: './entity-table.component.css',
 })
 export class EntityTableComponent {
   @Input() columns: EntityTableColumn[] = [];

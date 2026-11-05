@@ -56,6 +56,7 @@ interface FundCategoryRow {
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule, AdminClassificationComponent],
   templateUrl: './admin-funds.component.html',
+  styleUrl: './admin-funds.component.css',
 })
 export class AdminFundsComponent implements OnInit {
   readonly PiggyBankIcon = PiggyBank;

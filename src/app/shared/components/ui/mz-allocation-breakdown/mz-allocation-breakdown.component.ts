@@ -13,6 +13,7 @@ import { SHOW_FUND_ALLOCATION_BAR } from '../constants/show_fund_allocation_bar.
   imports: [CommonModule, MzNumberLineComponent],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-allocation-breakdown.component.html',
+  styleUrl: './mz-allocation-breakdown.component.css',
 })
 export class MzAllocationBreakdownComponent {
   readonly showNumberLine = SHOW_NUMBER_LINE;

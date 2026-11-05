@@ -10,6 +10,7 @@ import { LucideAngularModule, ChevronLeft } from 'lucide-angular';
   imports: [CommonModule, RouterLink, LucideAngularModule],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-info-card.component.html',
+  styleUrl: './mz-info-card.component.css',
 })
 export class MzInfoCardComponent {
   readonly LinkIcon = ChevronLeft;

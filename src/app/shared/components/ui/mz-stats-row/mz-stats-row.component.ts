@@ -11,6 +11,7 @@ import { type MzStat } from '../models/mz-stat.model';
   imports: [CommonModule, MzStatCardComponent, LoadingSkeletonsComponent],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-stats-row.component.html',
+  styleUrl: './mz-stats-row.component.css',
 })
 export class MzStatsRowComponent {
   @Input() stats: MzStat[] = [];

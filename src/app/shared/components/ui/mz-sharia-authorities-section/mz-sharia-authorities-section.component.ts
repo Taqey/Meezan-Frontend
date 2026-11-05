@@ -13,6 +13,7 @@ import { type MzShariaRatio } from '../models/mz-sharia-ratio.model';
   imports: [CommonModule, MzDetailsSectionComponent, MzAuthorityCardComponent, MzMetricItemComponent],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-sharia-authorities-section.component.html',
+  styleUrl: './mz-sharia-authorities-section.component.css',
 })
 export class MzShariaAuthoritiesSectionComponent {
   @Input() eyebrow = '';

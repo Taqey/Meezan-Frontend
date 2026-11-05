@@ -12,6 +12,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   host: { style: 'display: contents' },
   templateUrl: './loading-skeletons.component.html',
+  styleUrl: './loading-skeletons.component.css',
 })
 export class LoadingSkeletonsComponent {
   @Input() count = 6;

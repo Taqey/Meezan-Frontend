@@ -8,6 +8,7 @@ import { type Tone } from '../models/tone.model';
   imports: [CommonModule],
   host: { class: 'mz', style: 'display:block;min-width:0' },
   templateUrl: './mz-metric-item.component.html',
+  styleUrl: './mz-metric-item.component.css',
 })
 export class MzMetricItemComponent {
   @Input() label = '';

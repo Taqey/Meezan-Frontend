@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-page-header.component.html',
+  styleUrl: './mz-page-header.component.css',
 })
 export class MzPageHeaderComponent {
   @Input() badge = '';

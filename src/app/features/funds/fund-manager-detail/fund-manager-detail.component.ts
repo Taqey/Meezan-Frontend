@@ -45,6 +45,7 @@ import { KpiData } from '../../../shared/components/kpi-strip/kpi-strip.componen
     MzSelectComponent
   ],
   templateUrl: './fund-manager-detail.component.html',
+  styleUrl: './fund-manager-detail.component.css',
 })
 export class FundManagerDetailComponent implements OnInit, OnDestroy {
   readonly Building2Icon = Building2;

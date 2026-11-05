@@ -9,6 +9,7 @@ import { type MzIndicator } from '../models/mz-indicator.model';
   imports: [CommonModule, MzIndicatorCardComponent],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-info-grid.component.html',
+  styleUrl: './mz-info-grid.component.css',
 })
 export class MzInfoGridComponent {
   @Input() items: MzIndicator[] = [];

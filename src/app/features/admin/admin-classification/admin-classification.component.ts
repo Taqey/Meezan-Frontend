@@ -43,6 +43,7 @@ import type {
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule, ClassificationCascadeComponent],
   templateUrl: './admin-classification.component.html',
+  styleUrl: './admin-classification.component.css',
 })
 export class AdminClassificationComponent implements OnInit {
   readonly PlusIcon = Plus;

@@ -7,6 +7,7 @@ import { LucideAngularModule } from 'lucide-angular';
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   templateUrl: './status-badge.component.html',
+  styleUrl: './status-badge.component.css',
 })
 export class StatusBadgeComponent {
   @Input() status?: string | null;

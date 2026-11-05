@@ -12,6 +12,7 @@ export interface ChipOption {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './filter-chips.component.html',
+  styleUrl: './filter-chips.component.css',
 })
 export class FilterChipsComponent {
   @Input() chips: ChipOption[] = [];

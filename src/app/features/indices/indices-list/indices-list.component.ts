@@ -44,6 +44,7 @@ interface IndexStats {
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule, MzListingPageComponent, MzButtonComponent, MzSelectComponent, ViewSwitcherComponent, EntityTableComponent, TreemapComponent],
     templateUrl: './indices-list.component.html',
+  styleUrl: './indices-list.component.css',
 })
 export class IndicesListComponent implements OnInit, OnDestroy {
   readonly PrintIcon = Printer;

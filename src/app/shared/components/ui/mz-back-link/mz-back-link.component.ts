@@ -9,6 +9,7 @@ import { LucideAngularModule, ArrowRight } from 'lucide-angular';
   imports: [RouterLink, LucideAngularModule],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-back-link.component.html',
+  styleUrl: './mz-back-link.component.css',
 })
 export class MzBackLinkComponent {
   readonly ArrowIcon = ArrowRight;

@@ -24,6 +24,7 @@ import { IndexSummaryDto, StockListItemDto } from '../../../shared/models/api.mo
   standalone: true,
   imports: [CommonModule, RouterLink, LucideAngularModule, MzListingCardComponent, StatusBadgeComponent, CountUpDirective, RevealDirective],
   templateUrl: './home.component.html',
+  styleUrl: './home.component.css',
 })
 export class HomeComponent implements OnInit {
   readonly SparklesIcon = Sparkles;

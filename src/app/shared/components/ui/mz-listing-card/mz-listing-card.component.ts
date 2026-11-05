@@ -14,6 +14,7 @@ import { type MzListingCardData } from '../models/mz-listing-card-data.model';
   imports: [CommonModule, RouterLink, LucideAngularModule, MzBadgeComponent, MzFavoriteButtonComponent, MzMetricItemComponent, MzStatusTagComponent],
   host: { class: 'mz', style: 'display:block;min-width:0' },
   templateUrl: './mz-listing-card.component.html',
+  styleUrl: './mz-listing-card.component.css',
 })
 export class MzListingCardComponent {
   readonly LinkIcon = ChevronLeft;

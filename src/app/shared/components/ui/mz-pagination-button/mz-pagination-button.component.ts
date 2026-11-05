@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   host: { class: 'mz', style: 'display:inline-flex' },
   templateUrl: './mz-pagination-button.component.html',
+  styleUrl: './mz-pagination-button.component.css',
 })
 export class MzPaginationButtonComponent {
   @Input() active = false;

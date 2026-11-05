@@ -16,6 +16,7 @@ export interface HeaderCrumb {
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './page-header.component.html',
+  styleUrl: './page-header.component.css',
 })
 export class PageHeaderComponent {
   @Input() crumbs: HeaderCrumb[] = [];

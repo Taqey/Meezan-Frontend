@@ -9,6 +9,7 @@ import { type MzTab } from '../models/mz-tab.model';
   imports: [CommonModule, MzChipComponent],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-quick-filter-tabs.component.html',
+  styleUrl: './mz-quick-filter-tabs.component.css',
 })
 export class MzQuickFilterTabsComponent {
   @Input() tabs: MzTab[] = [];

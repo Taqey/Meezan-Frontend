@@ -9,6 +9,7 @@ import { type MzFairMethod } from '../models/mz-fair-method.model';
   imports: [CommonModule, MzDetailsSectionComponent],
   host: { class: 'mz', style: 'display:block;height:100%' },
   templateUrl: './mz-fair-value-card.component.html',
+  styleUrl: './mz-fair-value-card.component.css',
 })
 export class MzFairValueCardComponent {
   @Input() eyebrow = '';

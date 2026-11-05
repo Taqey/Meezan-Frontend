@@ -24,6 +24,7 @@ import { TreemapComponent, type TreemapItem } from '../../../shared/components/t
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule, MzListingPageComponent, MzSelectComponent, ViewSwitcherComponent, TreemapComponent],
   templateUrl: './index-detail.component.html',
+  styleUrl: './index-detail.component.css',
 })
 export class IndexDetailComponent implements OnInit, OnDestroy {
   readonly LayersIcon = Layers;

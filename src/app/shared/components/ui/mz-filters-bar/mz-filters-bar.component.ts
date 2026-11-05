@@ -12,6 +12,7 @@ import { type MzFiltersConfig } from '../models/mz-filters-config.model';
   imports: [CommonModule, LucideAngularModule, MzSearchInputComponent, MzSelectComponent, MzFilterDropdownComponent],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-filters-bar.component.html',
+  styleUrl: './mz-filters-bar.component.css',
 })
 export class MzFiltersBarComponent {
   readonly TuneIcon = SlidersHorizontal;

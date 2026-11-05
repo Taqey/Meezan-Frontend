@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   host: { class: 'mz', style: 'display:inline-flex' },
   templateUrl: './mz-badge.component.html',
+  styleUrl: './mz-badge.component.css',
 })
 export class MzBadgeComponent {
   @Input() titleText = '';

@@ -10,6 +10,7 @@ import { type MzFilterOption } from '../models/mz-filter-option.model';
   imports: [CommonModule, LucideAngularModule],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-filter-dropdown.component.html',
+  styleUrl: './mz-filter-dropdown.component.css',
 })
 export class MzFilterDropdownComponent {
   readonly ChevronIcon = ChevronDown;

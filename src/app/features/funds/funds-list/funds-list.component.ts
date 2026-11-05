@@ -29,6 +29,7 @@ import { KpiStripComponent, KpiData } from '../../../shared/components/kpi-strip
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule, ClassificationCascadeComponent, MzListingPageComponent, MzSelectComponent],
     templateUrl: './funds-list.component.html',
+  styleUrl: './funds-list.component.css',
 })
 export class FundsListComponent implements OnInit, OnDestroy {
   readonly SearchIcon = Search;

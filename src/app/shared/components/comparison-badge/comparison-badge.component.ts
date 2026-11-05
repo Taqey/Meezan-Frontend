@@ -7,6 +7,7 @@ import { LucideAngularModule, TrendingUp, TrendingDown, Minus } from 'lucide-ang
   standalone: true,
   imports: [CommonModule, LucideAngularModule],
   templateUrl: './comparison-badge.component.html',
+  styleUrl: './comparison-badge.component.css',
 })
 export class ComparisonBadgeComponent {
   /**

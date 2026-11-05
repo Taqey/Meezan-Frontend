@@ -9,6 +9,7 @@ import { MzPaginationButtonComponent } from '../mz-pagination-button/mz-paginati
   imports: [CommonModule, MzPaginationButtonComponent],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-pagination.component.html',
+  styleUrl: './mz-pagination.component.css',
 })
 export class MzPaginationComponent {
   @Input() page = 1;

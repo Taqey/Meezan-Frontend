@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './section-header.component.html',
+  styleUrl: './section-header.component.css',
 })
 export class SectionHeaderComponent {
   @Input() lead = '';

@@ -10,6 +10,7 @@ import { type MzAuthority } from '../models/mz-authority.model';
   imports: [CommonModule, LucideAngularModule, MzStatusTagComponent],
   host: { class: 'mz mz-authority-host' },
   templateUrl: './mz-authority-card.component.html',
+  styleUrl: './mz-authority-card.component.css',
 })
 export class MzAuthorityCardComponent {
   readonly FileTextIcon = FileText;

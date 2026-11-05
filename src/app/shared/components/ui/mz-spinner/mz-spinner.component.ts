@@ -23,6 +23,7 @@ import { CommonModule } from '@angular/common';
     '[class.is-Inline]': '!overlay'
   },
   templateUrl: './mz-spinner.component.html',
+  styleUrl: './mz-spinner.component.css',
 })
 export class MzSpinnerComponent implements OnChanges, OnDestroy {
   @Input() size: 'small' | 'medium' | 'large' = 'medium';

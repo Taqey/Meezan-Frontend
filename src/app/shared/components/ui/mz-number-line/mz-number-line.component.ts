@@ -10,6 +10,7 @@ const PLAYED_NUMBER_LINES = new Set<string>();
   imports: [CommonModule],
   host: { class: 'mz mz-numline-host', style: 'display:block' },
   templateUrl: './mz-number-line.component.html',
+  styleUrl: './mz-number-line.component.css',
 })
 export class MzNumberLineComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly Math = Math;

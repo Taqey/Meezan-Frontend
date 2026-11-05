@@ -9,6 +9,7 @@ import { MzInfoGridComponent } from '../mz-info-grid/mz-info-grid.component';
   imports: [MzDetailsSectionComponent, MzInfoGridComponent],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-market-indicators-section.component.html',
+  styleUrl: './mz-market-indicators-section.component.css',
 })
 export class MzMarketIndicatorsSectionComponent {
   @Input() eyebrow = '';

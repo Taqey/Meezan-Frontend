@@ -10,6 +10,7 @@ import { type MzSrPoint } from '../models/mz-sr-point.model';
   imports: [CommonModule, LucideAngularModule, MzDetailsSectionComponent],
   host: { class: 'mz', style: 'display:block;height:100%' },
   templateUrl: './mz-support-resistance-card.component.html',
+  styleUrl: './mz-support-resistance-card.component.css',
 })
 export class MzSupportResistanceCardComponent {
   @Input() eyebrow = '';

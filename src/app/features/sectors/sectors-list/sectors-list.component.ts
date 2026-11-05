@@ -30,6 +30,7 @@ type Chip = 'all' | 'compliance' | 'performance' | 'pe' | 'name';
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule, MzListingPageComponent, MzButtonComponent, MzSelectComponent, ViewSwitcherComponent, EntityTableComponent, TreemapComponent],
     templateUrl: './sectors-list.component.html',
+  styleUrl: './sectors-list.component.css',
 })
 export class SectorsListComponent implements OnInit, OnDestroy {
   readonly PrintIcon = Printer;

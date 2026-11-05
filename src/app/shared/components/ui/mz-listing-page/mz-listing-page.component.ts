@@ -28,6 +28,7 @@ import { type MzListingConfig } from '../models/mz-listing-config.model';
   ],
   host: { class: 'mz mz-page', style: 'display:block' },
   templateUrl: './mz-listing-page.component.html',
+  styleUrl: './mz-listing-page.component.css',
 })
 export class MzListingPageComponent {
   @Input() config!: MzListingConfig;

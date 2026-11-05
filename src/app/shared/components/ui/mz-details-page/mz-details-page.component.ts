@@ -6,5 +6,6 @@ import { Component } from '@angular/core';
   standalone: true,
   host: { class: 'mz mz-stack', style: 'display:flex' },
   templateUrl: './mz-details-page.component.html',
+  styleUrl: './mz-details-page.component.css',
 })
 export class MzDetailsPageComponent {}

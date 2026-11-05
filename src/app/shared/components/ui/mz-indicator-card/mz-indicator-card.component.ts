@@ -9,6 +9,7 @@ import { LucideAngularModule, ExternalLink } from 'lucide-angular';
   imports: [CommonModule, RouterLink, LucideAngularModule],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-indicator-card.component.html',
+  styleUrl: './mz-indicator-card.component.css',
 })
 export class MzIndicatorCardComponent {
   readonly ExternalLinkIcon = ExternalLink;

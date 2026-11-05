@@ -26,6 +26,7 @@ import { MzSelectComponent } from '../../../shared/components/ui/mz-select/mz-se
   standalone: true,
   imports: [CommonModule, FormsModule, LucideAngularModule, MzListingPageComponent, MzSelectComponent],
   templateUrl: './stocks-list.component.html',
+  styleUrl: './stocks-list.component.css',
 })
 export class StocksListComponent implements OnInit, OnDestroy {
   readonly LayersIcon = Layers;

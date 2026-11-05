@@ -9,6 +9,7 @@ import { RevealDirective } from '../../../directives/reveal.directive';
   imports: [CommonModule, RevealDirective],
   host: { class: 'mz', style: 'display:block' },
   templateUrl: './mz-details-section.component.html',
+  styleUrl: './mz-details-section.component.css',
 })
 export class MzDetailsSectionComponent {
   @Input() eyebrow = '';

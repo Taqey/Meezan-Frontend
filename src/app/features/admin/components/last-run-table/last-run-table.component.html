@@ -1,0 +1,33 @@
+        <div *ngIf="jobs.scrapeStatus?.lastRun" class="ac1">
+          <div class="ac2">
+            <lucide-icon [img]="HistoryIcon" size="14"></lucide-icon> سجل آخر عملية سحب مسجلة:
+          </div>
+          <div class="table-scroll-x">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>تاريخ البدء</th>
+                <th>تاريخ الانتهاء</th>
+                <th>المدة</th>
+                <th>إجمالي الأسهم</th>
+                <th>الناجحة</th>
+                <th>الفاشلة</th>
+                <th>المشغّل / الحزمة</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{ jobs.scrapeStatus!.lastRun!.runAt | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+                <td>{{ jobs.scrapeStatus!.lastRun!.finishedAt | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+                <td>{{ jobs.scrapeStatus!.lastRun!.durationSeconds }} ثانية</td>
+                <td>{{ jobs.scrapeStatus!.lastRun!.totalStocks }}</td>
+                <td class="ac3">{{ jobs.scrapeStatus!.lastRun!.succeededStocks }}</td>
+                <td [style.color]="jobs.scrapeStatus!.lastRun!.failedStocks > 0 ? 'var(--bad)' : 'inherit'">
+                  {{ jobs.scrapeStatus!.lastRun!.failedStocks }}
+                </td>
+                <td><strong>{{ jobs.scrapeStatus!.lastRun!.triggeredBy }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>

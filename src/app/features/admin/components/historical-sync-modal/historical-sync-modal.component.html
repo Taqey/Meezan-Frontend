@@ -1,0 +1,150 @@
+        <div *ngIf="historical.showHistoricalModal" class="ac1">
+          <div class="ac2">
+            
+            <!-- Modal Header -->
+            <div class="ac3">
+              <div>
+                <h3 class="ac4">
+                  <lucide-icon [img]="HistoryIcon" size="18"></lucide-icon>
+                  مزامنة وتعبئة البيانات التاريخية (فحص الفجوات)
+                </h3>
+                <div class="ac5">
+                  مقارنة الأسعار المسجلة في Meezan مع تاريخ SNDUK دون المساس بأسعار اليوم
+                </div>
+              </div>
+              <button type="button" class="btn btn-outline btn-sm ac6" (click)="historical.closeHistoricalSyncModal()" >
+                <lucide-icon [img]="XIcon" size="16"></lucide-icon>
+              </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="ac7">
+              <!-- Fund filter selector -->
+              <div class="ac8">
+                <label class="ac9">تحديد الصندوق:</label>
+                <select class="form-input ac10" [(ngModel)]="historical.historicalSelectedFundId" >
+                  <option [ngValue]="null">جميع الصناديق (All Funds)</option>
+                  <option *ngFor="let f of fundsSync.adminFundPickerList" [ngValue]="f.id">
+                    {{ f.code }} — {{ f.displayName || f.nameAr }}
+                  </option>
+                </select>
+                <button type="button" class="btn btn-primary ac11" (click)="historical.fetchHistoricalPreview()" [disabled]="historical.historicalPreviewLoading || historical.historicalCommitLoading" >
+                  <lucide-icon *ngIf="historical.historicalPreviewLoading" [img]="RotateCcwIcon" size="14" class="spin-anim"></lucide-icon>
+                  <lucide-icon *ngIf="!historical.historicalPreviewLoading" [img]="SearchIcon" size="14"></lucide-icon>
+                  {{ historical.historicalPreviewLoading ? 'جارٍ الفحص التمهيدي...' : 'بدء فحص الفجوات (Preview)' }}
+                </button>
+              </div>
+
+              <!-- Loading state -->
+              <div *ngIf="historical.historicalPreviewLoading" class="ac12">
+                <div class="progress-bar-container ac13" >
+                  <div class="progress-bar-fill indeterminate"></div>
+                </div>
+                <div class="ac9">جارٍ جلب البيانات التاريخية من المصدر ومقارنتها...</div>
+                <div class="ac14">قد يستغرق فحص كافة الصناديق عدة ثوانٍ</div>
+              </div>
+
+              <!-- Error message -->
+              <div *ngIf="historical.historicalError" class="admin-result error">
+                {{ historical.historicalError }}
+              </div>
+
+              <!-- Commit success result -->
+              <div *ngIf="historical.historicalCommitResult" class="admin-result ac15" >
+                <strong>اكتمل الحفظ بنجاح:</strong>
+                تمت إضافة {{ historical.historicalCommitResult.insertedCount }} نقطة تاريخية ناقصة عبر {{ historical.historicalCommitResult.fundsUpdated }} صندوق في {{ historical.historicalCommitResult.durationSeconds }} ثانية.
+                <span *ngIf="historical.historicalCommitResult.overwrittenCount > 0"> (تم تعديل {{ historical.historicalCommitResult.overwrittenCount }} نقطة مختلفة)</span>
+              </div>
+
+              <!-- Preview Summary Table -->
+              <div *ngIf="historical.historicalPreview && !historical.historicalPreviewLoading">
+                <div class="ac16">
+                  <div class="ac17">
+                    صناديق مفحوصة: <strong>{{ historical.historicalPreview.totalFundsChecked }}</strong> |
+                    نقاط ناقصة قابلة للإضافة: <strong class="ac18">{{ historical.historicalPreview.totalMissingCount }}</strong> |
+                    نقاط مختلفة القيمة: <strong class="ac19">{{ historical.historicalPreview.totalDifferentCount }}</strong>
+                  </div>
+                </div>
+
+                <div class="table-scroll-x ac20" >
+                  <table class="admin-table ac21" >
+                    <thead class="ac22">
+                      <tr>
+                        <th>الكود</th>
+                        <th>اسم الصندوق</th>
+                        <th>نقاط المصدر</th>
+                        <th>نقاطنا</th>
+                        <th>مطابق</th>
+                        <th>ناقص (Missing)</th>
+                        <th>مختلف (Diff)</th>
+                        <th>فترة البيانات</th>
+                        <th>معاينة</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of historical.historicalPreview.funds">
+                        <td><strong>{{ item.fundCode }}</strong></td>
+                        <td>{{ item.fundName }}</td>
+                        <td>{{ item.sourceCount }}</td>
+                        <td>{{ item.myCount }}</td>
+                        <td class="ac18">{{ item.matchingCount }}</td>
+                        <td [style.color]="item.missingCount > 0 ? '#dc2626' : '#64748b'" [style.fontWeight]="item.missingCount > 0 ? '700' : '400'">
+                          +{{ item.missingCount }}
+                        </td>
+                        <td [style.color]="item.differentCount > 0 ? '#d97706' : '#64748b'">
+                          {{ item.differentCount }}
+                        </td>
+                        <td class="ac23" dir="ltr">
+                          {{ item.oldestSourceDate || '—' }} → {{ item.latestSourceDate || '—' }}
+                        </td>
+                        <td>
+                          <button type="button" class="btn btn-outline btn-sm ac24" (click)="compare.openFundCompareFromPreview(item.fundId)" >
+                            رسم
+                          </button>
+                        </td>
+                      </tr>
+                      <tr *ngIf="historical.historicalPreview.funds.length === 0">
+                        <td colspan="9" class="ac25">
+                          لم يتم العثور على أية نتائج فحص.
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Commit actions bar -->
+                <div class="ac26">
+                  <div class="ac27">
+                    <div>
+                      <div class="ac28">الخطوة الثانية: اعتماد وحفظ النقاط الناقصة</div>
+                      <div class="ac23">
+                        يتم حفظ التواريخ الناقصة فقط (insert-only) دون تعديل النقاط الحالية، مع استبعاد الجمعة والسبت.
+                      </div>
+                    </div>
+                    <button type="button" class="btn btn-primary ac29" (click)="historical.commitHistoricalSync(false)" [disabled]="historical.historicalCommitLoading || historical.historicalPreview.totalMissingCount === 0" >
+                      <lucide-icon *ngIf="historical.historicalCommitLoading && !historical.overwriteDifferentChoice" [img]="RotateCcwIcon" size="14" class="spin-anim"></lucide-icon>
+                      <lucide-icon *ngIf="!historical.historicalCommitLoading" [img]="CheckCircleIcon" size="14"></lucide-icon>
+                      {{ historical.historicalCommitLoading && !historical.overwriteDifferentChoice ? 'جارٍ الحفظ...' : 'حفظ البيانات الناقصة فقط (' + historical.historicalPreview.totalMissingCount + ')' }}
+                    </button>
+                  </div>
+
+                  <!-- Optional overwrite different points warning -->
+                  <div *ngIf="historical.historicalPreview.totalDifferentCount > 0" __INLINE_CLS__="ac30">
+                    <div class="ac31">
+                      <lucide-icon [img]="AlertTriangleIcon" size="14"></lucide-icon>
+                      يوجد {{ historical.historicalPreview.totalDifferentCount }} نقطة بقيم مختلفة بين Meezan والمصدر. الإبقاء على قيمنا هو الخيار الافتراضي والآمن.
+                    </div>
+                    <button type="button" class="btn btn-outline btn-sm ac32" (click)="historical.confirmOverwriteDifferent()" [disabled]="historical.historicalCommitLoading" >
+                      تحديث المختلف أيضاً وفق المصدر
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="ac33">
+              <button type="button" class="btn btn-outline" (click)="historical.closeHistoricalSyncModal()">إغلاق</button>
+            </div>
+          </div>
+        </div>

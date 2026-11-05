@@ -1,0 +1,13 @@
+.ac1.ac1 { margin-top: 20px; padding: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; }
+.ac2.ac2 { font-size: 12px; font-weight: 600; color: #166534; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+.ac3.ac3 { font-size: 12px; }
+.ac4.ac4 { font-weight: 600; }
+.ac5.ac5 { border-top: 2px dashed #e2e8f0; opacity: 0.8; }
+.ac6.ac6 { font-weight:400;color:#64748b; }
+.ac7.ac7 { color:#94a3b8; }
+.ac8.ac8 { font-size: 11px; color: #166534; margin-top: 8px; }
+.ac9.ac9 { margin-right: 8px; }
+.ac10.ac10 { margin-right: 8px; color: #d97706; }
+.ac11.ac11 { margin-right: 8px; color: var(--bad); }
+.ac12.ac12 { margin-right: 8px; color: #64748b; }
+.ac13.ac13 { margin-top: 16px; }

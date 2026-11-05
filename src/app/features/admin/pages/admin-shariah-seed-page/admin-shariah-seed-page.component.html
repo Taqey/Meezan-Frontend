@@ -1,0 +1,55 @@
+<div class="admin-card">
+        <h2>تحديث وبذر بيانات الشريعة</h2>
+        <p class="muted">
+          تحديث آراء الشريعة لـ 7 جهات مستقلة مع مؤشرات AAOIFI و S&P من المصدر الخارجي المدمج، أو بذر خريطة الشريعة المسبقة.
+        </p>
+
+        <div class="ac1">
+          <button class="btn btn-primary" (click)="seed.triggerVerdictRecompute()" [disabled]="seed.verdictRecomputing">
+            <lucide-icon [img]="RefreshCwIcon" size="16"></lucide-icon>
+            {{ seed.verdictRecomputing ? 'جارٍ إعادة الحساب...' : 'إعادة حساب الأحكام الشرعية' }}
+          </button>
+          <button class="btn btn-outline" (click)="seed.triggerShariahRefresh()" [disabled]="seed.shariahRefreshing">
+            <lucide-icon [img]="RefreshCwIcon" size="16"></lucide-icon>
+            {{ seed.shariahRefreshing ? 'جارٍ جلب وتحديث الشريعة...' : 'تحديث الشريعة المدمجة الآن (Refresh Merged Data)' }}
+          </button>
+
+          <button class="btn btn-outline" (click)="seed.triggerShariahSeed()" [disabled]="seed.shariahSeeding">
+            <lucide-icon [img]="DatabaseIcon" size="16"></lucide-icon>
+            {{ seed.shariahSeeding ? 'جارٍ البذر...' : 'بذر خريطة الشريعة الافتراضية (Seed Shariah Map)' }}
+          </button>
+
+          <button class="btn btn-outline ac2" (click)="seed.backfillCoreActivityCompliant()" [disabled]="seed.backfillingActivity" >
+            <lucide-icon [img]="CheckCircleIcon" size="16"></lucide-icon>
+            {{ seed.backfillingActivity ? 'جارٍ تنفيذ البذر...' : 'بذر نشاط أساسي للمتطابقين (Backfill CoreActivity)' }}
+          </button>
+        </div>
+
+        <!-- Optional JSON Override for Seeding -->
+        <div class="ac3">
+          <label class="muted ac4" >
+            تجاوز حمولة JSON للبذر (اختياري - اتركه فارغاً لاستخدام shariah_map.json المدمج):
+          </label>
+          <textarea [(ngModel)]="seed.seedJsonOverride" placeholder='{"COMI": {"status": "Compliant", "pct": 1.25, "note": "معتمد"}}' class="admin-form input"></textarea>
+        </div>
+
+        <!-- Shariah Results Views -->
+        <div *ngIf="seed.recomputeResult" class="admin-result success">
+          <div class="ac5">نتيجة إعادة حساب الأحكام الشرعية:</div>
+          <div>{{ seed.recomputeResult.message }}</div>
+        </div>
+        <div *ngIf="seed.refreshResult" class="admin-result success">
+          <div class="ac5">نتيجة تحديث الشريعة المدمجة:</div>
+          <div>تم تحديث نسب التطهير لـ: <strong>{{ seed.refreshResult.pctUpdatedCount }}</strong> سهم.</div>
+          <div>تم التحديث الكامل لآراء الـ 7 جهات لـ: <strong>{{ seed.refreshResult.stocksFullyRefreshedCount }}</strong> سهم.</div>
+          <div *ngIf="seed.refreshResult.message">{{ seed.refreshResult.message }}</div>
+        </div>
+
+        <div *ngIf="seed.seedResult" class="admin-result success">
+          <div class="ac5">نتيجة بذر خريطة الشريعة:</div>
+          <div>سجلات أضيفت: <strong>{{ seed.seedResult.insertedCount }}</strong></div>
+          <div>سجلات حُدثت: <strong>{{ seed.seedResult.updatedCount }}</strong></div>
+          <div>إجمالي المعالجة: <strong>{{ seed.seedResult.totalProcessed }}</strong></div>
+        </div>
+</div>
+

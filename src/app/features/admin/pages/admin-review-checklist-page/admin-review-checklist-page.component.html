@@ -1,0 +1,88 @@
+<div class="admin-card">
+        <h2>قائمة مراجعة الأسهم القديمة والمحذوفة</h2>
+        <p class="muted">
+          الأسهم التالية مرشحة للمراجعة فقط: بياناتها قديمة في المصدر، أو غير موجودة في المصدر، أو معطّلة يدوياً.
+          <strong>لا يقوم النظام بأي إجراء تلقائي</strong> — حدّد الأسهم يدوياً ثم اختر الإجراء المناسب:
+          إعادة السحب (تحديث البيانات)، تأكيد الإيقاف، أو إعادة التفعيل.
+        </p>
+
+        <div class="ac1">
+          <button class="btn btn-outline" (click)="review.loadRemovalCandidates()" [disabled]="review.candidatesLoading">
+            <lucide-icon [img]="RefreshCwIcon" size="16"></lucide-icon>
+            {{ review.candidatesLoading ? 'جارٍ التحميل...' : 'تحديث القائمة' }}
+          </button>
+          <button class="btn btn-primary" (click)="review.refreshSelectedCandidates()" [disabled]="review.candidatesBusy || review.selectedTickers.size === 0">
+            <lucide-icon [img]="PlayIcon" size="16"></lucide-icon>
+            إعادة سحب المحدَّد ({{ review.selectedTickers.size }})
+          </button>
+          <button class="btn btn-outline ac2" (click)="review.confirmSelectedCandidates()" [disabled]="review.candidatesBusy || review.selectedTickers.size === 0"
+                  >
+            <lucide-icon [img]="AlertTriangleIcon" size="16"></lucide-icon>
+            تأكيد الإيقاف للمحدَّد
+          </button>
+          <button class="btn btn-outline" (click)="review.reactivateSelectedCandidates()" [disabled]="review.candidatesBusy || review.selectedTickers.size === 0">
+            <lucide-icon [img]="RotateCcwIcon" size="16"></lucide-icon>
+            إعادة تفعيل المحدَّد
+          </button>
+          <label class="ac3">
+            <input type="checkbox" [checked]="review.allCandidatesSelected" (change)="review.toggleSelectAllCandidates($any($event).target.checked)" />
+            تحديد الكل ({{ review.removalCandidates.length }})
+          </label>
+        </div>
+
+        <div *ngIf="review.candidatesMessage" class="admin-result ac4" [class.success]="!review.candidatesError" [class.error]="review.candidatesError"
+             >
+          {{ review.candidatesMessage }}
+          <ul *ngIf="review.refreshSelectedResult?.outcomes?.length" class="ac5">
+            <li *ngFor="let o of review.refreshSelectedResult!.outcomes">
+              <strong>{{ o.ticker }}</strong> —
+              <span [style.color]="o.success ? 'var(--good)' : 'var(--bad)'">{{ o.success ? 'تم التحديث' : 'فشل' }}</span>
+              <span *ngIf="o.message"> ({{ o.message }})</span>
+            </li>
+          </ul>
+        </div>
+
+        <div *ngIf="!review.candidatesLoading && review.removalCandidates.length === 0" class="muted ac6" >
+          لا توجد أسهم مرشحة للمراجعة حالياً.
+        </div>
+
+        <div *ngIf="review.removalCandidates.length" class="table-scroll-x">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>الرمز</th>
+                <th>الاسم</th>
+                <th>القطاع</th>
+                <th>سبب المراجعة</th>
+                <th>آخر تحديث بالمصدر</th>
+                <th>آخر إغلاق</th>
+                <th>الحالة</th>
+                <th>ملاحظات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of review.removalCandidates">
+                <td><input type="checkbox" [checked]="review.selectedTickers.has(c.ticker)" (change)="review.toggleCandidate(c.ticker, $any($event).target.checked)" /></td>
+                <td><strong class="ac7">{{ c.ticker }}</strong></td>
+                <td>{{ c.nameAr || c.nameEn || '—' }}</td>
+                <td class="ac8">{{ c.sectorNameAr || '—' }}</td>
+                <td>
+                  <span class="ac9"
+                        [style.background]="c.reason === 'Deactivated' ? '#fee2e2' : (c.reason === 'StaleData' ? '#fef3c7' : '#e0f2fe')"
+                        [style.color]="c.reason === 'Deactivated' ? '#b91c1c' : (c.reason === 'StaleData' ? '#92400e' : '#075985')">
+                    {{ review.reasonLabel(c.reason) }}
+                  </span>
+                </td>
+                <td class="ac10">{{ c.sourceLastUpdateText || '—' }}</td>
+                <td>{{ c.lastClosingPrice != null ? (c.lastClosingPrice | number:'1.2-2') : '—' }}</td>
+                <td class="ac10" [style.color]="c.currentIsActive ? 'var(--good)' : 'var(--bad)'">
+                  {{ c.currentIsActive ? 'فعَّال' : 'معطَّل' }} · {{ c.dataStatus }}
+                </td>
+                <td class="ac11">{{ c.deactivationReason || c.lastSuccessfulUpdate || '—' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+</div>
+

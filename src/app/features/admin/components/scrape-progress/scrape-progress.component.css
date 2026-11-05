@@ -1,0 +1,12 @@
+.ac1.ac1 { background: #fafbfa; border: 1px solid var(--border); border-radius: 14px; padding: 20px; margin-top: 20px; }
+.ac2.ac2 { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+.ac3.ac3 { display: flex; align-items: center; gap: 8px; }
+.ac4.ac4 { color: var(--primary); font-weight: 700; }
+.ac5.ac5 { font-size: 12px; color: var(--muted-foreground); margin-right: 6px; }
+.ac6.ac6 { font-family: monospace; font-size: 13px; color: var(--primary); }
+.ac7.ac7 { margin-bottom: 8px; }
+.ac8.ac8 { font-weight: 700; }
+.ac9.ac9 { font-size: 12px; color: var(--muted-foreground); }
+.ac10.ac10 { margin-top: 8px; }
+.ac11.ac11 { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.ac12.ac12 { color: var(--muted-foreground); font-weight: 600; }

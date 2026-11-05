@@ -1,0 +1,111 @@
+<div class="admin-card">
+  <h2>مهام السحب الآلي لبيانات السوق</h2>
+  <p class="muted">
+    نظام السحب مقسّم إلى حزمتين: حزمة الأسعار اليومية الحية (Live Daily) عند الساعة 4:00 عصراً، وحزمة البيانات الربع سنوية بطيئة التغير (Quarterly Fundamentals) في بداية كل ربع سنوي.
+  </p>
+
+  <div class="asp-grid">
+    <!-- Bucket 1: Daily Live-Price Scraper -->
+    <app-job-card
+      [icon]="ClockIcon"
+      title="سحب الأسعار المباشرة (Daily Live-Price)"
+      description="يسحب أسعار الإغلاق، الافتتاح، الأدنى والأعلى، ومستويات الدعم والمقاومة لجميع الأسهم."
+      scheduleText="يومياً في تمام 4:00 عصراً بتوقيت القاهرة"
+      [lastRunText]="jobs.getBucketLastRun('LiveDaily')"
+      accentColor="var(--primary)"
+      enabledBg="#f0fdf4"
+      enabledBorder="#bbf7d0"
+      enabledTextColor="#166534"
+      enabledBtnColor="#16a34a"
+      enabledSubText="يعمل مجدولاً في الساعة 4:00 عصراً"
+      [isEnabled]="jobs.isJobEnabled('LiveDaily')"
+      [isRunning]="jobs.isDailyRunning"
+      [isToggling]="jobs.togglingJobKey === 'LiveDaily'"
+      [runDisabled]="jobs.isScrapingRunning"
+      runBtnClass="btn btn-primary"
+      runLabel="تشغيل السحب اليومي الآن (Run Daily)"
+      runningLabel="جارٍ السحب اليومي..."
+      (toggleJob)="jobs.toggleJobSetting('LiveDaily')"
+      (runJob)="jobs.triggerDailyScrape()">
+    </app-job-card>
+
+    <!-- Bucket 2: Quarterly Fundamentals Scraper -->
+    <app-job-card
+      [icon]="CalendarIcon"
+      title="سحب الأساسيات الربع سنوية (Quarterly Slow)"
+      description="يسحب مكررات الربحية P/E، مضاعف القيمة الدفترية P/B، ربحية السهم EPS، القيمة الدفترية، الاسمية، والسوقية."
+      scheduleText="أول يوم في (يناير/أبريل/يوليو/أكتوبر) 9:00 صباحاً"
+      [lastRunText]="jobs.getBucketLastRun('SlowQuarterly')"
+      accentColor="#1e40af"
+      enabledBg="#eff6ff"
+      enabledBorder="#bfdbfe"
+      enabledTextColor="#1e40af"
+      enabledBtnColor="#2563eb"
+      enabledSubText="يعمل مجدولاً ربع سنوياً"
+      [isEnabled]="jobs.isJobEnabled('SlowQuarterly')"
+      [isRunning]="jobs.isQuarterlyRunning"
+      [isToggling]="jobs.togglingJobKey === 'SlowQuarterly'"
+      [runDisabled]="jobs.isScrapingRunning"
+      runBtnClass="btn btn-outline"
+      runBtnBorderColor="#93c5fd"
+      runBtnTextColor="#1d4ed8"
+      runLabel="تشغيل السحب الربع سنوي الآن (Run Quarterly)"
+      runningLabel="جارٍ السحب الربع سنوي..."
+      (toggleJob)="jobs.toggleJobSetting('SlowQuarterly')"
+      (runJob)="jobs.triggerQuarterlyScrape()">
+    </app-job-card>
+
+    <!-- Bucket 3: Market Snapshots Scraper -->
+    <app-job-card
+      [icon]="ClockIcon"
+      title="لقطات السوق والمؤشرات (Market Snapshots)"
+      description="تحديث أسعار المؤشرات والقطاعات من مباشر يومياً بعد إغلاق جلسة التداول."
+      scheduleText="يومياً في تمام 4:00 عصراً بتوقيت القاهرة (الأحد–الخميس)"
+      [lastRunText]="jobs.snapshotsLastRunText"
+      accentColor="#047857"
+      enabledBg="#ecfdf5"
+      enabledBorder="#a7f3d0"
+      enabledTextColor="#065f46"
+      enabledBtnColor="#059669"
+      enabledSubText="يعمل مجدولاً في الساعة 4:00 عصراً"
+      [isEnabled]="jobs.isJobEnabled('MarketSnapshots')"
+      [isRunning]="jobs.isMarketSnapshotsRunning"
+      [isToggling]="jobs.togglingJobKey === 'MarketSnapshots'"
+      [showSavingText]="true"
+      [runDisabled]="jobs.isMarketSnapshotsRunning"
+      runBtnClass="btn btn-outline"
+      runBtnBorderColor="#a7f3d0"
+      runBtnTextColor="#047857"
+      runLabel="تشغيل يدوي الآن (Run Snapshots)"
+      runningLabel="جارٍ تحديث اللقطات..."
+      (toggleJob)="jobs.toggleJobSetting('MarketSnapshots')"
+      (runJob)="jobs.triggerSnapshotsRefresh()">
+      <div *ngIf="jobs.snapshotsRunResult" class="asp-snap-res" [style.color]="jobs.snapshotsRunResult.failed > 0 ? '#b45309' : '#047857'">
+        اكتمل: نجح {{ jobs.snapshotsRunResult.succeeded }} من {{ jobs.snapshotsRunResult.totalTargets }}
+      </div>
+      <div *ngIf="jobs.snapshotsRunError" class="asp-snap-err">
+        {{ jobs.snapshotsRunError }}
+      </div>
+    </app-job-card>
+
+    <!-- Bucket 4: Funds Sync -->
+    <app-funds-sync-card></app-funds-sync-card>
+  </div>
+
+  <div *ngIf="jobs.jobToggleError" class="admin-result error asp-toggle-err">
+    {{ jobs.jobToggleError }}
+  </div>
+
+  <!-- Live Jobs Progress View -->
+  <app-scrape-progress></app-scrape-progress>
+
+  <!-- Daily Sector Changes Calculation Panel -->
+  <app-sector-daily-panel></app-sector-daily-panel>
+
+  <!-- Last Run Summary -->
+  <app-last-run-table></app-last-run-table>
+
+  <!-- Historical Sync & Comparison Chart Modals -->
+  <app-historical-sync-modal></app-historical-sync-modal>
+  <app-fund-compare-chart-modal></app-fund-compare-chart-modal>
+</div>

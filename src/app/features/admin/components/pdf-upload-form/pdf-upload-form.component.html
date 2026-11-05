@@ -1,0 +1,69 @@
+        <div class="ac1">
+          <h3 class="ac2">رفع ملف جديد واستبدال القديم</h3>
+
+          <!-- Source selector -->
+          <div class="ac3">
+            <label class="ac4">
+              اختر المصدر:
+            </label>
+            <div class="ac5">
+              <label class="ac6">
+                <input type="radio" name="pdfSource" [(ngModel)]="pdf.selectedPdfSource" value="FaisalBank" class="ac7" />
+                <span class="ac8">بنك فيصل الإسلامي</span>
+              </label>
+              <label class="ac6">
+                <input type="radio" name="pdfSource" [(ngModel)]="pdf.selectedPdfSource" value="Ostoul" class="ac9" />
+                <span class="ac10">أسطول</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Report date (optional) -->
+          <div class="ac3">
+            <label class="ac4">
+              تاريخ التقرير (اختياري — للعرض فقط، لا يغيّر آراء الأسهم):
+            </label>
+            <input type="date" [(ngModel)]="pdf.pdfReportDate" class="admin-form input ac11"  />
+          </div>
+
+          <!-- File picker -->
+          <div class="ac3">
+            <label class="ac4">
+              ملف PDF (سيحل محل الملف الحالي للمصدر المحدد):
+            </label>
+            <input
+              type="file"
+              #pdfFileInput
+              accept=".pdf"
+              (change)="pdf.onPdfFileSelected($event)"
+              class="admin-form input ac12"
+               />
+            <div *ngIf="pdf.selectedPdfFile" class="ac13">
+              محدد: {{ pdf.selectedPdfFile.name }} ({{ pdf.formatFileSize(pdf.selectedPdfFile.size) }})
+            </div>
+          </div>
+
+          <!-- Upload button -->
+          <button
+            class="btn btn-primary ac14"
+            (click)="pdf.uploadPdfReport()"
+            [disabled]="pdf.pdfUploading || !pdf.selectedPdfFile"
+            >
+            <lucide-icon [img]="UploadFileIcon" size="16"></lucide-icon>
+            {{ pdf.pdfUploading ? 'جارٍ الرفع...' : 'رفع واستبدال الملف' }}
+          </button>
+
+          <!-- Result message -->
+          <div *ngIf="pdf.pdfUploadResult" class="admin-result ac15" [class.success]="pdf.pdfUploadResult.success" [class.error]="!pdf.pdfUploadResult.success" >
+            <div class="ac16">{{ pdf.pdfUploadResult.success ? 'تم الرفع بنجاح' : 'فشل الرفع' }}</div>
+            <div>{{ pdf.pdfUploadResult.message }}</div>
+            <div *ngIf="pdf.pdfUploadResult.success" class="ac17">
+              الملف: {{ pdf.pdfUploadResult.fileName }} | المسار: {{ pdf.pdfUploadResult.storedAt }} | مرفوع في: {{ pdf.pdfUploadResult.uploadedAt }}
+              <br> <strong>لا تنسَ تشغيل "تحديث الشريعة المدمجة" (import-faisal-osoul) لتحديث آراء الأسهم.</strong>
+            </div>
+          </div>
+
+          <div *ngIf="pdf.pdfUploadError" class="admin-result error ac18" >
+            {{ pdf.pdfUploadError }}
+          </div>
+        </div>

@@ -1,0 +1,68 @@
+<div *ngIf="overrides.shariahOverrides">
+              <div *ngIf="overrides.shariahOverrides.effectiveHaramRevenuePercentage !== null || overrides.shariahOverrides.effectiveLoansPercentage !== null" class="ac1">
+                <div class="ac2">
+                  <lucide-icon [img]="CheckCircleIcon" size="16"></lucide-icon>
+                  معاينة معايير "بورصة حلال" الخمس (باستخدام القيم الفعالة)
+                </div>
+                <div class="table-scroll-x">
+                  <table class="admin-table ac3" >
+                    <thead>
+                      <tr>
+                        <th>المعيار</th>
+                        <th>حد الإيراد المحرم</th>
+                        <th>حد المديونية</th>
+                        <th>الإيراد الفعلي</th>
+                        <th>المديونية الفعلية</th>
+                        <th>النتيجة</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                  <tr *ngFor="let s of overrides.bourseHalalStandards">
+                        <td><strong>{{ s.name }}</strong></td>
+                        <td>{{ s.revenueMax != null ? s.revenueMax + '%' : '—' }}</td>
+                        <td>{{ s.debtMax }}%</td>
+                        <td>{{ overrides.shariahOverrides.effectiveHaramRevenuePercentage !== null ? (overrides.shariahOverrides.effectiveHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}</td>
+                        <td>{{ overrides.shariahOverrides.effectiveLoansPercentage !== null ? (overrides.shariahOverrides.effectiveLoansPercentage | number:'1.2-2') + '%' : '—' }}</td>
+                        <td>
+                          <span [style.color]="s.passes ? 'var(--good)' : 'var(--bad)'" class="ac4">
+                            {{ s.passes ? 'اجتاز ✓' : 'لم يجتاز ✗' }}
+                          </span>
+                        </td>
+                      </tr>
+                      <!-- Scholars criterion (informational, not counted) -->
+                      <tr class="ac5">
+                        <td><strong>{{ overrides.scholarsStandardNameAr }}</strong><br><small class="ac6">{{ overrides.scholarsStandardNameEn }} · استرشادي</small></td>
+                        <td class="ac7">—</td>
+                        <td>{{ overrides.scholarsDebtMaxVal }}%</td>
+                        <td class="ac7">—</td>
+                        <td>{{ overrides.shariahOverrides.effectiveLoansPercentage !== null ? (overrides.shariahOverrides.effectiveLoansPercentage | number:'1.2-2') + '%' : '—' }}</td>
+                        <td>
+                          <span *ngIf="overrides.shariahOverrides.effectiveLoansPercentage !== null"
+                                [style.color]="(overrides.shariahOverrides.effectiveLoansPercentage! <= overrides.scholarsDebtMaxVal) ? 'var(--good)' : 'var(--bad)'"
+                                class="ac4">
+                            {{ (overrides.shariahOverrides.effectiveLoansPercentage! <= overrides.scholarsDebtMaxVal) ? 'اجتاز ✓' : 'لم يجتاز ✗' }}
+                          </span>
+                          <span *ngIf="overrides.shariahOverrides.effectiveLoansPercentage === null" class="ac7">—</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="ac8">
+                  اجتاز <strong>{{ overrides.passedStandardsCount }} من 5</strong> معايير رئيسية.
+                  <span *ngIf="overrides.adminOverallVerdict === 'Compliant' && !overrides.adminIsViaScholarsOnly" class="ac9">→ الحكم العام: متوافق</span>
+                  <span *ngIf="overrides.adminOverallVerdict === 'Compliant' && overrides.adminIsViaScholarsOnly" class="ac10">
+                    → الحكم العام: متوافق (بحسب بعض العلماء الأفراد)
+                  </span>
+                  <span *ngIf="overrides.adminOverallVerdict === 'NonCompliant'" class="ac11">
+                    → الحكم العام: غير متوافق
+                  </span>
+                  <span *ngIf="overrides.adminOverallVerdict === 'Pending'" class="ac12">
+                    → الحكم العام: البيانات غير كافية
+                  </span>
+                </div>
+              </div>
+
+              <div *ngIf="overrides.shariahOverridesError" class="admin-result error ac13" >{{ overrides.shariahOverridesError }}</div>
+              <div *ngIf="overrides.shariahOverridesSuccess" class="admin-result success ac13" >{{ overrides.shariahOverridesSuccess }}</div>
+</div>

@@ -1,0 +1,11 @@
+.stock-picker-box.stock-picker-box { background: #fbfcfb; border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin: 20px 0; }
+.stock-picker-label.stock-picker-label { font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px; }
+.stock-picker-row.stock-picker-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.stock-picker-input-wrap.stock-picker-input-wrap { position: relative; flex: 1; min-width: 240px; }
+.stock-picker-input.stock-picker-input { min-height: 42px; padding-inline-start: 36px; }
+.stock-picker-icon.stock-picker-icon { position: absolute; right: 10px; top: 12px; color: var(--muted-foreground); }
+.stock-picker-select.stock-picker-select { min-height: 42px; min-width: 260px; flex: 1; }
+.stock-picker-chips.stock-picker-chips { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.stock-picker-chips-label.stock-picker-chips-label { font-size: 11px; color: var(--muted-foreground); align-self: center; margin-left: 4px; }
+.stock-picker-chip.stock-picker-chip { font-size: 11px; padding: 4px 8px; border-radius: 6px; background: white; }
+.stock-picker-chip-name.stock-picker-chip-name { margin-right: 4px; font-size: 10px; color: var(--muted-foreground); }

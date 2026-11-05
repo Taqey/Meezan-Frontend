@@ -1,0 +1,69 @@
+<div class="admin-card">
+        <h2>رفع ملف مكونات المؤشر (Excel .xls / .xlsx)</h2>
+        <p class="muted">يتم استبدال كامل مكونات المؤشر المختار تلقائياً وتحديث أوزان الأسهم والقطاعات.</p>
+
+        <form (submit)="indexUpload.onUploadSubmit($event)" class="admin-form">
+          <label>
+            اختر المؤشر المستهدف:
+            <select [(ngModel)]="indexUpload.selectedUploadIndex" name="uploadIndex" required>
+              <option value="">-- اختر مؤشراً --</option>
+              <option *ngFor="let idx of indexUpload.indices" [value]="idx.code">
+                {{ idx.code }} - {{ idx.nameAr }}
+              </option>
+            </select>
+          </label>
+
+          <label>
+            ملف الإكسيل (.xlsx أو .xls):
+            <input type="file" (change)="indexUpload.onFileSelected($event)" accept=".xlsx,.xls" required />
+          </label>
+
+          <div>
+            <button type="submit" class="btn btn-primary" [disabled]="indexUpload.uploading || !indexUpload.selectedUploadIndex || !indexUpload.uploadFile">
+              <lucide-icon [img]="UploadIcon" size="16"></lucide-icon>
+              {{ indexUpload.uploading ? 'جارٍ رفع ومعالجة الملف...' : 'رفع واستبدال المكونات' }}
+            </button>
+          </div>
+        </form>
+
+        <!-- Upload Result View -->
+        <div *ngIf="indexUpload.uploadResult" class="admin-result" [class.success]="indexUpload.uploadResult.status === 'Success'" [class.error]="indexUpload.uploadResult.status !== 'Success'">
+          <div class="ac1">
+            حالة المعالجة: {{ indexUpload.uploadResult.status }}
+          </div>
+          <div>{{ indexUpload.uploadResult.message }}</div>
+          <div *ngIf="indexUpload.uploadResult.warning" class="ac2">
+            ⚠️ {{ indexUpload.uploadResult.warning }}
+          </div>
+          <div class="ac3">
+            <span *ngIf="indexUpload.uploadResult.sectorsAdded !== undefined && indexUpload.uploadResult.sectorsAdded !== null">القطاعات المضافة: <strong>{{ indexUpload.uploadResult.sectorsAdded }}</strong></span>
+            <span>الأسهم المضافة: <strong>{{ indexUpload.uploadResult.inserted }}</strong></span>
+            <span>الأسهم المحدثة: <strong>{{ indexUpload.uploadResult.updated }}</strong></span>
+            <span>الأسهم المتخطاة: <strong>{{ indexUpload.uploadResult.skipped }}</strong></span>
+            <span>إجمالي المكونات: <strong>{{ indexUpload.uploadResult.totalConstituents }}</strong></span>
+          </div>
+
+          <div *ngIf="indexUpload.uploadResult.skippedDetails && indexUpload.uploadResult.skippedDetails.length" class="ac4">
+            <strong>تفاصيل الصفوف المستبعدة:</strong>
+            <div class="table-scroll-x">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>رقم الصف</th>
+                  <th>الرمز / المعرف</th>
+                  <th>السبب</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let d of indexUpload.uploadResult.skippedDetails">
+                  <td>{{ d.rowNumber }}</td>
+                  <td>{{ d.identifier }}</td>
+                  <td>{{ d.reason }}</td>
+                </tr>
+              </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+</div>
+

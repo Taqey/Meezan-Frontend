@@ -1,0 +1,125 @@
+          <div class="ac1">
+            <div>
+              <div class="ac2">
+                <strong class="ac3">
+                  <lucide-icon [img]="DatabaseIcon" size="18"></lucide-icon>
+                  سحب بيانات الصناديق الاستثمارية (Funds Sync)
+                </strong>
+                <span class="live-dot" *ngIf="fundsSync.fundSyncRunning"></span>
+              </div>
+              <p class="ac4">
+                تحديث أسعار الصناديق اليومية، مزامنة وتعبئة البيانات التاريخية الناقصة، واكتشاف الصناديق الجديدة من SNDUK.
+              </p>
+              <div class="ac5">
+                <div class="ac6">
+                  <strong>الجدول التلقائي:</strong>
+                  <span>يومياً في تمام</span>
+                  <input
+                    type="time"
+                    [ngModel]="fundsSync.fundSyncSettings?.runTimeCairo || '00:00'"
+                    (ngModelChange)="fundsSync.onFundSyncTimeChange($event)"
+                    [disabled]="fundsSync.fundSyncLoading || !fundsSync.fundSyncSettings"
+                    aria-label="وقت التشغيل التلقائي بتوقيت القاهرة"
+                    class="ac7" />
+                  <span>بتوقيت القاهرة</span>
+                </div>
+                <div><strong>آخر تحديث أسعار:</strong> {{ fundsSync.getFundPriceSyncLastRunText() }}</div>
+                <div><strong>آخر مزامنة تاريخية:</strong> {{ fundsSync.getFundHistoricalSyncLastRunText() }}</div>
+                <div><strong>آخر فحص للصناديق الجديدة:</strong> {{ fundsSync.getFundNewCheckLastRunText() }}</div>
+              </div>
+              <!-- Automation Toggle -->
+              <div class="ac8"
+                   [style.background]="fundsSync.fundSyncSettings?.isEnabled ? '#f5f3ff' : '#fef2f2'"
+                   [style.borderColor]="fundsSync.fundSyncSettings?.isEnabled ? '#ddd6fe' : '#fecaca'">
+                <div>
+                  <div class="ac9" [style.color]="fundsSync.fundSyncSettings?.isEnabled ? '#7c3aed' : '#991b1b'">
+                    {{ fundsSync.fundSyncSettings?.isEnabled ? 'التشغيل التلقائي مُفعَّل' : 'التشغيل التلقائي مُعطَّل' }}
+                  </div>
+                  <div class="ac10">
+                    {{ fundsSync.fundSyncSettings?.isEnabled ? ('يعمل مجدولاً في الساعة ' + (fundsSync.fundSyncSettings?.runTimeCairo || '00:00') + ' بتوقيت القاهرة') : 'لن يتم تنفيذ الجدول التلقائي' }}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  (click)="fundsSync.toggleFundSync()"
+                  [disabled]="fundsSync.fundSyncLoading || !fundsSync.fundSyncSettings"
+                  class="btn btn-outline ac11"
+                  
+                  [style.borderColor]="fundsSync.fundSyncSettings?.isEnabled ? '#7c3aed' : '#dc2626'"
+                  [style.color]="fundsSync.fundSyncSettings?.isEnabled ? '#7c3aed' : '#dc2626'">
+                  {{ fundsSync.fundSyncLoading ? 'جارٍ الحفظ...' : (fundsSync.fundSyncSettings?.isEnabled ? 'تعطيل الآلي' : 'تفعيل الآلي') }}
+                </button>
+              </div>
+
+              <div class="ac12">
+                <div *ngIf="fundsSync.fundPriceSyncRunning || fundsSync.fundHistoricalSyncRunning || fundsSync.fundCombinedSyncRunning || fundsSync.fundCheckNewRunning || (fundsSync.fundSyncStatus?.isRunning)" class="progress-bar-container ac13" >
+                  <div class="progress-bar-fill indeterminate"></div>
+                </div>
+                <div *ngIf="fundsSync.fundSyncStatus?.isRunning" class="ac14">
+                  جارٍ التنفيذ ({{ fundsSync.fundSyncStatus?.currentPhase || 'قيد المزامنة' }}):
+                  <span *ngIf="fundsSync.fundSyncStatus?.totalFunds">{{ fundsSync.fundSyncStatus?.processedCount }} من {{ fundsSync.fundSyncStatus?.totalFunds }}</span>
+                  <span *ngIf="fundsSync.fundSyncStatus?.currentFundCode"> [{{ fundsSync.fundSyncStatus?.currentFundCode }}]</span>
+                </div>
+
+                <!-- 4 Action Buttons Grid -->
+                <div class="ac15">
+                  <!-- 1) Update prices now -->
+                  <button class="btn btn-primary ac16" (click)="fundsSync.runFundPriceSyncNow()" [disabled]="fundsSync.isAnyFundOperationRunning" >
+                    <lucide-icon *ngIf="!fundsSync.fundPriceSyncRunning" [img]="PlayIcon" size="14"></lucide-icon>
+                    <lucide-icon *ngIf="fundsSync.fundPriceSyncRunning" [img]="RotateCcwIcon" size="14" class="spin-anim"></lucide-icon>
+                    {{ fundsSync.fundPriceSyncRunning ? 'جارٍ التحديث...' : 'تحديث الأسعار الآن' }}
+                  </button>
+
+                  <!-- 2) Sync historical data (preview / fill) -->
+                  <button class="btn btn-outline ac17" (click)="historical.openHistoricalSyncModal()" [disabled]="fundsSync.isAnyFundOperationRunning" >
+                    <lucide-icon [img]="HistoryIcon" size="14"></lucide-icon>
+                    مزامنة البيانات التاريخية
+                  </button>
+
+                  <!-- 3) Update prices + historical data -->
+                  <button class="btn btn-primary ac18" (click)="fundsSync.runPricesAndHistoricalSync()" [disabled]="fundsSync.isAnyFundOperationRunning" >
+                    <lucide-icon *ngIf="!fundsSync.fundCombinedSyncRunning" [img]="PlayIcon" size="14"></lucide-icon>
+                    <lucide-icon *ngIf="fundsSync.fundCombinedSyncRunning" [img]="RotateCcwIcon" size="14" class="spin-anim"></lucide-icon>
+                    {{ fundsSync.fundCombinedSyncRunning ? 'جارٍ التنفيذ...' : 'تحديث الأسعار + البيانات التاريخية' }}
+                  </button>
+
+                  <!-- 4) Check for new funds (replaces old full sync) -->
+                  <button class="btn btn-outline ac19" (click)="fundsSync.runCheckNewFundsNow()" [disabled]="fundsSync.isAnyFundOperationRunning" >
+                    <lucide-icon *ngIf="!fundsSync.fundCheckNewRunning" [img]="SearchIcon" size="14"></lucide-icon>
+                    <lucide-icon *ngIf="fundsSync.fundCheckNewRunning" [img]="RotateCcwIcon" size="14" class="spin-anim"></lucide-icon>
+                    {{ fundsSync.fundCheckNewRunning ? 'جارٍ الفحص...' : 'فحص الصناديق الجديدة' }}
+                  </button>
+                </div>
+
+                <div *ngIf="fundsSync.fundPriceSyncResult" class="ac20">
+                  تم تحديث أسعار {{ fundsSync.fundPriceSyncResult.updatedFunds }} صندوق في {{ fundsSync.fundPriceSyncResult.durationSeconds }} ثانية
+                  <span *ngIf="fundsSync.fundPriceSyncResult.newInSndukCount > 0"> ({{ fundsSync.fundPriceSyncResult.newInSndukCount }} صندوق جديد مكتشف)</span>
+                </div>
+                <div *ngIf="fundsSync.fundPriceSyncError" class="ac21">
+                  {{ fundsSync.fundPriceSyncError }}
+                </div>
+
+                <div *ngIf="fundsSync.fundCheckNewResult" class="ac22">
+                  فحص الصناديق: إجمالي {{ fundsSync.fundCheckNewResult.totalSndukFunds }} | المسجلة: {{ fundsSync.fundCheckNewResult.existingFundsCount }} | مضافة حديثاً: {{ fundsSync.fundCheckNewResult.newFundsAddedCount }}
+                </div>
+                <div *ngIf="fundsSync.fundCheckNewError" class="ac21">
+                  {{ fundsSync.fundCheckNewError }}
+                </div>
+
+                <div *ngIf="fundsSync.fundCombinedMessage" class="ac23">
+                  {{ fundsSync.fundCombinedMessage }}
+                </div>
+
+                <div class="ac24">
+                  <button type="button" class="btn btn-outline ac25" (click)="compare.openCompareChartModal()" >
+                    <lucide-icon [img]="LineChartIcon" size="14"></lucide-icon>
+                    مقارنة المصدر (Chart)
+                  </button>
+                  <a routerLink="/admin/funds" class="btn btn-outline ac26" >
+                    <lucide-icon [img]="HistoryIcon" size="14"></lucide-icon>
+                    إدارة وسجل المزامنة
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>  <!-- closes bucket 4 -->

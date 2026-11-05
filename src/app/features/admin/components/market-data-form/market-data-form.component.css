@@ -1,0 +1,11 @@
+.ac1.ac1 { margin-top: 24px; }
+.ac2.ac2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.ac3.ac3 { font-size: 12px; font-weight: 600; display: block; margin-bottom: 6px; }
+.ac4.ac4 { font-size: 11px; color: var(--primary); }
+.ac5.ac5 { margin-top: 18px; background: #fbfcfb; border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
+.ac6.ac6 { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; }
+.ac7.ac7 { width: 18px; height: 18px; accent-color: var(--primary); }
+.ac8.ac8 { font-weight: 700; margin-bottom: 4px; font-size: 15px; }
+.ac9.ac9 { display: flex; gap: 18px; margin-top: 6px; flex-wrap: wrap; }
+.ac10.ac10 { color: var(--primary); font-size: 14px; }
+.ac11.ac11 { display: flex; gap: 12px; margin-top: 20px; align-items: center; }

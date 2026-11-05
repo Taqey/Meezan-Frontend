@@ -1,0 +1,28 @@
+<div class="admin-card asm-card">
+  <div class="asm-heading-box">
+    <h2 class="asm-heading-title">إدارة الأسهم والقطاعات والمؤشرات</h2>
+    <p class="muted asm-heading-desc">ابحث عن سهم لتعيينه لقطاع أو مؤشر أو لإنشاء سهم جديد. التعيين اليدوي لا يُستبدل بالرفع التلقائي.</p>
+  </div>
+  <div class="asm-search-row">
+    <div class="asm-search-wrap">
+      <label class="asm-search-label">بحث بالرمز أو الاسم</label>
+      <div class="asm-search-input-box">
+        <lucide-icon [img]="SearchIcon" size="15" class="asm-search-icon"></lucide-icon>
+        <input type="text" class="form-input asm-search-input"
+               [(ngModel)]="mgmt.mgmtSearch" (ngModelChange)="mgmt.onMgmtSearchChange($event)"
+               placeholder="مثال: COMI أو التجاري الدولي" />
+      </div>
+    </div>
+    <button class="btn btn-primary" (click)="mgmt.showCreateStockModal = true">+ سهم جديد</button>
+    <button class="btn btn-outline" (click)="mgmt.loadMgmtData()" [disabled]="mgmt.mgmtLoading">
+      <lucide-icon [img]="RefreshCwIcon" size="15"></lucide-icon>
+      تحديث
+    </button>
+  </div>
+  <div *ngIf="mgmt.mgmtMessage" class="asm-msg"
+       [style.background]="mgmt.mgmtError ? '#fff5f5' : '#f0fdf4'"
+       [style.border]="mgmt.mgmtError ? '1px solid #fecaca' : '1px solid #bbf7d0'"
+       [style.color]="mgmt.mgmtError ? 'var(--bad)' : 'var(--good)'">{{ mgmt.mgmtMessage }}</div>
+  <app-create-stock-form></app-create-stock-form>
+  <app-stocks-management-table></app-stocks-management-table>
+</div>

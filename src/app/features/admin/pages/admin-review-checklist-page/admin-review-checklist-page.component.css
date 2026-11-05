@@ -1,0 +1,11 @@
+.ac1.ac1 { display: flex; gap: 12px; margin: 20px 0; flex-wrap: wrap; align-items: center; }
+.ac2.ac2 { border-color: #fecaca; color: var(--bad); }
+.ac3.ac3 { font-size: 12px; color: var(--muted-foreground); display: flex; align-items: center; gap: 6px; margin-right: auto; }
+.ac4.ac4 { background: #f5faf3; border: 1px solid #e3eede; border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+.ac5.ac5 { margin: 8px 16px 0 0; font-size: 12px; }
+.ac6.ac6 { padding: 24px 0; }
+.ac7.ac7 { font-family: monospace; }
+.ac8.ac8 { font-size: 12px; color: var(--muted-foreground); }
+.ac9.ac9 { font-size: 11px; padding: 3px 8px; border-radius: 999px; }
+.ac10.ac10 { font-size: 12px; }
+.ac11.ac11 { font-size: 11px; color: var(--muted-foreground); }

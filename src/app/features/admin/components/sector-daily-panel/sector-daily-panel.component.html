@@ -1,0 +1,91 @@
+        <div class="admin-card ac1" >
+          <div class="ac2">
+            <div>
+              <h2 class="ac3">
+                <lucide-icon [img]="LayersIcon" size="20" class="ac4"></lucide-icon>
+                تغير القطاعات اليومي (حساب القيمة السوقية)
+              </h2>
+              <p class="muted ac5" >
+                حساب يومي تلقائي لأداء كل قطاع وفق أوزان أسهمه الرأسمالية (w_i × r_i) عقب سحب أسعار الـ 4 عصراً.
+              </p>
+            </div>
+            <div class="ac6">
+              <span class="badge ac7" [style.background]="sectorDaily.sectorDailyStatus?.externalSectorPullEnabled ? '#fee2e2' : '#dcfce7'" [style.color]="sectorDaily.sectorDailyStatus?.externalSectorPullEnabled ? '#b91c1c' : '#15803d'" >
+                السحب الخارجي للقطاعات: {{ sectorDaily.sectorDailyStatus?.externalSectorPullStatus || 'متوقف' }}
+              </span>
+              <button class="btn btn-primary ac8" (click)="sectorDaily.recalculateSectorDailyToday()" [disabled]="sectorDaily.sectorDailyRecalculating" >
+                <lucide-icon *ngIf="!sectorDaily.sectorDailyRecalculating" [img]="RotateCcwIcon" size="15"></lucide-icon>
+                <lucide-icon *ngIf="sectorDaily.sectorDailyRecalculating" [img]="RotateCcwIcon" size="15" class="spin-anim"></lucide-icon>
+                {{ sectorDaily.sectorDailyRecalculating ? 'جارٍ إعادة الحساب...' : 'إعادة حساب اليوم' }}
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="sectorDaily.sectorDailyMessage" class="admin-result ac9" [style.color]="sectorDaily.sectorDailyIsError ? 'var(--bad)' : '#10b981'" >
+            {{ sectorDaily.sectorDailyMessage }}
+          </div>
+
+          <!-- Configuration and Date Range Tools -->
+          <div class="ac10">
+            <div>
+              <div class="ac11">إعدادات الحساب:</div>
+              <div class="ac12">
+                <div>طريقة الوزن الحالية: <strong>{{ sectorDaily.sectorDailyStatus?.weightingMethod === 'displayedWeight' ? 'الأوزان المعروضة' : 'القيمة السوقية (marketCap)' }}</strong></div>
+                <div>سعر صرف USD/EGP: <strong>{{ sectorDaily.sectorDailyStatus?.usdEgpRate || 55.35 }}</strong></div>
+                <div>آخر جلسة محسوبة: <strong>{{ sectorDaily.sectorDailyStatus?.latestTradingDate || '—' }}</strong></div>
+                <div>وقت آخر احتساب: <strong>{{ sectorDaily.sectorDailyStatus?.lastComputedAt | date:'yyyy-MM-dd HH:mm:ss' }}</strong></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="ac11">إعادة حساب فترة تاريخية (حتى 30 يوماً):</div>
+              <div class="ac13">
+                <input type="date" [(ngModel)]="sectorDaily.rangeFromDate" class="form-input ac14"  />
+                <span>إلى</span>
+                <input type="date" [(ngModel)]="sectorDaily.rangeToDate" class="form-input ac14"  />
+                <button class="btn btn-outline ac15" (click)="sectorDaily.recomputeSectorDailyRange()" [disabled]="sectorDaily.sectorDailyRangeRunning" >
+                  {{ sectorDaily.sectorDailyRangeRunning ? 'جارٍ المعالجة...' : 'إعادة حساب الفترة' }}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Latest Computed Sectors Table -->
+          <div *ngIf="sectorDaily.sectorDailyStatus?.sectors?.length" class="table-scroll-x">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>القطاع</th>
+                  <th>جلسة التداول</th>
+                  <th>نسبة التغير</th>
+                  <th>القيمة السوقية (جنيه)</th>
+                  <th>نسبة التغطية</th>
+                  <th>الأسهم المحسوبة</th>
+                  <th>(صاعد / هابط / ثابت)</th>
+                  <th>الحالة</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let sec of sectorDaily.sectorDailyStatus!.sectors">
+                  <td><strong>{{ sectorDaily.getSectorName(sec.sectorId) }}</strong></td>
+                  <td>{{ sec.tradingDate }}</td>
+                  <td [style.color]="(sec.changePct || 0) > 0 ? 'var(--good)' : ((sec.changePct || 0) < 0 ? 'var(--bad)' : 'inherit')" __INLINE_CLS__="ac16">
+                    {{ sec.changePct !== null && sec.changePct !== undefined ? ((sec.changePct > 0 ? '+' : '') + sec.changePct.toFixed(2) + '%') : '—' }}
+                  </td>
+                  <td>{{ (sec.marketCapTotal || 0) | number:'1.0-0' }}</td>
+                  <td>{{ (sec.coverage || 0).toFixed(1) }}%</td>
+                  <td>{{ sec.stocksUsed }} / {{ sec.stocksTotal }}</td>
+                  <td>
+                    <span class="ac17">▲ {{ sec.advancers }}</span> | 
+                    <span class="ac18">▼ {{ sec.decliners }}</span> | 
+                    <span>• {{ sec.unchanged }}</span>
+                  </td>
+                  <td>
+                    <span *ngIf="sec.approximate" class="badge ac19" >تقريبي (&lt;70%)</span>
+                    <span *ngIf="!sec.approximate" class="badge ac20" >مكتمل</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>

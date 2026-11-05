@@ -1,0 +1,39 @@
+<div class="stock-picker-box">
+  <label class="stock-picker-label">
+    البحث عن سهم بالرمز أو الاسم:
+  </label>
+  <div class="stock-picker-row">
+    <div class="stock-picker-input-wrap">
+      <input
+        type="text"
+        [ngModel]="searchQuery"
+        (ngModelChange)="searchQueryChange.emit($event)"
+        (input)="searchInput.emit()"
+        placeholder="أدخل رمز السهم (مثال: COMI, ORAS, ESRS)..."
+        class="admin-form input stock-picker-input" />
+      <lucide-icon [img]="SearchIcon" size="18" class="stock-picker-icon"></lucide-icon>
+    </div>
+    <select
+      [ngModel]="selectedTicker"
+      (ngModelChange)="selectedTickerChange.emit($event)"
+      (change)="stockSelected.emit()"
+      class="admin-form select stock-picker-select">
+      <option value="">-- اختر من قائمة الأسهم ({{ filteredStocks.length }} سهم) --</option>
+      <option *ngFor="let s of filteredStocks" [value]="s.ticker">
+        {{ s.ticker }} - {{ s.nameAr || s.nameEn }}
+      </option>
+    </select>
+  </div>
+  <div *ngIf="searchQuery.trim() && filteredStocks.length > 0" class="stock-picker-chips">
+    <span class="stock-picker-chips-label">نتائج مطابقة سريعة:</span>
+    <button
+      *ngFor="let match of filteredStocks.slice(0, 10)"
+      type="button"
+      (click)="directSelect.emit(match.ticker)"
+      class="btn btn-outline stock-picker-chip"
+      [style.borderColor]="selectedTicker === match.ticker ? 'var(--primary)' : 'var(--border)'"
+      [style.color]="selectedTicker === match.ticker ? 'var(--primary)' : 'inherit'">
+      <strong>{{ match.ticker }}</strong> <span class="stock-picker-chip-name">({{ match.nameAr || match.nameEn }})</span>
+    </button>
+  </div>
+</div>

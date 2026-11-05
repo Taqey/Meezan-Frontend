@@ -1,0 +1,110 @@
+        <div *ngIf="compare.showCompareChartModal" class="ac1">
+          <div class="ac2">
+            
+            <!-- Modal Header -->
+            <div class="ac3">
+              <div>
+                <h3 class="ac4">
+                  <lucide-icon [img]="LineChartIcon" size="18"></lucide-icon>
+                  مقارنة بيانات الصندوق مع المصدر (Chart Comparison)
+                </h3>
+                <div class="ac5">
+                  عرض بياني متراكب: بيانات Meezan الحالية مقابل بيانات المصدر SNDUK
+                </div>
+              </div>
+              <button type="button" class="btn btn-outline btn-sm ac6" (click)="compare.closeCompareChartModal()" >
+                <lucide-icon [img]="XIcon" size="16"></lucide-icon>
+              </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="ac7">
+              <!-- Selector & Timeframe Controls -->
+              <div class="ac8">
+                <div class="ac9">
+                  <label class="ac10">الصندوق:</label>
+                  <select class="form-input ac11" [(ngModel)]="compare.compareChartSelectedFundId" (ngModelChange)="compare.loadCompareChartData()" >
+                    <option *ngFor="let f of fundsSync.adminFundPickerList" [ngValue]="f.id">
+                      {{ f.code }} — {{ f.displayName || f.nameAr }}
+                    </option>
+                  </select>
+                </div>
+
+                <!-- Timeframe selector -->
+                <div class="ac12">
+                  <button *ngFor="let tf of compare.compareTimeframes" type="button" class="btn btn-sm ac13"
+                          [style.background]="compare.compareChartTimeframe === tf.key ? '#fff' : 'transparent'"
+                          [style.color]="compare.compareChartTimeframe === tf.key ? '#0284c7' : '#64748b'"
+                          [style.fontWeight]="compare.compareChartTimeframe === tf.key ? '700' : '400'"
+                          [style.boxShadow]="compare.compareChartTimeframe === tf.key ? '0 1px 2px rgba(0,0,0,0.08)' : 'none'"
+                          (click)="compare.selectCompareTimeframe(tf.key)"
+                          >
+                    {{ tf.label }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Metrics row -->
+              <div *ngIf="compare.compareChartData" class="ac14">
+                <div class="ac15">
+                  <div class="ac16">نقاط Meezan</div>
+                  <strong class="ac17">{{ compare.compareChartData.myPointsCount }}</strong>
+                </div>
+                <div class="ac15">
+                  <div class="ac16">نقاط SNDUK</div>
+                  <strong class="ac18">{{ compare.compareChartData.sourcePointsCount }}</strong>
+                </div>
+                <div class="ac15">
+                  <div class="ac16">ناقصة لدينا</div>
+                  <strong class="ac19">{{ compare.compareChartData.missingCount }}</strong>
+                </div>
+                <div class="ac15">
+                  <div class="ac16">مختلفة القيمة</div>
+                  <strong class="ac20">{{ compare.compareChartData.differentCount }}</strong>
+                </div>
+              </div>
+
+              <!-- Loading spinner -->
+              <div *ngIf="compare.compareChartLoading" class="ac21">
+                <div class="progress-bar-container ac22" >
+                  <div class="progress-bar-fill indeterminate"></div>
+                </div>
+                <div class="ac23">جارٍ تحميل ومطابقة السلاسل الزمنية...</div>
+              </div>
+
+              <!-- Chart container -->
+              <div [style.display]="compare.compareChartLoading ? 'none' : 'block'" class="ac24">
+                <canvas id="fundCompareCanvas" class="ac25"></canvas>
+              </div>
+
+              <!-- Chart Legend Help -->
+              <div class="ac26">
+                <span class="ac27">
+                  <span class="ac28"></span>
+                  <strong>Meezan (بياناتي)</strong>
+                </span>
+                <span class="ac27">
+                  <span class="ac29"></span>
+                  <strong>SNDUK (المصدر)</strong>
+                </span>
+                <span class="ac27">
+                  <span class="ac30"></span>
+                  <strong>نقطة ناقصة</strong>
+                </span>
+                <span class="ac27">
+                  <span class="ac31"></span>
+                  <strong>نقطة مختلفة</strong>
+                </span>
+              </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="ac32">
+              <button type="button" class="btn btn-outline btn-sm ac33" (click)="compare.openHistoricalSyncForSelectedFund()" >
+                <lucide-icon [img]="HistoryIcon" size="13"></lucide-icon>
+                فتح فحص الفجوات لهذا الصندوق
+              </button>
+              <button type="button" class="btn btn-outline" (click)="compare.closeCompareChartModal()">إغلاق</button>
+            </div>
+          </div>
+        </div>

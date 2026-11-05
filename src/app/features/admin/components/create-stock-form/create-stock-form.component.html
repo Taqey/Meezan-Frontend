@@ -1,0 +1,28 @@
+        <div *ngIf="mgmt.showCreateStockModal" class="ac1">
+          <h3 class="ac2">إنشاء سهم جديد</h3>
+          <div class="ac3">
+            <div>
+              <label class="ac4">الرمز (Ticker) *</label>
+              <input type="text" class="form-input ac5" [(ngModel)]="mgmt.newStock.ticker" placeholder="COMI"  />
+            </div>
+            <div>
+              <label class="ac4">الاسم بالعربية</label>
+              <input type="text" class="form-input ac5" [(ngModel)]="mgmt.newStock.nameAr" placeholder="البنك التجاري"  />
+            </div>
+            <div>
+              <label class="ac4">الاسم بالإنجليزية</label>
+              <input type="text" class="form-input ac5" [(ngModel)]="mgmt.newStock.nameEn" placeholder="Commercial Bank"  />
+            </div>
+            <div>
+              <label class="ac4">القطاع (اختياري)</label>
+              <select class="form-input ac5" [(ngModel)]="mgmt.newStock.sectorId" >
+                <option [ngValue]="null">— بدون قطاع —</option>
+                <option *ngFor="let s of mgmt.mgmtSectors" [ngValue]="s.id">{{ s.nameAr }} ({{ s.nameEn }})</option>
+              </select>
+            </div>
+          </div>
+          <div class="ac6">
+            <button class="btn btn-primary" (click)="mgmt.createStock()" [disabled]="mgmt.mgmtBusy">إنشاء</button>
+            <button class="btn btn-outline" (click)="mgmt.showCreateStockModal = false">إلغاء</button>
+          </div>
+        </div>

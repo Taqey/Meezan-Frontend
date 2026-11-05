@@ -1,0 +1,6 @@
+.ac1.ac1 { margin: 0 28px 20px; padding: 20px; background: #f8faff; border: 1px solid var(--border); border-radius: 14px; }
+.ac2.ac2 { margin: 0 0 14px; font-size: 15px; }
+.ac3.ac3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.ac4.ac4 { font-size: 11px; font-weight: 600; color: var(--muted-foreground); display: block; margin-bottom: 4px; }
+.ac5.ac5 { width: 100%; box-sizing: border-box; }
+.ac6.ac6 { display: flex; gap: 10px; margin-top: 14px; }

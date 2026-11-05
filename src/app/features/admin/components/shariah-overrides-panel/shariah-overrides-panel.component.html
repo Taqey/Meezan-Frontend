@@ -1,0 +1,204 @@
+          <div *ngIf="overrides.shariahOverrides" class="ac1">
+            <div class="ac2">
+              <div class="ac3">
+                <h3 class="ac4">
+                  <lucide-icon [img]="Edit3Icon" size="18"></lucide-icon>
+                  بيانات شرعية (يدوي)
+                </h3>
+                <span class="ac5">
+                  يطبق على "بورصة حلال" فقط (EGX 33، DFM، AAOIFI، S&P، KLSI)
+                </span>
+              </div>
+
+              <div class="ac6">
+                <!-- Core Activity Compliant -->
+                <div class="ac7">
+                  <div class="ac8">
+                    <label class="ac9">النشاط الأساسي</label>
+                    <span *ngIf="overrides.shariahOverrides.overrideCoreActivityCompliant !== null" class="ac10">
+                      معدّل يدويًا
+                    </span>
+                  </div>
+                  
+                  <!-- Checkbox row: show EFFECTIVE value (override if set, else feed) -->
+                  <div class="ac11">
+                    <label class="ac12">
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="overrides.coreActivityCheckboxValue"
+                        name="coreActivityCompliantOverride"
+                        class="ac13" />
+                      <span>مطابق للنشاط الأساسي</span>
+                      <small class="ac14">(CoreActivityCompliant)</small>
+                    </label>
+                    <span *ngIf="overrides.shariahOverrides.coreActivityCompliantSource === 'override'" class="ac10">
+                      مصدر: تعديل يدوي
+                    </span>
+                    <span *ngIf="overrides.shariahOverrides.coreActivityCompliantSource === 'feed'" class="ac15">
+                      مصدر: التغذية
+                    </span>
+                  </div>
+
+                  <!-- Read-only classification display -->
+                  <div class="ac16">
+                    <div class="ac17">
+                      <div class="ac18">
+                        <label class="ac19">التصنيف (عربي)</label>
+                        <div class="ac20">
+                          {{ overrides.shariahOverrides.effectiveCategoryAr || 'غير متوفر' }}
+                        </div>
+                      </div>
+                      <div class="ac18">
+                        <label class="ac19">التصنيف (إنجليزي)</label>
+                        <div class="ac20">
+                          {{ overrides.shariahOverrides.effectiveCategoryEn || 'غير متوفر' }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="ac21">
+                    <button
+                      type="button"
+                      class="btn btn-primary ac22"
+                      
+                      (click)="overrides.saveShariahOverrides()"
+                      [disabled]="overrides.savingShariahOverrides">
+                      <lucide-icon [img]="SaveIcon" size="14"></lucide-icon>
+                      حفظ الكل
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline ac23"
+                      
+                      (click)="overrides.resetShariahOverride('CoreActivityCompliant')"
+                      [disabled]="overrides.savingShariahOverrides || overrides.shariahOverrides.overrideCoreActivityCompliant === null"
+                      title="استعادة قيمة التغذية لمطابقة النشاط الأساسي">
+                      <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
+                      استعادة النشاط
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Haram Revenue Percentage -->
+                <div class="ac7">
+                  <div class="ac8">
+                    <label class="ac9">نسبة الإيراد المحرم (%)</label>
+                    <span *ngIf="overrides.shariahOverrides.overrideHaramRevenuePercentage !== null" class="ac10">
+                      معدّل يدويًا
+                    </span>
+                  </div>
+                  <div class="ac24">
+                    <!-- Override input with % suffix -->
+                    <div class="ac25">
+                      <label class="ac26">التعديل اليدوي</label>
+                      <div class="ac25">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          [(ngModel)]="overrides.shariahOverrideForm.haramRevenuePercentageOverride"
+                          name="haramRevenuePercentageOverride"
+                          class="admin-form input ac27"
+                          placeholder="من المصدر"
+                           />
+                        <span class="ac28">%</span>
+                      </div>
+                      <div *ngIf="overrides.shariahOverrides.overrideHaramRevenuePercentage !== null" class="ac29">
+                        التغذية: {{ overrides.shariahOverrides.feedHaramRevenuePercentage !== null ? (overrides.shariahOverrides.feedHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
+                      </div>
+                    </div>
+                    
+                    <!-- Effective and feed values display - never overlaps input -->
+                    <div class="ac30">
+                      <div class="ac18">
+                        <label class="ac19">القيمة الفعّالة</label>
+                        <div class="ac31">
+                          {{ overrides.shariahOverrides.effectiveHaramRevenuePercentage !== null ? (overrides.shariahOverrides.effectiveHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
+                        </div>
+                      </div>
+                      <div class="ac18">
+                        <label class="ac19">قيمة المصدر</label>
+                        <div class="ac32">
+                          {{ overrides.shariahOverrides.feedHaramRevenuePercentage !== null ? (overrides.shariahOverrides.feedHaramRevenuePercentage | number:'1.2-2') + '%' : '—' }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ac33">
+                    <button
+                      type="button"
+                      class="btn btn-outline ac23"
+                      
+                      (click)="overrides.resetShariahOverride('HaramRevenuePercentage')"
+                      [disabled]="overrides.savingShariahOverrides || overrides.shariahOverrides.overrideHaramRevenuePercentage === null"
+                      title="استعادة قيمة التغذية لنسبة الإيراد المحرم">
+                      <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
+                      استعادة للتغذية
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Loans Percentage -->
+                <div class="ac7">
+                  <div class="ac8">
+                    <label class="ac9">نسبة القروض والفوائد (%)</label>
+                    <span *ngIf="overrides.shariahOverrides.overrideLoansPercentage !== null" class="ac10">
+                      معدّل يدويًا
+                    </span>
+                  </div>
+                  <div class="ac24">
+                    <!-- Override input with % suffix -->
+                    <div class="ac25">
+                      <label class="ac26">التعديل اليدوي</label>
+                      <div class="ac25">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="100"
+                          [(ngModel)]="overrides.shariahOverrideForm.loansPercentageOverride"
+                          name="loansPercentageOverride"
+                          class="admin-form input ac27"
+                          placeholder="من المصدر"
+                           />
+                        <span class="ac28">%</span>
+                      </div>
+                      <div *ngIf="overrides.shariahOverrides.overrideLoansPercentage !== null" class="ac29">
+                        التغذية: {{ overrides.shariahOverrides.feedLoansPercentage !== null ? (overrides.shariahOverrides.feedLoansPercentage | number:'1.2-2') + '%' : '—' }}
+                      </div>
+                    </div>
+                    
+                    <!-- Effective and feed values display - never overlaps input -->
+                    <div class="ac30">
+                      <div class="ac18">
+                        <label class="ac19">القيمة الفعّالة</label>
+                        <div class="ac31">
+                          {{ overrides.shariahOverrides.effectiveLoansPercentage !== null ? (overrides.shariahOverrides.effectiveLoansPercentage | number:'1.2-2') + '%' : '—' }}
+                        </div>
+                      </div>
+                      <div class="ac18">
+                        <label class="ac34">قيمة المصدر</label>
+                        <div class="ac32">
+                          {{ overrides.shariahOverrides.feedLoansPercentage !== null ? (overrides.shariahOverrides.feedLoansPercentage | number:'1.2-2') + '%' : '—' }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ac33">
+                    <button
+                      type="button"
+                      class="btn btn-outline ac23"
+                      
+                      (click)="overrides.resetShariahOverride('LoansPercentage')"
+                      [disabled]="overrides.savingShariahOverrides || overrides.shariahOverrides.overrideLoansPercentage === null"
+                      title="استعادة قيمة التغذية لنسبة القروض والفوائد">
+                      <lucide-icon [img]="RotateCcwIcon" size="13"></lucide-icon>
+                      استعادة للتغذية
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>

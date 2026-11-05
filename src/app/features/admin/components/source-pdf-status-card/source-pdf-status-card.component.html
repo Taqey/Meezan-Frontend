@@ -1,0 +1,35 @@
+        <div class="admin-card ac1" >
+          <h3 class="ac2">الملفات المخزنة حالياً:</h3>
+          <div *ngIf="pdf.sourcePdfLoading" class="ac3">جارٍ تحميل حالة الملفات المخزنة...</div>
+          <div *ngIf="!pdf.sourcePdfLoading && pdf.sourcePdfError" class="admin-result error ac4" >{{ pdf.sourcePdfError }}</div>
+          <div *ngIf="!pdf.sourcePdfLoading && !pdf.sourcePdfError" class="ac5">
+            <div class="ac6">
+              <strong class="ac7">بنك فيصل الإسلامي</strong>
+              <div class="ac8" [ngSwitch]="pdf.getSourcePdfState('FaisalBank')?.status">
+                <span *ngSwitchCase="'exists'">
+                  موجود ({{ pdf.getSourcePdfState('FaisalBank')?.fileName }}<span *ngIf="pdf.getSourcePdfState('FaisalBank')?.sizeBytes != null"> — {{ pdf.formatFileSize(pdf.getSourcePdfState('FaisalBank')?.sizeBytes!) }}</span><span *ngIf="pdf.formatPdfDate(pdf.getSourcePdfState('FaisalBank')?.lastModifiedUtc)"> — {{ pdf.formatPdfDate(pdf.getSourcePdfState('FaisalBank')?.lastModifiedUtc) }}</span>)
+                  <br><a [href]="pdf.getSourcePdfViewUrl('FaisalBank')" target="_blank" rel="noopener">View PDF</a>
+                </span>
+                <span *ngSwitchCase="'missing-file'" class="ac4">
+                  Referenced in database but file missing on server (مسجّل في قاعدة البيانات لكن الملف مفقود على الخادم<span *ngIf="pdf.getSourcePdfState('FaisalBank')?.fileName">: {{ pdf.getSourcePdfState('FaisalBank')?.fileName }}</span>)
+                </span>
+                <span *ngSwitchCase="'not-found'" class="ac4">غير موجود</span>
+                <span *ngSwitchDefault class="ac4">غير موجود</span>
+              </div>
+            </div>
+            <div class="ac6">
+              <strong class="ac9">أسطول</strong>
+              <div class="ac8" [ngSwitch]="pdf.getSourcePdfState('Ostoul')?.status">
+                <span *ngSwitchCase="'exists'">
+                  موجود ({{ pdf.getSourcePdfState('Ostoul')?.fileName }}<span *ngIf="pdf.getSourcePdfState('Ostoul')?.sizeBytes != null"> — {{ pdf.formatFileSize(pdf.getSourcePdfState('Ostoul')?.sizeBytes!) }}</span><span *ngIf="pdf.formatPdfDate(pdf.getSourcePdfState('Ostoul')?.lastModifiedUtc)"> — {{ pdf.formatPdfDate(pdf.getSourcePdfState('Ostoul')?.lastModifiedUtc) }}</span>)
+                  <br><a [href]="pdf.getSourcePdfViewUrl('Ostoul')" target="_blank" rel="noopener">View PDF</a>
+                </span>
+                <span *ngSwitchCase="'missing-file'" class="ac4">
+                  Referenced in database but file missing on server (مسجّل في قاعدة البيانات لكن الملف مفقود على الخادم<span *ngIf="pdf.getSourcePdfState('Ostoul')?.fileName">: {{ pdf.getSourcePdfState('Ostoul')?.fileName }}</span>)
+                </span>
+                <span *ngSwitchCase="'not-found'" class="ac4">غير موجود</span>
+                <span *ngSwitchDefault class="ac4">غير موجود</span>
+              </div>
+            </div>
+          </div>
+        </div>

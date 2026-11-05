@@ -1,0 +1,15 @@
+.ac1.ac1 { padding: 0 28px 28px; }
+.ac2.ac2 { padding: 24px 0; text-align: center; }
+.ac3.ac3 { width: 100%; }
+.ac4.ac4 { font-family: monospace; }
+.ac5.ac5 { font-size: 10px; background: #fee2e2; color: #b91c1c; padding: 1px 6px; border-radius: 999px; margin-right: 4px; }
+.ac6.ac6 { font-size: 13px; }
+.ac7.ac7 { text-align: center; }
+.ac8.ac8 { font-size: 11px; background: #ede9fe; color: #5b21b6; padding: 2px 8px; border-radius: 999px; }
+.ac9.ac9 { font-size: 11px; color: var(--muted-foreground); }
+.ac10.ac10 { display: flex; gap: 6px; align-items: center; }
+.ac11.ac11 { font-size: 12px; padding: 4px 8px; min-width: 140px; }
+.ac12.ac12 { font-size: 12px; padding: 4px 10px; }
+.ac13.ac13 { font-size: 12px; padding: 4px 10px; border-color: #fecaca; color: var(--bad); }
+.ac14.ac14 { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.ac15.ac15 { font-size: 12px; padding: 4px 8px; min-width: 130px; }

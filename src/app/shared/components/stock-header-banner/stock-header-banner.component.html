@@ -1,0 +1,42 @@
+          <div class="shb1">
+            <div>
+              <div class="shb2">
+                <h3 class="shb3">
+                  [{{ stockMarketData.ticker }}] {{ stockMarketData.nameAr || stockMarketData.nameEn }}
+                </h3>
+                <span class="shb4">
+                  {{ stockMarketData.sectorNameAr || 'قطاع عام' }}
+                </span>
+                <span *ngIf="!stockMarketData.fetchedAt" class="shb5">
+                  لا توجد بيانات سوق سابقة — سيتم الإنشاء عند الحفظ
+                </span>
+              </div>
+              <div *ngIf="stockMarketData.fetchedAt" class="shb6">
+                آخر تحديث حي: <strong>{{ stockMarketData.fetchedAt | date:'yyyy-MM-dd HH:mm' }}</strong>
+                <span *ngIf="stockMarketData.sourceLastUpdateText"> | المصدر: {{ stockMarketData.sourceLastUpdateText }}</span>
+              </div>
+            </div>
+
+            <!-- Shariah & Fair Value Context Pills -->
+            <div class="shb7">
+              <div class="shb8">
+                <div class="shb9">القيمة العادلة المحسوبة:</div>
+                <strong class="shb10">
+                  {{ stockMarketData.fairValue ? (stockMarketData.fairValue | number:'1.2-2') + ' جنيه' : 'غير متوفرة' }}
+                </strong>
+                <span *ngIf="stockMarketData.priceComparison" class="shb11" [style.color]="stockMarketData.priceComparison === 'Cheap' ? 'var(--good)' : (stockMarketData.priceComparison === 'Expensive' ? 'var(--bad)' : 'inherit')">
+                  ({{ stockMarketData.priceComparison === 'Cheap' ? 'أرخص من العادلة' : (stockMarketData.priceComparison === 'Expensive' ? 'أعلى من العادلة' : (stockMarketData.priceComparison === 'Fair' ? 'قريبة من العادلة' : 'لا يمكن حساب القيمة العادلة')) }})
+                </span>
+              </div>
+
+              <div class="shb8">
+                <div class="shb9">حكم الشريعة:</div>
+                <strong [style.color]="stockMarketData.shariahStatus === 'Compliant' ? 'var(--good)' : 'var(--bad)'">
+                  {{ stockMarketData.shariahStatus === 'Compliant' ? 'متوافق' : (stockMarketData.shariahStatus || 'غير محدد') }}
+                </strong>
+                <span *ngIf="stockMarketData.shariahPct !== null" class="shb11">
+                  ({{ stockMarketData.shariahPct }}% تطهير)
+                </span>
+              </div>
+            </div>
+          </div>

@@ -1,0 +1,20 @@
+.ac1.ac1 { margin-top: 24px; border-top: 4px solid #10b981; }
+.ac2.ac2 { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+.ac3.ac3 { margin: 0; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+.ac4.ac4 { color: #10b981; }
+.ac5.ac5 { margin: 4px 0 0; font-size: 13px; }
+.ac6.ac6 { display: flex; gap: 8px; align-items: center; }
+.ac7.ac7 { font-size: 12px; font-weight: 600; }
+.ac8.ac8 { background: #10b981; border-color: #10b981; gap: 6px; font-size: 13px; }
+.ac9.ac9 { margin-bottom: 12px; }
+.ac10.ac10 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 16px; }
+.ac11.ac11 { font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+.ac12.ac12 { font-size: 12px; color: var(--muted-foreground); display: flex; flex-direction: column; gap: 4px; }
+.ac13.ac13 { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ac14.ac14 { font-size: 12px; padding: 4px 8px; }
+.ac15.ac15 { font-size: 12px; padding: 4px 10px; }
+.ac16.ac16 { font-weight: 700; }
+.ac17.ac17 { color: var(--good); }
+.ac18.ac18 { color: var(--bad); }
+.ac19.ac19 { background: #fef3c7; color: #b45309; font-size: 11px; }
+.ac20.ac20 { background: #dcfce7; color: #15803d; font-size: 11px; }

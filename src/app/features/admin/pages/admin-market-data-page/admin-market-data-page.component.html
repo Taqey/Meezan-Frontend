@@ -1,0 +1,24 @@
+<div class="admin-card">
+  <h2>تعديل بيانات السوق والتقييم للأسهم يدوياً</h2>
+  <p class="muted">
+    ابحث عن السهم وحدده لتعديل أسعار السوق ومؤشرات التقييم الأساسية. يتم حفظ كامل الحقول مع خيار إعادة حساب مكررات الربحية P/E ومضاعف القيمة الدفترية P/B تلقائياً.
+  </p>
+
+  <app-stock-picker
+    [filteredStocks]="marketData.filteredStocks"
+    [(searchQuery)]="marketData.stockSearchQuery"
+    [(selectedTicker)]="marketData.selectedTicker"
+    (searchInput)="marketData.onSearchInput()"
+    (stockSelected)="marketData.onStockSelected()"
+    (directSelect)="marketData.selectStockDirectly($event)">
+  </app-stock-picker>
+
+  <div *ngIf="marketData.loadingStock" class="amd-loading">
+    جارٍ تحميل بيانات السهم...
+  </div>
+
+  <div *ngIf="marketData.selectedStockMarketData && !marketData.loadingStock" class="amd-content">
+    <app-stock-header-banner [stockMarketData]="marketData.selectedStockMarketData"></app-stock-header-banner>
+    <app-market-data-form></app-market-data-form>
+  </div>
+</div>

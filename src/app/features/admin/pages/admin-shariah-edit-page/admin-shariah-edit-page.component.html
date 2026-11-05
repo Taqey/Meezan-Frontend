@@ -1,0 +1,26 @@
+<div class="admin-card">
+  <h2>تعديل البيانات الشرعية للأسهم يدوياً</h2>
+  <p class="muted">
+    ابحث عن السهم وحدده لتعديل البيانات الشرعية يدوياً (تصنيف النشاط، مطابقة النشاط الأساسي، نسبة الإيراد المحرم، نسبة القروض والفوائد).
+    القيم المدخلة هنا تطبق على "بورصة حلال" فقط (EGX 33، DFM، AAOIFI، S&P، KLSI) وتجاوز قيم التغذية.
+  </p>
+
+  <app-stock-picker
+    [filteredStocks]="overrides.filteredShariahStocks"
+    [(searchQuery)]="overrides.shariahStockSearchQuery"
+    [(selectedTicker)]="overrides.shariahSelectedTicker"
+    (searchInput)="overrides.onShariahSearchInput()"
+    (stockSelected)="overrides.onShariahStockSelected()"
+    (directSelect)="overrides.selectShariahStockDirectly($event)">
+  </app-stock-picker>
+
+  <div *ngIf="overrides.shariahLoadingStock" class="ase-loading">
+    جارٍ تحميل بيانات السهم...
+  </div>
+
+  <div *ngIf="overrides.shariahSelectedStockMarketData && !overrides.shariahLoadingStock" class="ase-content">
+    <app-stock-header-banner [stockMarketData]="overrides.shariahSelectedStockMarketData"></app-stock-header-banner>
+    <app-shariah-overrides-panel></app-shariah-overrides-panel>
+    <app-bourse-halal-standards-table></app-bourse-halal-standards-table>
+  </div>
+</div>

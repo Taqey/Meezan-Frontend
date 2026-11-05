@@ -1,0 +1,54 @@
+<div class="jc-card">
+  <div>
+    <div class="jc-header">
+      <strong class="jc-title" [style.color]="accentColor">
+        <lucide-icon [img]="icon" size="18"></lucide-icon>
+        {{ title }}
+      </strong>
+      <span class="live-dot" *ngIf="isRunning"></span>
+    </div>
+    <p class="jc-desc">{{ description }}</p>
+    <div class="jc-schedule-box">
+      <div class="jc-schedule-row"><strong>الجدول التلقائي:</strong> {{ scheduleText }}</div>
+      <div><strong>آخر تشغيل مسجل:</strong> {{ lastRunText }}</div>
+    </div>
+    <div class="jc-toggle-box"
+         [style.background]="isEnabled ? enabledBg : '#fef2f2'"
+         [style.borderColor]="isEnabled ? enabledBorder : '#fecaca'">
+      <div>
+        <div class="jc-toggle-title" [style.color]="isEnabled ? enabledTextColor : '#991b1b'">
+          {{ isEnabled ? 'التشغيل التلقائي مُفعَّل' : 'التشغيل التلقائي مُعطَّل' }}
+        </div>
+        <div class="jc-toggle-sub">
+          {{ isEnabled ? enabledSubText : 'لن يتم تنفيذ الجدول التلقائي' }}
+        </div>
+      </div>
+      <button
+        type="button"
+        (click)="toggleJob.emit()"
+        [disabled]="isToggling"
+        class="btn btn-outline jc-toggle-btn"
+        [style.borderColor]="isEnabled ? enabledBtnColor : '#dc2626'"
+        [style.color]="isEnabled ? enabledBtnColor : '#dc2626'">
+        {{ showSavingText && isToggling ? 'جارٍ الحفظ...' : (isEnabled ? 'تعطيل الآلي' : 'تفعيل الآلي') }}
+      </button>
+    </div>
+  </div>
+  <div class="jc-footer">
+    <div *ngIf="isRunning" class="progress-bar-container jc-progress">
+      <div class="progress-bar-fill indeterminate"></div>
+    </div>
+    <button
+      [class]="runBtnClass"
+      (click)="runJob.emit()"
+      [disabled]="runDisabled"
+      class="jc-run-btn"
+      [style.borderColor]="runBtnBorderColor"
+      [style.color]="runBtnTextColor">
+      <lucide-icon *ngIf="!isRunning" [img]="PlayIcon" size="16"></lucide-icon>
+      <lucide-icon *ngIf="isRunning" [img]="RotateCcwIcon" size="16" class="spin-anim"></lucide-icon>
+      {{ isRunning ? runningLabel : runLabel }}
+    </button>
+    <ng-content></ng-content>
+  </div>
+</div>

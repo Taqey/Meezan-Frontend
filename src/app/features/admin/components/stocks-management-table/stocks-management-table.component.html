@@ -1,0 +1,62 @@
+        <div class="table-scroll-x ac1" >
+          <div *ngIf="mgmt.mgmtLoading" class="muted ac2" >جارٍ التحميل...</div>
+          <div *ngIf="!mgmt.mgmtLoading && mgmt.mgmtStocks.length === 0" class="muted ac2" >لا توجد نتائج. ابحث بالرمز أو الاسم أعلاه.</div>
+          <table *ngIf="mgmt.mgmtStocks.length > 0" class="admin-table" __INLINE_CLS__="ac3">
+            <thead>
+              <tr>
+                <th>الرمز</th>
+                <th>الاسم</th>
+                <th>القطاع الحالي</th>
+                <th>يدوي؟</th>
+                <th>تعيين قطاع</th>
+                <th>مؤشرات</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of mgmt.mgmtStocks">
+                <td><strong class="ac4">{{ s.ticker }}</strong>
+                  <span *ngIf="!s.isActive" class="ac5">معطَّل</span>
+                </td>
+                <td class="ac6">{{ s.nameAr || s.nameEn || '—' }}</td>
+                <td class="ac6">
+                  <span *ngIf="s.sectorNameAr">{{ s.sectorNameAr }}</span>
+                  <span *ngIf="!s.sectorNameAr" class="muted">—</span>
+                </td>
+                <td class="ac7">
+                  <span *ngIf="s.isManual" class="ac8">يدوي ✦</span>
+                  <span *ngIf="!s.isManual" class="ac9">آلي</span>
+                </td>
+                <td>
+                  <div class="ac10">
+                    <select class="form-input ac11" 
+                            [(ngModel)]="mgmt.mgmtPickedSector[s.id]">
+                      <option [ngValue]="undefined">— اختر قطاعاً —</option>
+                      <option *ngFor="let sec of mgmt.mgmtSectors" [ngValue]="sec.id">{{ sec.nameAr }}</option>
+                    </select>
+                    <button class="btn btn-outline ac12" 
+                            (click)="mgmt.assignSector(s)" [disabled]="!mgmt.mgmtPickedSector[s.id] || mgmt.mgmtBusy">تعيين</button>
+                    <button *ngIf="s.sectorId" class="btn btn-outline ac13" 
+                            (click)="mgmt.removeFromSector(s)" [disabled]="mgmt.mgmtBusy">إزالة</button>
+                  </div>
+                </td>
+                <td>
+                  <div class="ac14">
+                    <select class="form-input ac15" 
+                            [(ngModel)]="mgmt.mgmtPickedIndex[s.id]">
+                      <option [ngValue]="undefined">— اختر مؤشراً —</option>
+                      <option *ngFor="let idx of mgmt.mgmtIndices" [ngValue]="idx.id">{{ idx.code }}</option>
+                    </select>
+                    <button class="btn btn-outline ac12" 
+                            (click)="mgmt.addToIndex(s)" [disabled]="!mgmt.mgmtPickedIndex[s.id] || mgmt.mgmtBusy">إضافة</button>
+                    <button *ngIf="mgmt.mgmtPickedIndex[s.id]" class="btn btn-outline ac13" 
+                            (click)="mgmt.removeFromIndex(s)" [disabled]="mgmt.mgmtBusy">إزالة من المؤشر</button>
+                  </div>
+                </td>
+                <td>
+                  <!-- placeholder for future actions -->
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>

@@ -1,0 +1,285 @@
+          <form (submit)="marketData.saveMarketData($event)" class="ac1">
+            <div class="ac2">
+              
+              <!-- Closing Price -->
+              <div>
+                <label class="ac3">
+                  سعر الإغلاق الحالي (Closing Price) *
+                </label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  min="0"
+                  [(ngModel)]="marketData.marketForm.closingPrice"
+                  name="closingPrice"
+                  class="admin-form input"
+                  required />
+              </div>
+
+              <!-- Open -->
+              <div>
+                <label class="ac3">
+                  سعر الافتتاح (Open)
+                </label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  min="0"
+                  [(ngModel)]="marketData.marketForm.open"
+                  name="open"
+                  class="admin-form input" />
+              </div>
+
+              <!-- High -->
+              <div>
+                <label class="ac3">
+                  أعلى سعر (High)
+                </label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  min="0"
+                  [(ngModel)]="marketData.marketForm.high"
+                  name="high"
+                  class="admin-form input" />
+              </div>
+
+              <!-- Low -->
+              <div>
+                <label class="ac3">
+                  أدنى سعر (Low)
+                </label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  min="0"
+                  [(ngModel)]="marketData.marketForm.low"
+                  name="low"
+                  class="admin-form input" />
+              </div>
+
+              <!-- Currency -->
+              <div>
+                <label class="ac3">
+                  العملة (Currency)
+                </label>
+                <input
+                  type="text"
+                  [(ngModel)]="marketData.marketForm.currency"
+                  name="currency"
+                  placeholder="EGP"
+                  class="admin-form input" />
+              </div>
+
+              <!-- Nominal Value -->
+              <div>
+                <label class="ac3">
+                  القيمة الاسمية (Nominal Value)
+                </label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  min="0"
+                  [(ngModel)]="marketData.marketForm.nominalValue"
+                  name="nominalValue"
+                  class="admin-form input" />
+              </div>
+
+              <!-- Book Value -->
+              <div>
+                <label class="ac3">
+                  القيمة الدفترية (Book Value)
+                </label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  min="0"
+                  [(ngModel)]="marketData.marketForm.bookValue"
+                  name="bookValue"
+                  class="admin-form input" />
+              </div>
+
+              <!-- EPS -->
+              <div>
+                <label class="ac3">
+                  ربحية السهم (EPS)
+                </label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  [(ngModel)]="marketData.marketForm.eps"
+                  name="eps"
+                  class="admin-form input" />
+              </div>
+
+              <!-- Market Value / Cap -->
+              <div>
+                <label class="ac3">
+                  القيمة السوقية (Market Value)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  [(ngModel)]="marketData.marketForm.marketValue"
+                  name="marketValue"
+                  class="admin-form input" />
+              </div>
+
+              <!-- P/E Ratio -->
+              <div>
+                <label class="ac3">
+                  مكرر الربحية (P/E Ratio)
+                </label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  [(ngModel)]="marketData.marketForm.peRatio"
+                  name="peRatio"
+                  [disabled]="marketData.marketForm.recalculateRatios"
+                  class="admin-form input" />
+                <span *ngIf="marketData.marketForm.recalculateRatios" class="ac4">
+                  يتم حسابه تلقائياً من (السعر ÷ EPS)
+                </span>
+              </div>
+
+              <!-- P/B Ratio -->
+              <div>
+                <label class="ac3">
+                  مضاعف القيمة الدفترية (P/B Ratio)
+                </label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  [(ngModel)]="marketData.marketForm.pbRatio"
+                  name="pbRatio"
+                  [disabled]="marketData.marketForm.recalculateRatios"
+                  class="admin-form input" />
+                <span *ngIf="marketData.marketForm.recalculateRatios" class="ac4">
+                  يتم حسابه تلقائياً من (السعر ÷ الدفترية)
+                </span>
+              </div>
+
+              <!-- Shares Outstanding -->
+              <div>
+                <label class="ac3">
+                  عدد الأسهم القائمة (Shares Outstanding)
+                </label>
+                <input
+                  type="number"
+                  step="1"
+                  min="0"
+                  [(ngModel)]="marketData.marketForm.sharesOutstanding"
+                  name="sharesOutstanding"
+                  placeholder="مثال: 657070000"
+                  class="admin-form input" />
+              </div>
+
+              <!-- Earnings Growth Rate -->
+              <div>
+                <label class="ac3">
+                  معدل نمو الأرباح % (Earnings Growth)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  [(ngModel)]="marketData.marketForm.earningsGrowthRate"
+                  name="earningsGrowthRate"
+                  placeholder="مثال: 14.2"
+                  class="admin-form input" />
+              </div>
+
+              <!-- EPS Growth Rate -->
+              <div>
+                <label class="ac3">
+                  معدل نمو ربحية السهم % (EPS Growth)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  [(ngModel)]="marketData.marketForm.epsGrowthRate"
+                  name="epsGrowthRate"
+                  placeholder="مثال: 10.8"
+                  class="admin-form input" />
+              </div>
+
+              <!-- Free Cash Flow -->
+              <div>
+                <label class="ac3">
+                  التدفق النقدي الحر (Free Cash Flow) - بالمليون
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  [(ngModel)]="marketData.marketForm.freeCashFlow"
+                  name="freeCashFlow"
+                  placeholder="مثال: 412.5"
+                  class="admin-form input" />
+              </div>
+
+              <!-- Source Note -->
+              <div>
+                <label class="ac3">
+                  ملاحظة مصدر البيانات (Source text)
+                </label>
+                <input
+                  type="text"
+                  [(ngModel)]="marketData.marketForm.sourceLastUpdateText"
+                  name="sourceLastUpdateText"
+                  placeholder="تعديل يدوي"
+                  class="admin-form input" />
+              </div>
+
+            </div>
+
+            <!-- Recalculate Ratios Checkbox Option -->
+            <div class="ac5">
+              <label class="ac6">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="marketData.marketForm.recalculateRatios"
+                  name="recalculateRatios"
+                  class="ac7" />
+                <span>
+                  <strong>إعادة احتساب P/E و P/B تلقائياً</strong> (بناءً على السعر الجديد وقيم EPS والقيمة الدفترية المدخلة)
+                </span>
+              </label>
+            </div>
+
+            <!-- Form Error or Success Result -->
+            <div *ngIf="marketData.saveError" class="admin-result error">
+              {{ marketData.saveError }}
+            </div>
+
+            <div *ngIf="marketData.saveSuccessResult" class="admin-result success">
+              <div class="ac8">
+                تم حفظ بيانات السهم [{{ marketData.saveSuccessResult.ticker }}] وإعادة احتساب القيمة العادلة بنجاح!
+              </div>
+              <div class="ac9">
+                <span *ngIf="marketData.saveSuccessResult.fairValue">القيمة العادلة الجديدة: <strong class="ac10">{{ marketData.saveSuccessResult.fairValue | number:'1.2-2' }} جنيه</strong></span>
+                <span>الحزمة الحية: <strong>محدثة</strong></span>
+                <span>الحزمة الدورية: <strong>محدثة</strong></span>
+                <span>وقت التحديث: {{ marketData.saveSuccessResult.fetchedAt | date:'yyyy-MM-dd HH:mm:ss' }}</span>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="ac11">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="marketData.savingMarketData">
+                <lucide-icon [img]="SaveIcon" size="16"></lucide-icon>
+                {{ marketData.savingMarketData ? 'جارٍ حفظ التعديلات...' : 'حفظ بيانات السوق' }}
+              </button>
+
+<button
+                type="button"
+                class="btn btn-outline"
+                (click)="marketData.resetMarketForm()"
+                [disabled]="marketData.savingMarketData">
+                <lucide-icon [img]="RotateCcwIcon" size="16"></lucide-icon>
+                استعادة القيم الأصلية
+              </button>
+            </div>
+          </form>

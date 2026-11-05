@@ -1,0 +1,68 @@
+        <div *ngIf="jobs.scrapeStatus" class="ac1">
+          
+          <!-- Running Jobs Section (stacked if multiple running) -->
+          <div *ngIf="jobs.runningJobs.length > 0">
+            <div *ngFor="let rJob of jobs.runningJobs; let last = last" [style.marginBottom]="last ? '0px' : '20px'" [style.paddingBottom]="last ? '0px' : '16px'" [style.borderBottom]="last ? 'none' : '1px solid var(--border)'">
+              <div class="ac2">
+                <div class="ac3">
+                  <span class="live-dot"></span>
+                  <strong>الحالة الحالية:</strong>
+                  <span class="ac4">
+                    {{ jobs.getJobStatusLabel(rJob.status) }} ({{ rJob.nameAr }})
+                  </span>
+                  <span *ngIf="rJob.live?.triggeredBy" class="ac5">
+                    [{{ rJob.live?.triggeredBy }}]
+                  </span>
+                </div>
+
+                <span *ngIf="rJob.live?.currentStockTicker" class="ac6">
+                  العنصر الجاري: [{{ rJob.live?.currentStockTicker }}]
+                </span>
+              </div>
+
+              <!-- Progress Bar -->
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" [style.width.%]="rJob.live?.percentComplete || 0"></div>
+              </div>
+
+              <div class="progress-stats" *ngIf="rJob.live">
+                <span>المنجز: {{ rJob.live.processedCount }} من {{ rJob.live.totalStocks }} ({{ rJob.live.percentComplete }}%)</span>
+                <span>الناجح: {{ rJob.live.succeededCount }} | الفاشل: {{ rJob.live.failedCount }}</span>
+                <span *ngIf="rJob.live.estimatedSecondsRemaining !== null">
+                  الوقت المتبقي التقديري: {{ rJob.live.estimatedSecondsRemaining }} ثانية
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recently Finished Jobs (briefly shown after completion/failure) -->
+          <div *ngIf="jobs.runningJobs.length === 0 && jobs.recentlyFinishedJobs.length > 0">
+            <div *ngFor="let fJob of jobs.recentlyFinishedJobs" class="ac7">
+              <div class="ac2">
+                <div class="ac3">
+                  <strong>الحالة:</strong>
+                  <span [style.color]="fJob.status === 'Completed' ? 'var(--good)' : 'var(--bad)'" class="ac8">
+                    {{ jobs.getJobStatusLabel(fJob.status) }} ({{ fJob.nameAr }})
+                  </span>
+                </div>
+                <div *ngIf="fJob.live" class="ac9">
+                  أنجز {{ fJob.live.processedCount }} من {{ fJob.live.totalStocks }} (نجح: {{ fJob.live.succeededCount }} | فشل: {{ fJob.live.failedCount }})
+                </div>
+              </div>
+              <div class="progress-bar-container ac10" >
+                <div class="progress-bar-fill" [style.width.%]="100" [style.background]="fJob.status === 'Completed' ? 'var(--good)' : 'var(--bad)'"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Idle (Not Running) state when no jobs active -->
+          <div *ngIf="jobs.runningJobs.length === 0 && jobs.recentlyFinishedJobs.length === 0" class="ac11">
+            <div class="ac3">
+              <strong>الحالة الحالية:</strong>
+              <span class="ac12">متوقف (NotRunning)</span>
+            </div>
+            <div *ngIf="jobs.scrapeStatus?.lastRun" class="ac9">
+              آخر تشغيل: <strong>{{ jobs.scrapeStatus!.lastRun!.triggeredBy }}</strong> ({{ jobs.scrapeStatus!.lastRun!.succeededStocks }} ناجح من {{ jobs.scrapeStatus!.lastRun!.totalStocks }})
+            </div>
+          </div>
+        </div>

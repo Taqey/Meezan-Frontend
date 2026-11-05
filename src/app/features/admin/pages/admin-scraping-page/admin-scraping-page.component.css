@@ -1,0 +1,4 @@
+.asp-grid.asp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin: 24px 0; }
+.asp-snap-res.asp-snap-res { font-size: 11px; text-align: center; margin-top: 4px; }
+.asp-snap-err.asp-snap-err { font-size: 11px; text-align: center; color: var(--bad); margin-top: 4px; }
+.asp-toggle-err.asp-toggle-err { margin-top: 12px; margin-bottom: 12px; }

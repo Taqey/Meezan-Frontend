@@ -110,6 +110,10 @@ export class StockDetailComponent implements OnInit, OnDestroy {
   readonly XIcon = X;
   readonly MinusIcon = Minus;
   readonly criterionOrder: readonly ShariahCriterionKey[] = CRITERION_ORDER;
+
+  readonly trackByIndex = (i: number): number => i;
+  readonly trackByRatioKey = (_: number, r: { key: string }): string => r.key;
+  readonly trackByCriterionName = (_: number, ev: { nameEn: string }): string => ev.nameEn;
   readonly criterionLabels = CRITERION_LABELS;
 
   getCriterionLabelAr(key: string): string {

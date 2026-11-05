@@ -112,7 +112,7 @@
             اجتاز {{ dialogTotalPassed }} من {{ dialogTotalCount }} معايير
           </p>
 
-          <div class="std-block" *ngFor="let ev of dialogMainCriteria">
+          <div class="std-block" *ngFor="let ev of dialogMainCriteria; trackBy: trackByCriterionName">
             <div class="std-block-head">
               <span class="std-verdict" [class.pass]="ev.passed" [class.fail]="!ev.passed">
                 <lucide-icon [img]="ev.passed ? CheckIcon : XIcon" size="14"></lucide-icon>
@@ -122,7 +122,7 @@
                 <span class="std-en">{{ ev.nameEn }}</span>
               </div>
             </div>
-            <div class="criterion-row" *ngFor="let r of ev.ratios">
+            <div class="criterion-row" *ngFor="let r of ev.ratios; trackBy: trackByRatioKey">
               <span class="criterion-name">{{ getCriterionLabelAr(r.key) }}</span>
               <span class="criterion-values">
                 <ng-container *ngIf="r.hasData; else noCriterionData">
@@ -154,7 +154,7 @@
                 <span class="std-en">{{ scholarsStandardNameEn }}</span>
               </div>
             </div>
-            <div class="criterion-row" *ngFor="let r of dialogScholarsCriterion.ratios">
+            <div class="criterion-row" *ngFor="let r of dialogScholarsCriterion.ratios; trackBy: trackByRatioKey">
               <span class="criterion-name">{{ getCriterionLabelAr(r.key) }}</span>
               <span class="criterion-values">
                 <ng-container *ngIf="r.hasData; else noScholarsData">

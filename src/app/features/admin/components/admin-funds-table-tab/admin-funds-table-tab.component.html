@@ -44,14 +44,14 @@
                       {{ funds.missingPricesErrors[f.id] }}
                     </div>
                     <div *ngIf="funds.missingPricesResults[f.id] as res" class="af8">
-                      <div [style.color]="res.addedCount > 0 ? 'var(--good, #16a34a)' : 'var(--foreground)'" __INLINE_CLS__="af9">
+                      <div [style.color]="res.addedCount > 0 ? 'var(--good, #16a34a)' : 'var(--foreground)'" class="af9">
                         {{ res.message }}
                       </div>
                       <div *ngIf="res.missingRangesFound?.length" class="muted af10" >
                         النطاقات الناقصة المرصودة: <span dir="ltr">{{ res.missingRangesFound.join(' , ') }}</span>
                         (النافذة المطلوبة: <code>{{ res.timeframeRequested }}</code>)
                       </div>
-                      <div *ngIf="res.addedCount > 0" __INLINE_CLS__="af10">
+                      <div *ngIf="res.addedCount > 0" class="af10">
                         عدد النقاط المضافة: <strong>{{ res.addedCount }}</strong>
                         <span *ngIf="res.addedDates?.length" class="muted"> — ({{ res.addedDates.join('، ') }})</span>
                       </div>

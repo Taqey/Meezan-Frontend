@@ -1,7 +1,7 @@
         <div class="table-scroll-x ac1" >
           <div *ngIf="mgmt.mgmtLoading" class="muted ac2" >جارٍ التحميل...</div>
           <div *ngIf="!mgmt.mgmtLoading && mgmt.mgmtStocks.length === 0" class="muted ac2" >لا توجد نتائج. ابحث بالرمز أو الاسم أعلاه.</div>
-          <table *ngIf="mgmt.mgmtStocks.length > 0" class="admin-table" __INLINE_CLS__="ac3">
+          <table *ngIf="mgmt.mgmtStocks.length > 0" class="admin-table" class="ac3">
             <thead>
               <tr>
                 <th>الرمز</th>

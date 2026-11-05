@@ -69,7 +69,7 @@
                 <tr *ngFor="let sec of sectorDaily.sectorDailyStatus!.sectors">
                   <td><strong>{{ sectorDaily.getSectorName(sec.sectorId) }}</strong></td>
                   <td>{{ sec.tradingDate }}</td>
-                  <td [style.color]="(sec.changePct || 0) > 0 ? 'var(--good)' : ((sec.changePct || 0) < 0 ? 'var(--bad)' : 'inherit')" __INLINE_CLS__="ac16">
+                  <td [style.color]="(sec.changePct || 0) > 0 ? 'var(--good)' : ((sec.changePct || 0) < 0 ? 'var(--bad)' : 'inherit')" class="ac16">
                     {{ sec.changePct !== null && sec.changePct !== undefined ? ((sec.changePct > 0 ? '+' : '') + sec.changePct.toFixed(2) + '%') : '—' }}
                   </td>
                   <td>{{ (sec.marketCapTotal || 0) | number:'1.0-0' }}</td>

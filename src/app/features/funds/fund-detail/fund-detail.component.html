@@ -82,7 +82,7 @@
           eyebrow="الاستراتيجية والمحفظة"
           title="استراتيجية وهيكل الاستثمار">
           <!-- Strategy & Fund Description Text Block -->
-          <div *ngIf="allocationModel.paragraphs.length > 0" __INL_CLS__="fdetail-inl-12">
+          <div *ngIf="allocationModel.paragraphs.length > 0" class="fdetail-inl-12">
             <p *ngFor="let p of allocationModel.paragraphs" class="mz-authority-note fdetail-inl-13" >
               {{ p }}
             </p>
@@ -136,7 +136,7 @@
         <mz-details-section
           eyebrow="التصنيفات والهيكلة"
           title="تصنيفات الصندوق والخصائص القانونية">
-          <div *ngIf="classificationCards.length > 0" class="mz-grid cols-3-details" __INL_CLS__="fdetail-inl-24">
+          <div *ngIf="classificationCards.length > 0" class="mz-grid cols-3-details" class="fdetail-inl-24">
             <a *ngFor="let c of classificationCards"
                [routerLink]="c.routerLink"
                [queryParams]="c.queryParams"

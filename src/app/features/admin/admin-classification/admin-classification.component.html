@@ -24,7 +24,7 @@
     <button type="button" class="btn" [class.btn-primary]="view==='tree'" [class.btn-outline]="view!=='tree'" (click)="onSelectView('tree')">الشجرة</button>
     <button type="button" class="btn" [class.btn-primary]="view==='review'" [class.btn-outline]="view!=='review'" (click)="onSelectView('review')">
       تحتاج مراجعة
-      <span *ngIf="review.reviewBadge>0" __INL_CLS__="aclass-inl-6">{{ review.reviewBadge }}</span>
+      <span *ngIf="review.reviewBadge>0" class="aclass-inl-6">{{ review.reviewBadge }}</span>
     </button>
     <button type="button" class="btn" [class.btn-primary]="view==='log'" [class.btn-outline]="view!=='log'" (click)="onSelectView('log')">سجل التغييرات</button>
   </div>

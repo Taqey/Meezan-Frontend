@@ -1,0 +1,16 @@
+
+    <div class="cascade-wrap">
+      <div *ngFor="let lvl of levels; let i = index; trackBy: trackLevel" class="cascade-level">
+        <label class="filter-label" [attr.for]="'cascade-' + i">
+          {{ i === 0 ? rootLabel : lvl.label }}
+          <span *ngIf="lvl.node" class="cascade-count">({{ lvl.node.totalFundCount }})</span>
+        </label>
+        <mz-select
+          [options]="lvl.options"
+          [value]="lvl.node?.slug ?? ''"
+          (valueChange)="pick(i, $event)"
+          [ariaLabel]="i === 0 ? rootLabel : lvl.label">
+        </mz-select>
+      </div>
+    </div>
+  

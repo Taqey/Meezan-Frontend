@@ -1,0 +1,19 @@
+/* Footer */
+footer {
+  margin-top: 60px;
+  border-top: 1px solid var(--border);
+}
+
+.footer-shell {
+  min-height: 90px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+
+.footer-shell > span:last-child {
+  margin-right: auto;
+}

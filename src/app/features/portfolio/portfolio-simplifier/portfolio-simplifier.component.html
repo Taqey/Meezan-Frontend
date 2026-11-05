@@ -1,0 +1,274 @@
+
+    <div class="mz mz-page portfolio-simplifier-page">
+      <!-- Breadcrumbs -->
+      <mz-back-link to="/" label="الرئيسية"></mz-back-link>
+
+      <!-- Page Hero -->
+      <mz-page-header
+        badge="أدوات الاستثمار الذكية · EGX Simplifier"
+        title="مُبسط محفظة البورصة المصرية (EGX)"
+        description="ابنِ محفظتك الاستثمارية الذكية بالجمع بين توزيع الأصول ومنهجية الكور-ساتلايت (Core-Satellite) بطريقة مبسطة ومتوافقة مع السوق المصري.">
+        <ng-container actions>
+          <mz-badge tone="default" [pill]="true">
+            <lucide-icon [img]="PieChartIcon" [size]="15"></lucide-icon>
+            <span>Core-Satellite + Asset Allocation</span>
+          </mz-badge>
+        </ng-container>
+      </mz-page-header>
+
+      <div class="mz-stack">
+        <!-- Input Form Card -->
+        <mz-details-section eyebrow="معطيات المستثمر" title="حدد أهدافك وملفك الاستثماري">
+          <div class="form-grid">
+            <!-- Input 1: Age -->
+            <div class="form-group">
+              <label for="ageInput">1. السن (من 18 إلى 80 سنة):</label>
+              <input
+                type="number"
+                id="ageInput"
+                class="mz-input form-control"
+                [(ngModel)]="age"
+                min="18"
+                max="80"
+                placeholder="مثال: 35">
+              <div *ngIf="ageError" class="field-error">الرجاء إدخال سن صحيح بين 18 و 80 سنة.</div>
+            </div>
+
+            <!-- Input 2: Investor Type -->
+            <div class="form-group">
+              <label>2. نوع المستثمر:</label>
+              <div class="profile-chips">
+                <button
+                  type="button"
+                  class="mz-chip chip-btn"
+                  [class.active]="selectedProfile === 'Conservative'"
+                  (click)="selectedProfile = 'Conservative'">
+                  تحفظي (Conservative)
+                </button>
+                <button
+                  type="button"
+                  class="mz-chip chip-btn"
+                  [class.active]="selectedProfile === 'Balanced'"
+                  (click)="selectedProfile = 'Balanced'">
+                  متوازن (Balanced)
+                </button>
+                <button
+                  type="button"
+                  class="mz-chip chip-btn"
+                  [class.active]="selectedProfile === 'Aggressive'"
+                  (click)="selectedProfile = 'Aggressive'">
+                  هجومي (Aggressive)
+                </button>
+              </div>
+              <div *ngIf="profileError" class="field-error">الرجاء اختيار نوع المستثمر (تحفظي، متوازن، أو هجومي).</div>
+            </div>
+
+            <!-- Input 3: Gold Toggle -->
+            <div class="form-group">
+              <label>3. إضافة الذهب للمحفظة؟</label>
+              <div class="gold-toggle-row">
+                <label class="switch-control">
+                  <input type="checkbox" [(ngModel)]="includeGold">
+                  <span class="switch-slider"></span>
+                </label>
+                <span class="switch-label">
+                  {{ includeGold ? 'نعم (تحدد النسبة تلقائياً حسب نوع المستثمر)' : 'لا' }}
+                </span>
+                <button type="button" class="source-link-btn" (click)="scrollToSource('gold_pct')">
+                  <lucide-icon [img]="InfoIcon" size="14"></lucide-icon>
+                  <span>المصدر</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Input 4: Total Amount (Optional) -->
+            <div class="form-group">
+              <label for="amountInput">4. إجمالي المبلغ بالجنيه المصري (اختياري):</label>
+              <input
+                type="number"
+                id="amountInput"
+                class="mz-input form-control"
+                [(ngModel)]="totalAmount"
+                placeholder="مثال: 100000">
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <mz-button variant="primary" (clicked)="calculate()">احسب المحفظة</mz-button>
+            <mz-button variant="default" [icon]="RotateCcwIcon" (clicked)="reset()">إعادة ضبط</mz-button>
+          </div>
+        </mz-details-section>
+
+        <!-- Results Section -->
+        <section #resultsSection class="results-wrapper mz-stack" *ngIf="result">
+          <!-- Fidelity Notice Banner -->
+          <div class="mz-card info-banner">
+            <lucide-icon [img]="InfoIcon" size="18"></lucide-icon>
+            <div class="banner-text">
+              <span>Defensive = stable demand during downturns; Growth = benefits more from economic expansion (based on Fidelity's classification).</span>
+            </div>
+            <button type="button" class="source-link-btn" (click)="scrollToSource('defensive_vs_growth')">
+              <span>المصدر</span>
+            </button>
+          </div>
+
+          <!-- Methods Cards Grid -->
+          <div class="methods-grid">
+            <div class="mz-card method-card" *ngFor="let method of result.methods; let i = index">
+              <div class="method-card-header">
+                <h3 class="method-title">{{ method.name }}</h3>
+                <button type="button" class="source-link-btn" (click)="scrollToSource(method.sourceTopicKeys[0] || 'core_satellite_ratios')">
+                  <lucide-icon [img]="InfoIcon" size="13"></lucide-icon>
+                  <span>المصدر</span>
+                </button>
+              </div>
+
+              <div class="method-content-row">
+                <div class="method-legend">
+                  <ul class="legend-list">
+                    <li *ngFor="let it of method.items">
+                      <span class="legend-dot" [style.background-color]="it.color"></span>
+                      <strong class="legend-pct">{{ it.rounded }}%</strong>
+                      <span class="legend-label">{{ it.label }}</span>
+                      <span *ngIf="it.amount" class="legend-amount">({{ formatCurrency(it.amount) }} ج.م)</span>
+                      <div *ngIf="it.hint" class="sat-hint-box" [innerHTML]="it.hint"></div>
+                    </li>
+                  </ul>
+                </div>
+
+                <div class="method-chart">
+                  <app-portfolio-donut-chart [items]="method.items"></app-portfolio-donut-chart>
+                </div>
+              </div>
+
+              <!-- Details Toggle -->
+              <button type="button" class="details-toggle-btn" (click)="toggleDetails(i)">
+                <span>{{ expandedMethods[i] ? 'إخفاء التفاصيل' : 'عرض التفاصيل' }}</span>
+                <lucide-icon [img]="expandedMethods[i] ? ChevronUpIcon : ChevronDownIcon" size="15"></lucide-icon>
+              </button>
+
+              <!-- Expanded Details Content -->
+              <div class="details-drawer" *ngIf="expandedMethods[i]">
+                <div class="steps-box">
+                  <h4>خطوات الحساب:</h4>
+                  <ol>
+                    <li>نسبة الذهب: {{ result.includeGold ? (method.goldPct * 100) + '%' : '0%' }} ← المتبقي للاستثمار: {{ (method.remainder * 100) }}%</li>
+                    <li>توزيع الأسهم والسندات من المتبقي: أسهم {{ (method.stocksRatio * 100).toFixed(1) }}%، سندات {{ (method.bondsRatio * 100).toFixed(1) }}%</li>
+                    <li>تطبيق الكور-ساتلايت على الأسهم ({{ (method.stocksPortionOfTotal * 100).toFixed(1) }}%): صندوق مؤشرات Core {{ (method.coreSharePct * 100) }}% = {{ (method.corePortionOfTotal * 100).toFixed(1) }}%، وساتلايت Satellite {{ (method.satSharePct * 100) }}% = {{ (method.satellitePortionOfTotal * 100).toFixed(1) }}%</li>
+                  </ol>
+                </div>
+
+                <div class="pros-cons-box">
+                  <div class="pros">
+                    <strong>المميزات:</strong> {{ method.adv }}
+                  </div>
+                  <div class="cons">
+                    <strong>العيوب:</strong> {{ method.dis }}
+                  </div>
+                </div>
+
+                <div class="related-sources">
+                  <strong>المصادر المتعلقة:</strong>
+                  <span class="source-tags">
+                    <button
+                      *ngFor="let k of getRelatedSourceKeys(method)"
+                      type="button"
+                      class="tag-btn"
+                      (click)="scrollToSource(k)">
+                      ℹ️ {{ getSourceShortTitle(k) }}
+                    </button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- General Notes & Disclaimer -->
+          <mz-details-section eyebrow="إخلاء مسؤولية وتوجيهات" title="ملاحظات هامة وإخلاء مسؤولية" class="general-notes-card">
+            <ul class="notes-list">
+              <li>
+                نسب الكور/ساتلايت (80/20، 70/30، 60/40) مأخوذة من الصفحات التعليمية لشركات الوساطة ومصدرة الصناديق وليست دراسة أكاديمية بحتة، وهي بمثابة قاعدة تقريبية (Rule of thumb).
+                <button type="button" class="source-inline-btn" (click)="scrollToSource('core_satellite_ratios')">ℹ️ المصدر</button>
+              </li>
+              <li>
+                نسب الذهب المقترحة لكل نوع مستثمر هي افتراض تنظيمي توجيهي وليست من دراسة مرجعية مُلزمة.
+                <button type="button" class="source-inline-btn" (click)="scrollToSource('gold_pct')">ℹ️ المصدر</button>
+              </li>
+              <li>
+                طرق الأسهم والسندات أصلها أسواق أمريكية؛ وتطبيقها على البورصة المصرية (EGX) يعتبر تكييفاً محلياً للمفاهيم العالمية.
+                <button type="button" class="source-inline-btn" (click)="scrollToSource('egx_adaptation')">ℹ️ المصدر</button>
+              </li>
+              <li>ارتفاع نسبة الساتلايت يعني زيادة المخاطر وتقليل التنويع الواسع في السوق.</li>
+              <li>
+                تصنيف القطاعات والتوجهات مستوحى من (Fidelity / Morningstar) كمرجعية إرشادية.
+                <button type="button" class="source-inline-btn" (click)="scrollToSource('defensive_vs_growth')">ℹ️ المصدر</button>
+              </li>
+              <li>هذه الأداة تعليمية وتثقيفية بالدرجة الأولى وليست استشارة مالية أو توصية بيع أو شراء.</li>
+            </ul>
+
+            <div class="copy-actions-row">
+              <mz-button variant="primary" [icon]="CopyIcon" (clicked)="copyResults()">نسخ النتائج</mz-button>
+            </div>
+          </mz-details-section>
+        </section>
+
+        <!-- Collapsible Sources Section -->
+        <div class="mz-card sources-card">
+          <div class="sources-toggle-header" (click)="sourcesExpanded = !sourcesExpanded">
+            <div class="sources-title-group">
+              <span class="mz-eyebrow">المراجع والأدبيات</span>
+              <h2>📚 المصادر والتفاصيل (Sources &amp; Details)</h2>
+            </div>
+            <button type="button" class="toggle-icon-btn" [attr.aria-expanded]="sourcesExpanded">
+              <lucide-icon [img]="sourcesExpanded ? ChevronUpIcon : ChevronDownIcon" size="20"></lucide-icon>
+            </button>
+          </div>
+
+          <div class="sources-body" *ngIf="sourcesExpanded">
+            <p class="sources-intro-note">
+              الملخصات بصياغتنا، وليست اقتباسات حرفية إلا إذا وُضعت بين علامات تنصيص. يُرجى الرجوع للمصدر الأصلي.
+            </p>
+
+            <div class="source-blocks-list">
+              <div
+                *ngFor="let entry of sourcesEntries"
+                class="source-block-item"
+                [id]="'source_block_' + entry.key"
+                [class.highlight]="highlightedSource === entry.key">
+                <div class="source-block-head" (click)="toggleSourceItem(entry.key)">
+                  <div class="source-head-info">
+                    <span class="source-block-title">{{ entry.source.title }}</span>
+                    <span class="strength-badge" [ngClass]="entry.source.strength">
+                      {{ entry.source.strengthText }}
+                    </span>
+                  </div>
+                  <lucide-icon [img]="expandedSourceItems[entry.key] ? ChevronUpIcon : ChevronDownIcon" size="16"></lucide-icon>
+                </div>
+
+                <div class="source-block-details" *ngIf="expandedSourceItems[entry.key]">
+                  <p class="source-summary">{{ entry.source.summary }}</p>
+                  <blockquote *ngIf="entry.source.quote" class="source-quote">
+                    "{{ entry.source.quote }}"
+                  </blockquote>
+                  <div class="source-links-box" *ngIf="entry.source.links.length > 0">
+                    <strong>الروابط المباشرة:</strong>
+                    <div class="links-flex">
+                      <a
+                        *ngFor="let link of entry.source.links; let lIdx = index"
+                        [href]="link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="source-ext-link">
+                        <span>[رابط {{ lIdx + 1 }}]</span>
+                        <lucide-icon [img]="ExternalLinkIcon" size="12"></lucide-icon>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  

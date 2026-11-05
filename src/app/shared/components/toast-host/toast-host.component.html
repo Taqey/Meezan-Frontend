@@ -1,0 +1,8 @@
+
+    <div class="toast-host" aria-live="polite" aria-atomic="false">
+      <div class="toast-item" *ngFor="let m of toast.messages()">
+        <span>{{ m.text }}</span>
+        <button type="button" class="toast-close" (click)="toast.dismiss(m.id)" aria-label="إغلاق التنبيه">×</button>
+      </div>
+    </div>
+  

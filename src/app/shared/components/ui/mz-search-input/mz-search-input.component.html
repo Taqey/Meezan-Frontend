@@ -1,0 +1,7 @@
+
+    <div class="mz-input-wrap">
+      <span class="mz-input-icon"><lucide-icon [img]="SearchIcon" [size]="18"></lucide-icon></span>
+      <input class="mz-input" type="text" [value]="value" [placeholder]="placeholder" [attr.aria-label]="ariaLabel || placeholder"
+             (input)="valueChange.emit($any($event.target).value)" />
+    </div>
+  

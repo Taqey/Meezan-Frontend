@@ -1,0 +1,11 @@
+
+    <span *ngIf="rendered"
+          class="mz-spinner-wrap"
+          [class.visible]="visible"
+          [ngClass]="'size-' + size"
+          role="status"
+          [attr.aria-label]="label || 'جارٍ التحميل'">
+      <span class="mz-spinner-ring" aria-hidden="true"></span>
+      <span *ngIf="showLabel && label" class="mz-spinner-label">{{ label }}</span>
+    </span>
+  

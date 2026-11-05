@@ -1,0 +1,243 @@
+/* ΓöÇΓöÇ Info pages (Shariah standards + Purification) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+   Spacing scale for these pages: 8 / 12 / 16 / 24 / 32.
+   Same tokens as the stock detail page (colors, font, radii). */
+
+app-shariah-standards,
+app-purification {
+  display: block;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px 56px;
+}
+
+/* Intro: badge sits next to the title, text kept in a readable measure. */
+app-shariah-standards .page-intro,
+app-purification .page-intro {
+  display: block;
+  padding: 48px 0 8px;
+}
+
+app-shariah-standards .title-row,
+app-purification .title-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 4px 0 12px;
+}
+
+app-shariah-standards .title-row h1,
+app-purification .title-row h1 {
+  margin: 0;
+}
+
+app-shariah-standards .intro-note,
+app-purification .intro-note {
+  padding-bottom: 0;
+}
+
+app-shariah-standards .intro-main p,
+app-purification .intro-main p {
+  max-width: 70ch;
+  font-size: 15px;
+  line-height: 1.9;
+  color: #37423c;
+  margin: 0 0 12px;
+}
+
+app-shariah-standards .intro-main p:last-child,
+app-purification .intro-main p:last-child {
+  margin-bottom: 0;
+}
+
+/* Cards: light ΓÇö thin border, soft shadow, generous airy padding. */
+app-shariah-standards .detail-card,
+app-purification .detail-card {
+  margin: 24px 0 0;
+  padding: 28px;
+  border: 1px solid #e6ece8;
+  box-shadow: 0 1px 4px rgba(23, 35, 31, .05);
+}
+
+app-shariah-standards .card-heading,
+app-purification .card-heading {
+  margin-bottom: 20px;
+}
+
+/* Muted copy with enough contrast on these pages. */
+app-shariah-standards .muted,
+app-purification .muted {
+  color: #5c6c63;
+}
+
+/* Visible keyboard focus for all interactive elements on these pages. */
+app-shariah-standards button:focus-visible,
+app-purification button:focus-visible,
+app-shariah-standards input:focus-visible,
+app-purification input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+app-purification .calc-radio:focus-within {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* ΓöÇΓöÇ Shared comparison table ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+/* NOTE (phantom-scrollbar fix): overflow-x other than visible forces
+   overflow-y:visible to compute as auto, so this container also scrolls
+   vertically. The rows' entrance animation (translateY) briefly extends the
+   scrollable overflow and flashes a vertical scrollbar. Height here is
+   always content-sized, so vertical scrolling is never legitimate:
+   keep overflow-y hidden. Same for .table-scroll-x below. */
+.table-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  margin: 4px 0 0;
+  padding-bottom: 4px;
+}
+
+.standards-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  line-height: 1.8;
+}
+
+.standards-table th {
+  background: #f1f6f2;
+  color: #43524b;
+  font-weight: 600;
+  font-size: 12.5px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.standards-table th small {
+  font-weight: 400;
+  opacity: .85;
+}
+
+.standards-table tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.standards-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.standards-table tbody tr:hover {
+  background: #f4f9f5;
+}
+
+.std-name {
+  display: block;
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.std-en {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  direction: ltr;
+}
+
+.std-sub {
+  display: block;
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+/* ΓöÇΓöÇ Standards page table: equal columns, centered values ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+app-shariah-standards .standards-table {
+  table-layout: fixed;
+  min-width: 640px;
+}
+
+app-shariah-standards .standards-table th,
+app-shariah-standards .standards-table td {
+  width: 20%;
+  padding: 16px 12px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+app-shariah-standards .standards-table th small {
+  display: block;
+  margin-top: 2px;
+}
+
+app-shariah-standards .standards-table td {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+app-shariah-standards .standards-table td:not(:first-child) {
+  white-space: nowrap;
+}
+
+app-shariah-standards .std-en {
+  text-align: center;
+}
+
+/* Fatwa row + notes: clearly visible soft tinted box. */
+app-shariah-standards .scholars-row {
+  background: #fff7e6;
+}
+
+app-shariah-standards .scholars-note,
+app-shariah-standards .explainer-note {
+  background: #fff7e6;
+  border: 1px solid #f0e3c4;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 20px 0 0;
+  font-size: 12.5px;
+  line-height: 1.9;
+  color: #6b5d3f;
+}
+
+/* Explainer cards: equal size, even rhythm, aligned lines. */
+.explainer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.explainer-cell {
+  background: #fbfdfb;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.explainer-cell strong {
+  display: block;
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.explainer-cell span {
+  display: block;
+  font-size: 12px;
+  color: var(--primary);
+  direction: ltr;
+  text-align: right;
+}
+
+.explainer-cell p {
+  margin: 8px 0 0;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+  font-size: 13px;
+  color: #43524b;
+  line-height: 1.8;
+}

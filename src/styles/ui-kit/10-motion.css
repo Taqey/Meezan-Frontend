@@ -1,0 +1,222 @@
+/* =========================================================
+   TASK 4: SITE-WIDE SMOOTH MOTION & ANIMATIONS
+   ========================================================= */
+
+/* 4b: Route page transitions (fade + 8px slide up, 220ms) */
+.mz-page,
+.entity-page,
+.portfolio-page {
+  animation: mz-page-enter var(--mz-dur-med, 220ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+@keyframes mz-page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 4b: Listing cards stagger entrance on first load of page only */
+.mz-first-stagger .mz-lcard {
+  animation: mz-card-enter var(--mz-dur-slow, 300ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  animation-delay: min(calc(var(--item-index, 0) * var(--mz-stagger-step, 40ms)), var(--mz-stagger-max, 400ms));
+}
+
+@keyframes mz-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 4b: Card hover lift (2px with soft shadow) */
+.mz-card,
+.mz-lcard {
+  transition: transform var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              box-shadow var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              border-color var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.mz-card.hoverable:hover,
+.mz-lcard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(19, 27, 46, 0.09);
+  border-color: rgba(0, 105, 72, 0.4);
+}
+
+/* 4b: Button press feedback (scale 0.98) */
+.mz-btn:active:not(:disabled),
+.btn:active:not(:disabled),
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* 4b: Tabs and chips color & active transitions */
+.mz-chip,
+.chip-btn,
+.subtab-btn {
+  transition: background-color var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              border-color var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              color var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              box-shadow var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              transform var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.mz-chip:active,
+.chip-btn:active {
+  transform: scale(0.97);
+}
+
+/* 4b: View toggle switcher sliding active indicator styling */
+.view-switch.mz-view-switch button {
+  position: relative;
+  transition: color var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              background-color var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              box-shadow var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+/* 4b: Favorite star pop animation */
+.fav-toggle {
+  transition: transform var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              color var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.fav-toggle:active {
+  transform: scale(0.85);
+}
+
+.fav-toggle.active lucide-icon,
+.fav-toggle.active svg {
+  animation: mz-star-pop var(--mz-dur-base, 200ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+@keyframes mz-star-pop {
+  0% { transform: scale(0.8); }
+  60% { transform: scale(1.24); }
+  100% { transform: scale(1); }
+}
+
+/* 4b: KPI cards fade-in */
+.mz-stat,
+.kpi-card {
+  animation: mz-kpi-enter var(--mz-dur-base, 200ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+@keyframes mz-kpi-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 4b: Pagination buttons */
+.mz-pgbtn {
+  transition: background-color var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              border-color var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              color var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              transform var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.mz-pgbtn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* 4b: Input focus rings */
+.mz-input,
+.form-control {
+  transition: border-color var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              box-shadow var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              background-color var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.mz-input:focus,
+.form-control:focus {
+  border-color: var(--mz-primary, #006948);
+  box-shadow: 0 0 0 3px rgba(0, 105, 72, 0.14);
+}
+
+/* 4b: Advanced filter panel smooth height expand/collapse */
+.mz-advanced-panel {
+  animation: mz-panel-slide-down var(--mz-dur-base, 200ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  transform-origin: top center;
+}
+
+@keyframes mz-panel-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 4b: Modals, dialogs and toasts (fade + scale) */
+.toast-item,
+#toast.show {
+  animation: mz-toast-enter var(--mz-dur-base, 200ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)) both;
+}
+
+@keyframes mz-toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 4b: Treemap tiles fade-in and hover highlight */
+.treemap-tile,
+.treemap-node,
+.heat-tile {
+  transition: opacity var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              filter var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+              transform var(--mz-dur-fast, 140ms) var(--mz-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+
+.treemap-tile:hover,
+.heat-tile:hover {
+  filter: brightness(1.08) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+  z-index: 5;
+}
+
+/* 4c: Rules for motion — respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .mz-page,
+  .entity-page,
+  .portfolio-page,
+  .mz-first-stagger .mz-lcard,
+  .mz-stat,
+  .mz-advanced-panel,
+  .toast-item,
+  #toast.show {
+    animation: none !important;
+    transform: none !important;
+  }
+  .mz-lcard:hover,
+  .mz-card.hoverable:hover {
+    transform: none !important;
+  }
+}

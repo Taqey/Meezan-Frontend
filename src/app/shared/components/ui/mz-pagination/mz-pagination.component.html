@@ -1,0 +1,7 @@
+
+    <nav class="mz-pagination" *ngIf="totalPages > 1" aria-label="التنقل بين الصفحات">
+      <mz-pagination-button [disabled]="page <= 1" (pressed)="pageChange.emit(page - 1)">السابق</mz-pagination-button>
+      <mz-pagination-button *ngFor="let p of pages" [active]="p === page" (pressed)="pageChange.emit(p)">{{ p }}</mz-pagination-button>
+      <mz-pagination-button [disabled]="page >= totalPages" (pressed)="pageChange.emit(page + 1)">التالي</mz-pagination-button>
+    </nav>
+  

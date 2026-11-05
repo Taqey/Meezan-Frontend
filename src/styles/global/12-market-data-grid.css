@@ -1,0 +1,27 @@
+/* Market Data Grid */
+.fundamentals {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-top: 24px;
+}
+
+.fundamentals div {
+  padding: 16px;
+  border: 1px solid var(--border);
+  margin: -1px 0 0 -1px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: var(--card);
+}
+
+.fundamentals span {
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+
+.fundamentals strong {
+  font-size: 15px;
+  color: var(--ink);
+}

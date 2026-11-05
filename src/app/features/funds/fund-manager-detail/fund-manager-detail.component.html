@@ -1,0 +1,64 @@
+
+    <mz-listing-page
+      [config]="config"
+      (tabChange)="setChip($event)"
+      (searchChange)="onSearchInput($event)"
+      (sortChange)="onSortChangeSelect($event)"
+      (advancedClick)="toggleAdvanced(); rebuild()"
+      (pageChange)="goToPage($event)"
+      (retry)="loadData()">
+
+      <div resultsExtra class="mz-active-filters" *ngIf="hasActiveFilters">
+        <span class="mz-badge pill neutral" *ngIf="searchText">البحث: {{ searchText }} <button type="button" class="mz-x" (click)="removeSearchFilter()" aria-label="حذف بحث">×</button></span>
+        <span class="mz-badge pill neutral" *ngIf="activeNodeName">التصنيف: {{ activeNodeName }} <button type="button" class="mz-x" (click)="removeNodeFilter()" aria-label="حذف فلتر التصنيف">×</button></span>
+        <span class="mz-badge pill neutral" *ngIf="filter.riskLevel">المخاطر: {{ filter.riskLevel === 'low' ? 'منخفضة' : filter.riskLevel === 'medium' ? 'متوسطة' : 'عالية' }} <button type="button" class="mz-x" (click)="removeRiskFilter()" aria-label="حذف فلتر المخاطر">×</button></span>
+        <span class="mz-badge pill neutral" *ngIf="filter.isIslamic !== undefined">الحكم: {{ filter.isIslamic ? 'متوافق شرعاً' : 'غير متوافق' }} <button type="button" class="mz-x" (click)="removeShariaFilter()" aria-label="حذف فلتر التوافق الشرعي">×</button></span>
+        <button type="button" class="mz-btn" style="padding:2px 8px;font-size:11px" (click)="resetFilters()">مسح الفلاتر</button>
+      </div>
+
+      <div advanced class="mz-adv-grid">
+        <div style="grid-column: 1 / -1">
+          <app-classification-cascade
+            [tree]="classTree"
+            [path]="classPath"
+            rootLabel="نوع الصندوق"
+            allLabel="كل الأنواع"
+            (pathChange)="onClassPathChange($event)">
+          </app-classification-cascade>
+        </div>
+        <div class="mz-slicer">
+          <span class="mz-slicer-head"><span>مستوى المخاطر</span></span>
+          <mz-select
+            [options]="riskLevelOptions"
+            [value]="filter.riskLevel ?? null"
+            (valueChange)="onRiskChange($event)"
+            ariaLabel="مستوى المخاطر">
+          </mz-select>
+        </div>
+        <div class="mz-slicer">
+          <span class="mz-slicer-head"><span>الحكم الشرعي (المصدر)</span></span>
+          <mz-select
+            [options]="shariaOptions"
+            [value]="filter.isIslamic ?? null"
+            (valueChange)="onShariaChange($event)"
+            ariaLabel="الحكم الشرعي">
+          </mz-select>
+        </div>
+        <div class="mz-slicer">
+          <span class="mz-slicer-head"><span>النتائج لكل صفحة</span></span>
+          <mz-select
+            [options]="pageSizeOptions"
+            [value]="filter.pageSize ?? 20"
+            (valueChange)="onPageSizeChange($event)"
+            ariaLabel="النتائج لكل صفحة">
+          </mz-select>
+        </div>
+      </div>
+
+      <div footer class="mz-source-note" style="margin-top:24px">
+        المصدر: <a href="https://snduk.com" target="_blank" rel="noopener noreferrer" style="color:var(--mz-primary);text-decoration:underline">SNDUK</a> |
+        آخر تحديث: {{ lastSyncedAt ? (lastSyncedAt | date:'yyyy-MM-dd HH:mm') : '—' }} |
+        <span>إخلاء المسؤولية: البيانات للأغراض المعلوماتية فقط ولا تُعد نصيحة استثمارية.</span>
+      </div>
+    </mz-listing-page>
+  

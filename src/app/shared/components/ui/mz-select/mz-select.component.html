@@ -1,0 +1,46 @@
+
+    <div class="mz-select-wrap" [class.is-open]="open" [class.is-disabled]="disabled" [class.flip-up]="flipUp" [class.compact]="size === 'compact'">
+      <button
+        type="button"
+        class="mz-select-trigger"
+        [class.compact]="size === 'compact'"
+        role="combobox"
+        [attr.aria-expanded]="open"
+        aria-haspopup="listbox"
+        [attr.aria-controls]="listboxId"
+        [attr.aria-label]="ariaLabel || placeholder || selectedLabel"
+        [disabled]="disabled"
+        (click)="toggleOpen()"
+        (keydown)="onTriggerKeydown($event)">
+        <span class="mz-select-label" [class.is-placeholder]="!hasSelection && !!placeholder">{{ selectedLabel }}</span>
+        <span class="mz-select-chevron" [class.rotated]="open">
+          <lucide-icon [img]="ChevronIcon" [size]="15"></lucide-icon>
+        </span>
+      </button>
+
+      <div
+        #panelRef
+        *ngIf="open"
+        class="mz mz-select-panel"
+        role="listbox"
+        [id]="listboxId"
+        [attr.aria-label]="ariaLabel || placeholder">
+        <button
+          *ngFor="let o of options; let i = index"
+          type="button"
+          role="option"
+          class="mz-select-option"
+          [class.is-selected]="isEqual(o.value, value)"
+          [class.is-active]="i === activeIndex"
+          [disabled]="!!o.disabled"
+          [attr.aria-selected]="isEqual(o.value, value)"
+          (mouseenter)="activeIndex = i"
+          (click)="selectIndex(i, $event)">
+          <span class="mz-select-option-text">{{ o.label }}</span>
+          <span class="mz-select-option-check" *ngIf="isEqual(o.value, value)">
+            <lucide-icon [img]="CheckIcon" [size]="15"></lucide-icon>
+          </span>
+        </button>
+      </div>
+    </div>
+  

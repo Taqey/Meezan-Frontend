@@ -1,0 +1,32 @@
+
+    .fav-clear-confirm {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: var(--mz-surface-low, #f2f3ff);
+      border: 1px solid rgba(188, 202, 192, 0.4);
+      padding: 4px 10px;
+      border-radius: 12px;
+    }
+    .fav-clear-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--mz-on-surface, #131b2e);
+    }
+    .fav-storage-warn {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--mz-warn, #b47b20);
+      background: var(--mz-warn-soft, #fff4d9);
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+    .fav-empty-cta {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: -20px;
+      margin-bottom: 32px;
+    }
+  

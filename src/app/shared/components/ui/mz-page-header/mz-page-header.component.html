@@ -1,0 +1,13 @@
+
+    <header class="mz-header">
+      <div>
+        <div class="mz-header-meta">
+          <span class="mz-header-badge" *ngIf="badge">{{ badge }}</span>
+          <span class="mz-header-count" *ngIf="count">• {{ count }}</span>
+        </div>
+        <h1>{{ title }}</h1>
+        <p *ngIf="description">{{ description }}</p>
+      </div>
+      <div class="mz-header-actions"><ng-content select="[actions]"></ng-content></div>
+    </header>
+  

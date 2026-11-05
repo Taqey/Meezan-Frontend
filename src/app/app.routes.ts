@@ -1,22 +1,22 @@
 import { Routes } from '@angular/router';
-import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
-import { HomeComponent } from './pages/home/home.component';
-import { StocksListComponent } from './pages/stocks-list/stocks-list.component';
-import { StockDetailComponent } from './pages/stock-detail/stock-detail.component';
-import { IndicesListComponent } from './pages/indices-list/indices-list.component';
-import { IndexDetailComponent } from './pages/index-detail/index-detail.component';
-import { SectorsListComponent } from './pages/sectors-list/sectors-list.component';
-import { SectorDetailComponent } from './pages/sector-detail/sector-detail.component';
-import { FundsListComponent } from './pages/funds-list/funds-list.component';
-import { FundDetailComponent } from './pages/fund-detail/fund-detail.component';
-import { FundManagerDetailComponent } from './pages/fund-manager-detail/fund-manager-detail.component';
-import { AdminLoginComponent } from './pages/admin-login/admin-login.component';
-import { ShariahStandardsComponent } from './pages/shariah-standards/shariah-standards.component';
-import { PurificationComponent } from './pages/purification/purification.component';
-import { FavoritesComponent } from './pages/favorites/favorites.component';
-import { PortfolioComponent } from './pages/portfolio/portfolio.component';
-import { PortfolioSimplifierComponent } from './pages/portfolio-simplifier/portfolio-simplifier.component';
-import { adminAuthGuard } from './guards/admin-auth.guard';
+import { PublicLayoutComponent } from './core/layouts/public-layout/public-layout.component';
+import { HomeComponent } from './features/home/home/home.component';
+import { StocksListComponent } from './features/stocks/stocks-list/stocks-list.component';
+import { StockDetailComponent } from './features/stocks/stock-detail/stock-detail.component';
+import { IndicesListComponent } from './features/indices/indices-list/indices-list.component';
+import { IndexDetailComponent } from './features/indices/index-detail/index-detail.component';
+import { SectorsListComponent } from './features/sectors/sectors-list/sectors-list.component';
+import { SectorDetailComponent } from './features/sectors/sector-detail/sector-detail.component';
+import { FundsListComponent } from './features/funds/funds-list/funds-list.component';
+import { FundDetailComponent } from './features/funds/fund-detail/fund-detail.component';
+import { FundManagerDetailComponent } from './features/funds/fund-manager-detail/fund-manager-detail.component';
+import { AdminLoginComponent } from './features/admin/admin-login/admin-login.component';
+import { ShariahStandardsComponent } from './features/sharia/shariah-standards/shariah-standards.component';
+import { PurificationComponent } from './features/sharia/purification/purification.component';
+import { FavoritesComponent } from './features/favorites/favorites/favorites.component';
+import { PortfolioComponent } from './features/portfolio/portfolio/portfolio.component';
+import { PortfolioSimplifierComponent } from './features/portfolio/portfolio-simplifier/portfolio-simplifier.component';
+import { adminAuthGuard } from './core/auth/admin-auth.guard';
 
 export const routes: Routes = [
   // Public site shell (header + footer + navigation)
@@ -49,7 +49,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     canActivate: [adminAuthGuard],
-    loadChildren: () => import('./admin/admin.routes').then((m) => m.adminRoutes)
+    loadChildren: () => import('./features/admin/admin.routes').then((m) => m.adminRoutes)
   },
   // Legacy admin URLs ('/admin' itself resolves inside the lazy tree,
   // whose empty child redirects to 'market-data')

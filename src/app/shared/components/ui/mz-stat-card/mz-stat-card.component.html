@@ -1,0 +1,12 @@
+
+    <div class="mz-card mz-stat" style="height:100%">
+      <div class="mz-stat-top">
+        <span class="mz-stat-label">{{ stat.label }}</span>
+        <span class="mz-stat-icon" *ngIf="stat.icon"><lucide-icon [img]="stat.icon" [size]="18"></lucide-icon></span>
+      </div>
+      <div class="mz-stat-body">
+        <span class="mz-stat-value" [class.accent]="stat.accent">{{ stat.value ?? '—' }}</span>
+        <span class="mz-stat-chip" *ngIf="stat.chip">{{ stat.chip }}</span>
+      </div>
+    </div>
+  

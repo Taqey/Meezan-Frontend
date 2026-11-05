@@ -1,0 +1,10 @@
+
+    <div class="mz-results">
+      <span class="mz-results-main">{{ text }}</span>
+      <span *ngIf="note">{{ note }}</span>
+      <ng-content></ng-content>
+      <div class="mz-legend" *ngIf="legend?.length">
+        <span class="mz-legend-item" *ngFor="let l of legend"><span class="mz-legend-dot" [class.bad]="l.tone === 'bad'"></span>{{ l.label }}</span>
+      </div>
+    </div>
+  

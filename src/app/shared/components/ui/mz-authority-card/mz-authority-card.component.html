@@ -1,0 +1,28 @@
+
+    <div class="mz-authority" [ngClass]="authority.status">
+      <div class="mz-authority-top">
+        <div class="mz-authority-head">
+          <span class="mz-authority-name">{{ authority.name }}</span>
+          <mz-status-tag *ngIf="authority.name !== 'مؤشر الشريعة EGX33'" [tone]="authority.status" [label]="authority.statusLabel"></mz-status-tag>
+        </div>
+        <div class="mz-authority-verdict" [class.no-opinion]="authority.statusLabel === 'لا يوجد رأي مسجّل'">
+          {{ authority.statusLabel }}
+        </div>
+        <div class="mz-authority-meta">
+          <span *ngIf="authority.date">{{ authority.date }}</span>
+          <span *ngIf="!authority.date && authority.name === 'مؤشر الشريعة EGX33'" class="mz-authority-egx33-code">EGX33</span>
+        </div>
+      </div>
+      <div class="mz-authority-bottom">
+        <div class="mz-authority-note" *ngIf="authority.note">{{ authority.note }}</div>
+        <div class="mz-authority-actions" *ngIf="authority.pdfUrl || authority.actionLabel">
+          <a *ngIf="authority.pdfUrl" [href]="authority.pdfUrl" target="_blank" rel="noopener noreferrer" class="mz-authority-pdf">
+            <lucide-icon [img]="FileTextIcon" [size]="14"></lucide-icon> View PDF
+          </a>
+          <button *ngIf="authority.actionLabel" type="button" class="mz-authority-action" (click)="action.emit()">
+            {{ authority.actionLabel }}
+          </button>
+        </div>
+      </div>
+    </div>
+  

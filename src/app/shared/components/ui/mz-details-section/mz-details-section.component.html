@@ -1,0 +1,12 @@
+
+    <section class="mz-card mz-dsection" appReveal>
+      <div class="mz-dsection-head" *ngIf="title || eyebrow">
+        <div>
+          <span class="mz-eyebrow" *ngIf="eyebrow">{{ eyebrow }}</span>
+          <h2 class="mz-dsection-title">{{ title }}</h2>
+        </div>
+        <div><ng-content select="[action]"></ng-content></div>
+      </div>
+      <ng-content></ng-content>
+    </section>
+  

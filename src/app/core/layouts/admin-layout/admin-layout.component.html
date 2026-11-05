@@ -1,0 +1,69 @@
+
+    <div class="admin-shell">
+
+      <!-- Scrim -->
+      <div class="drawer-scrim" [class.visible]="drawerOpen" (click)="closeDrawer()" aria-hidden="true"></div>
+
+      <!-- Sidebar drawer -->
+      <aside class="admin-sidebar" [class.drawer-open]="drawerOpen" aria-label="لوحة الإدارة" role="dialog" [attr.aria-modal]="drawerOpen || null">
+        <div class="sidebar-brand">
+          <span class="brand-mark">
+            <lucide-icon [img]="LineChartIcon" size="20"></lucide-icon>
+          </span>
+          <span class="brand-text">
+            <strong>Meezan Admin</strong>
+            <small>Operations Portal</small>
+          </span>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="أقسام الإدارة">
+          <a *ngFor="let item of navItems"
+             [routerLink]="item.path"
+             routerLinkActive="active"
+             (click)="closeDrawer()"
+             class="sidebar-link">
+            <lucide-icon [img]="item.icon" size="17"></lucide-icon>
+            <span>{{ item.label }}</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <a routerLink="/" class="sidebar-link back-link" (click)="closeDrawer()">
+            <lucide-icon [img]="BackIcon" size="17"></lucide-icon>
+            <span>Back to site</span>
+          </a>
+          <button class="sidebar-link logout-link" (click)="logout()">
+            <lucide-icon [img]="LogOutIcon" size="17"></lucide-icon>
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main area: always full-width -->
+      <div class="admin-main">
+        <div class="admin-topbar">
+          <button class="menu-button" (click)="toggleDrawer()" aria-label="فتح قائمة الإدارة" [attr.aria-expanded]="drawerOpen">
+            <lucide-icon [img]="drawerOpen ? XIcon : MenuIcon" size="20"></lucide-icon>
+          </button>
+          <div class="topbar-titles">
+            <strong>{{ pageTitle }}</strong>
+            <small *ngIf="pageSubtitle">{{ pageSubtitle }}</small>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-outline" (click)="logout()">
+              <lucide-icon [img]="LogOutIcon" size="15"></lucide-icon>
+              Logout
+            </button>
+          </div>
+        </div>
+
+        <div class="admin-content">
+          <div class="admin-content-inner">
+            <router-outlet></router-outlet>
+          </div>
+        </div>
+      </div>
+
+      <app-toast-host></app-toast-host>
+    </div>
+  

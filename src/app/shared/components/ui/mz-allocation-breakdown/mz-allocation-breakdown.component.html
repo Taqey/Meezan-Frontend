@@ -1,0 +1,72 @@
+
+    <!-- When SHOW_NUMBER_LINE is enabled, render the advanced multi-lane NumberLine card -->
+    <ng-container *ngIf="showNumberLine; else originalView">
+      <div class="mz-alloc-card">
+        <div class="mz-alloc-head">
+          <h4 class="mz-alloc-title">هيكل توزيع الأصول المستهدف (Asset Allocation)</h4>
+          <span class="mz-alloc-badge" *ngIf="badgeText">{{ badgeText }}</span>
+        </div>
+
+        <!-- Advanced Multi-lane NumberLine Scale (when numeric bands exist) -->
+        <ng-container *ngIf="bands.length > 0; else fallbackBar">
+          <mz-number-line
+            [instanceId]="instanceId"
+            [bands]="bands"
+            [activeBandId]="activeId"
+            [ariaLabel]="ariaLabel"
+            (bandHover)="onNumberLineHover($event)">
+          </mz-number-line>
+        </ng-container>
+
+        <!-- Fallback Bar when no numeric limits parsed -->
+        <ng-template #fallbackBar>
+          <div class="mz-alloc-bar" role="img" [attr.aria-label]="ariaLabel">
+            <span *ngFor="let a of displayItems" [style.width.%]="a.pct" [style.background]="a.color"></span>
+          </div>
+        </ng-template>
+
+        <!-- Asset Allocation Breakdown Cards (below the number line) -->
+        <div class="mz-alloc-grid" *ngIf="cards.length > 0">
+          <div *ngFor="let c of cards"
+               class="mz-alloc-box"
+               [class.is-active]="activeId === c.id"
+               [class.is-dimmed]="activeId && activeId !== c.id"
+               (mouseenter)="onCardHover(c.id)"
+               (mouseleave)="onCardLeave()"
+               (focus)="onCardHover(c.id)"
+               (blur)="onCardLeave()"
+               tabindex="0">
+            <div class="mz-alloc-box-head">
+              <span class="mz-alloc-swatch" [style.background]="c.color"></span>
+              <span class="mz-alloc-box-label">{{ c.label }}</span>
+            </div>
+            <p class="mz-alloc-box-val" [style.color]="c.color">{{ c.limitText }}</p>
+            <span *ngIf="c.description" class="mz-alloc-box-sub">{{ c.description }}</span>
+          </div>
+        </div>
+
+        <!-- Traditional items fallback if cards not passed -->
+        <div class="mz-alloc-items" *ngIf="!cards.length && displayItems.length > 0">
+          <div class="mz-alloc-item" *ngFor="let a of displayItems">
+            <span class="mz-alloc-swatch" [style.background]="a.color"></span>
+            {{ a.label }} <strong class="mz-ltr">{{ a.pct }}%</strong>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Original Allocation Breakdown View (restored look: bar + cards below) -->
+    <ng-template #originalView>
+      <ng-container *ngIf="showAllocationBar">
+        <div class="mz-alloc-bar" role="img" [attr.aria-label]="ariaLabel">
+          <span *ngFor="let a of displayItems" [style.width.%]="a.pct" [style.background]="a.color"></span>
+        </div>
+        <div class="mz-alloc-items">
+          <div class="mz-alloc-item" *ngFor="let a of displayItems">
+            <span class="mz-alloc-swatch" [style.background]="a.color"></span>
+            {{ a.label }} <strong class="mz-ltr">{{ a.pct }}%</strong>
+          </div>
+        </div>
+      </ng-container>
+    </ng-template>
+  

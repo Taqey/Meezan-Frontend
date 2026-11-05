@@ -1,0 +1,7 @@
+
+    <div class="mz-tabs" role="tablist">
+      <mz-chip *ngFor="let t of tabs" [active]="t.id === active" (selected)="onChange.emit(t.id)">
+        {{ t.label }}<ng-container *ngIf="t.count != null"> ({{ t.count }})</ng-container>
+      </mz-chip>
+    </div>
+  

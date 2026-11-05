@@ -1,0 +1,78 @@
+/* Stats Strip */
+.stats-strip {
+  max-width: 1132px;
+  padding: 0 0 62px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+
+.stat {
+  padding: 18px 28px;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stat:last-child {
+  border: 0;
+}
+
+.stat strong {
+  font-size: 26px;
+  letter-spacing: -.04em;
+  color: var(--ink);
+}
+
+.stat span {
+  color: var(--muted-foreground);
+  font-size: 12px;
+}
+
+/* Sections */
+.home-section {
+  padding: 50px 24px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.section-heading h2, .detail-card h2 {
+  font-size: 24px;
+  margin: 7px 0 0;
+  letter-spacing: -.03em;
+  color: var(--ink);
+}
+
+.section-heading p {
+  color: var(--muted-foreground);
+  margin: 6px 0 0;
+  font-size: 13px;
+}
+
+.text-link, .back-link {
+  color: var(--primary);
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+}
+
+/* Detail heroes: the back link is its own row above the eyebrow/title.
+   (Both are inline-level by default, which made them collide on one line.) */
+.page-intro .back-link,
+.detail-hero .back-link {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.text-link lucide-icon, .back-link lucide-icon, .pdf-link lucide-icon {
+  width: 15px;
+  height: 15px;
+}

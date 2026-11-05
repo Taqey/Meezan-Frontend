@@ -1,0 +1,37 @@
+/* Print: sectors report (KPIs + table). The page switches to table view on
+   beforeprint; chrome and interactive controls are always hidden. */
+@media print {
+  .site-header,
+  footer,
+  .toast-host,
+  .no-print {
+    display: none !important;
+  }
+  .entity-page {
+    max-width: none;
+    padding: 0;
+  }
+  .heat-grid {
+    display: none !important;
+  }
+  .entity-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .detail-card,
+  .entity-card,
+  .kpi-card {
+    box-shadow: none;
+  }
+}
+
+/* Scrollable wrapper for wide admin tables on small screens.
+   overflow-y is hidden for the same phantom-scrollbar reason as .table-scroll. */
+.table-scroll-x {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+.table-scroll-x > .admin-table {
+  min-width: 680px;
+}

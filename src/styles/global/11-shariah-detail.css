@@ -1,0 +1,385 @@
+/* Shariah Detail Card */
+.shariah-card, .market-card {
+  max-width: 1132px;
+  margin: 16px auto;
+}
+
+.shariah-card .card-heading {
+  align-items: center;
+}
+
+.ratio-big {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.ratio-big span {
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+
+.opinion-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.source-card {
+  padding: 15px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fafbfa;
+}
+
+.source-top strong {
+  font-size: 13px;
+}
+
+.source-progress {
+  background: var(--muted);
+  height: 5px;
+  border-radius: 5px;
+  margin: 16px 0 8px;
+}
+
+.source-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+}
+
+.source-details {
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
+
+.source-card p {
+  color: var(--muted-foreground);
+  font-size: 11px;
+  line-height: 1.6;
+  min-height: 36px;
+  margin: 8px 0;
+}
+
+/* Board with no recorded opinion on this stock ΓÇö an explicit third state, never a
+   fabricated ┘à╪¬┘ê╪º┘ü┘é/╪║┘è╪▒ ┘à╪¬┘ê╪º┘ü┘é verdict, and never counted in the aggregate. */
+.source-card.no-opinion {
+  background: var(--muted);
+  border-style: dashed;
+}
+
+/* Unified full-color cards for ALL 7 Shariah boards ΓÇö no progress bar, no percentage.
+   Color is determined by the status VALUE, not the source key. */
+.source-card {
+  padding: 16px;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 500;
+}
+
+.source-card .source-top strong,
+.source-card .verdict-badge,
+.source-card .verdict-meta,
+.source-card .verdict-note {
+  color: #fff;
+}
+
+.source-card.compliant {
+  background: #1e7a2e; /* solid green */
+}
+
+.source-card.non-compliant {
+  background: #b02a2a; /* solid red */
+}
+
+.source-card.doubtful {
+  background: #c7880e; /* solid amber/yellow */
+  color: #1a1a1a; /* dark text for readability on yellow */
+}
+
+.source-card.doubtful .source-top strong,
+.source-card.doubtful .verdict-badge,
+.source-card.doubtful .verdict-meta,
+.source-card.doubtful .verdict-note {
+  color: #1a1a1a;
+}
+
+/* noOpinion: full gray ΓÇö used for both "┘ä╪º ┘è┘ê╪¼╪» ╪▒╪ú┘è" boards AND EGX33 non-membership. */
+.source-card.no-opinion {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  border-style: dashed;
+}
+
+.source-card.no-opinion .source-top strong,
+.source-card.no-opinion .no-opinion-label,
+.source-card.no-opinion .verdict-badge,
+.source-card.no-opinion .verdict-note {
+  color: var(--muted-foreground);
+}
+
+.verdict-badge {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 8px 0 12px;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.verdict-meta {
+  font-size: 11px;
+  opacity: 0.9;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.verdict-note {
+  font-size: 12px;
+  opacity: 0.95;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.verdict-pdf-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-top: 10px;
+  color: inherit; /* matches card's text color (white on colored, dark on amber, muted on gray) */
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.verdict-pdf-link:hover {
+  opacity: 0.8;
+}
+
+.no-opinion-label {
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border: 1px dashed var(--border);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.source-card .no-opinion-hint {
+  min-height: 0;
+  margin: 12px 0 0;
+}
+
+.ratio-big .coverage-note {
+  line-height: 1.6;
+}
+
+.ratio-big .no-coverage {
+  color: var(--muted-foreground);
+}
+
+.pdf-link {
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Simplified "internal Sharia board exists" display (ATLC, SAUD, ADIB, AMIA, FAIT) */
+.board-exists-panel {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid #e3eede;
+  border-radius: 14px;
+  background: #f5faf3;
+}
+
+.board-exists-panel .board-note {
+  color: var(--muted-foreground);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0 0 14px;
+}
+
+.board-exists-panel .board-sources {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.board-exists-panel .board-source {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 12px;
+}
+
+.board-exists-panel .board-source strong {
+  font-size: 13px;
+}
+
+.board-exists-panel .board-source span {
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+
+.board-only-notice {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: var(--muted);
+}
+
+/* Activity hard gate: a single "╪║┘è╪▒ ┘à╪¬┘ê╪º┘ü┘é ┘à╪╣ ╪º┘ä╪┤╪▒┘è╪╣╪⌐ ΓÇö ╪º┘ä┘å╪┤╪º╪╖: ΓÇª" verdict replaces the
+   7-source opinion grid and the AAOIFI/S&P ratio panel for prohibited activities. */
+.activity-verdict-card {
+  border-color: rgba(200, 68, 61, 0.35);
+  background: var(--bad-soft);
+}
+
+.activity-verdict-card h2 {
+  color: var(--bad);
+  font-size: 19px;
+  line-height: 1.6;
+}
+
+.activity-verdict-card .muted {
+  margin-top: 14px;
+  line-height: 1.8;
+}
+
+.board-only-notice strong {
+  font-size: 13px;
+}
+
+/* Shariah Metrics Detailed Section */
+.shariah-metrics-panel {
+  background: var(--cream);
+  border: 1px solid #ebe7d9;
+  border-radius: 14px;
+  padding: 20px;
+  margin-top: 22px;
+}
+
+.metrics-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e4dfd0;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.metrics-header h3 {
+  margin: 0;
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.metrics-flags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.flag-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.flag-badge.pass {
+  background: var(--good-soft);
+  color: var(--good);
+}
+
+.flag-badge.fail {
+  background: var(--bad-soft);
+  color: var(--bad);
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.metric-cell {
+  background: white;
+  border: 1px solid #e4dfd0;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric-cell span {
+  font-size: 11px;
+  color: var(--muted-foreground);
+}
+
+.metric-cell strong {
+  font-size: 16px;
+  color: var(--ink);
+}
+
+.purification {
+  display: grid;
+  grid-template-columns: 1.6fr repeat(3, 1fr);
+  align-items: center;
+  gap: 20px;
+  background: var(--cream);
+  margin-top: 20px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid #ebe7d9;
+}
+
+.purification > div:not(.purification-title) {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border-right: 1px solid #e4dfd0;
+  padding-right: 15px;
+}
+
+.purification strong {
+  color: var(--ink);
+  font-size: 18px;
+}
+
+.purification span {
+  color: var(--muted-foreground);
+  font-size: 10px;
+}
+
+.purification-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.purification-title lucide-icon, .purification-title svg {
+  color: var(--primary);
+  width: 22px;
+  height: 22px;
+}

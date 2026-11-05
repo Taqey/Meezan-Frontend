@@ -1,0 +1,90 @@
+/* ---------- Task 2: Shared Loading Spinner (mz-spinner) ---------- */
+@keyframes mz-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.mz-spinner-host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mz-spinner-host.is-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: min(140px, 22%);
+  pointer-events: none;
+}
+
+.mz-spinner-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mz-spinner-wrap.visible {
+  opacity: 1;
+}
+
+.mz-spinner-wrap:not(.visible) {
+  transition-duration: 200ms;
+}
+
+.mz-spinner-host.is-overlay .mz-spinner-wrap {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(0, 105, 72, 0.18);
+  border-radius: 999px;
+  padding: 10px 18px;
+  box-shadow: 0 8px 28px rgba(19, 27, 46, 0.12);
+  backdrop-filter: blur(6px);
+}
+
+.mz-spinner-ring {
+  display: inline-block;
+  border-radius: 50%;
+  border-style: solid;
+  border-color: rgba(0, 105, 72, 0.2);
+  border-top-color: var(--mz-primary, #006948);
+  animation: mz-spin 0.72s linear infinite;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.mz-btn.primary .mz-spinner-ring,
+.btn-primary .mz-spinner-ring {
+  border-color: rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+}
+
+.mz-spinner-wrap.size-small .mz-spinner-ring {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.mz-spinner-wrap.size-medium .mz-spinner-ring {
+  width: 26px;
+  height: 26px;
+  border-width: 2.5px;
+}
+
+.mz-spinner-wrap.size-large .mz-spinner-ring {
+  width: 34px;
+  height: 34px;
+  border-width: 3px;
+}
+
+.mz-spinner-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--mz-primary, #006948);
+  white-space: nowrap;
+}

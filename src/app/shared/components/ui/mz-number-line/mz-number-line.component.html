@@ -1,0 +1,71 @@
+
+    <div class="mz-numline-wrap" role="img" [attr.aria-label]="ariaLabel" [class.is-animated]="hasEntered">
+      <!-- Ticks Header / Scale -->
+      <div class="mz-numline-scale" aria-hidden="true">
+        <span *ngFor="let t of ticks" class="mz-numline-tick-label" [style.right.%]="t">
+          {{ t }}%
+        </span>
+      </div>
+
+      <!-- Main Scale Track & Lanes -->
+      <div class="mz-numline-track-area">
+        <!-- Thin background axis line with tick notches -->
+        <div class="mz-numline-axis" aria-hidden="true">
+          <span *ngFor="let t of ticks" class="mz-numline-notch" [style.right.%]="t"></span>
+        </div>
+
+        <!-- Rendered Band Lanes -->
+        <div class="mz-numline-lanes" [style.min-height.px]="lanesCount * 44">
+          <div *ngFor="let b of bands; let idx = index"
+               class="mz-numline-band-row"
+               [style.top.px]="(b.lane ?? idx) * 44"
+               [class.is-active]="activeBandId === b.id"
+               [class.is-dimmed]="activeBandId && activeBandId !== b.id"
+               (mouseenter)="onBandEnter(b)"
+               (mouseleave)="onBandLeave()"
+               (focus)="onBandEnter(b)"
+               (blur)="onBandLeave()"
+               tabindex="0"
+               role="figure"
+               [attr.aria-label]="b.label + ': ' + b.limitText">
+            <!-- Filled Band Bar -->
+            <div class="mz-numline-bar"
+                 [style.right.%]="b.min"
+                 [style.width.%]="Math.max(1.5, b.max - b.min)"
+                 [style.background]="b.color">
+              <!-- Animated Glow Line -->
+              <span class="mz-numline-glow"></span>
+            </div>
+
+            <!-- Limit Marker Stem & Tag on Min Bound (if min > 0) -->
+            <div *ngIf="b.min > 0" class="mz-numline-marker min" [style.right.%]="b.min">
+              <span class="mz-numline-pin" [style.border-color]="b.color"></span>
+              <span class="mz-numline-tag" [style.color]="b.color">{{ b.min }}%</span>
+            </div>
+
+            <!-- Limit Marker Stem & Tag on Max Bound (if max < 100) -->
+            <div *ngIf="b.max < 100" class="mz-numline-marker max" [style.right.%]="b.max">
+              <span class="mz-numline-pin" [style.border-color]="b.color"></span>
+              <span class="mz-numline-tag" [style.color]="b.color">{{ b.max }}%</span>
+            </div>
+
+            <!-- Floating Label inside / above band -->
+            <div class="mz-numline-caption"
+                 [style.right.%]="(b.min + b.max) / 2"
+                 [title]="b.label + ' (' + b.limitText + ')'">
+              <span class="mz-numline-dot" [style.background]="b.color"></span>
+              <span class="mz-numline-name">{{ b.label }}</span>
+              <span class="mz-numline-limit">{{ b.limitText }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Floating Tooltip for Active Hover/Focus -->
+      <div *ngIf="hoveredBand" class="mz-numline-tooltip"
+           [style.right.%]="(hoveredBand.min + hoveredBand.max) / 2"
+           [style.top.px]="(hoveredBand.lane ?? 0) * 44 - 12">
+        <strong>{{ hoveredBand.label }}</strong>: {{ hoveredBand.limitText }}
+      </div>
+    </div>
+  

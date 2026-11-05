@@ -1,0 +1,38 @@
+
+    <section class="portal-login">
+      <div class="login-panel">
+        <div class="login-brand">
+          <span class="brand-mark">
+            <lucide-icon [img]="LineChartIcon" size="22"></lucide-icon>
+          </span>
+          <div>
+            <strong>Meezan Admin</strong>
+            <span>Operations Portal</span>
+          </div>
+        </div>
+
+        <form (submit)="login($event)" class="login-form">
+          <label>
+            Admin password
+            <span class="password-row">
+              <lucide-icon [img]="LockIcon" size="18"></lucide-icon>
+              <input
+                type="password"
+                [(ngModel)]="password"
+                name="password"
+                autocomplete="current-password"
+                placeholder="Enter password"
+                required />
+            </span>
+          </label>
+
+          <p *ngIf="error" class="form-error">{{ error }}</p>
+
+          <button class="btn btn-primary" type="submit">
+            <lucide-icon [img]="LogInIcon" size="16"></lucide-icon>
+            Login
+          </button>
+        </form>
+      </div>
+    </section>
+  

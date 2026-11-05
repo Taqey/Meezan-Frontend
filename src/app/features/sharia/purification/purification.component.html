@@ -1,0 +1,136 @@
+
+    <div class="mz mz-page purification-page">
+      <mz-page-header
+        badge="التطهير · دليل عملي"
+        title="ما هو التطهير؟"
+        description="التطهير أن تُخرج جزءاً صغيراً من عوائد استثمارك للفقراء، لتنقية مكسبك من أثر يسير من الإيرادات غير الجائزة التي قد تختلط بأرباح الشركة، مثل الفوائد.">
+        <ng-container actions>
+          <mz-badge tone="default" [pill]="true">
+            <lucide-icon [img]="ShieldCheckIcon" [size]="15"></lucide-icon>
+            <span>محتوى تعليمي فقط وليس فتوى</span>
+          </mz-badge>
+        </ng-container>
+      </mz-page-header>
+
+      <div class="mz-card pur-intro-sub">
+        <p>التوافق يجيب عن سؤال: هل يجوز شراء السهم أصلاً؟ أما التطهير فيجيب عن سؤال آخر: كم أُخرج من العائد بعد تحققه؟</p>
+      </div>
+
+      <div class="mz-stack">
+        <mz-details-section eyebrow="فروق مشروعة" title="ليه بتختلف الأرقام؟" appReveal>
+          <div class="reasons-list">
+            <div class="mz-card reason-item">
+              <span class="reason-icon"><lucide-icon [img]="BookOpenIcon" size="18"></lucide-icon></span>
+              <span>لكل جهة معيارها الخاص في الفحص والنسب التي تعتمدها.</span>
+            </div>
+            <div class="mz-card reason-item">
+              <span class="reason-icon"><lucide-icon [img]="CalendarIcon" size="18"></lucide-icon></span>
+              <span>القوائم المالية تتجدد في مواعيد مختلفة من جهة لأخرى.</span>
+            </div>
+            <div class="mz-card reason-item">
+              <span class="reason-icon"><lucide-icon [img]="InfoIcon" size="18"></lucide-icon></span>
+              <span>خلاف معتبر بين العلماء: هل تُطهَّر أرباح البيع مع التوزيعات أم لا؟</span>
+            </div>
+          </div>
+          <p class="mz-source-note reasons-note">نعرض هذه المناهج كما هي دون ترجيح منهج على غيره.</p>
+        </mz-details-section>
+
+        <mz-details-section eyebrow="ثلاثة مداخل" title="طرق الحساب" appReveal>
+          <div class="approach-accordion">
+            <div class="mz-card approach-item" *ngFor="let a of approaches; let i = index" [class.is-open]="openApproach === a.id">
+              <button type="button" class="approach-toggle"
+                      [attr.aria-expanded]="openApproach === a.id"
+                      [attr.aria-controls]="'approach-panel-' + a.id"
+                      (click)="toggleApproach(a.id)">
+                <span class="approach-letter">{{ letters[i] }}</span>
+                <span class="approach-toggle-text">
+                  <strong>{{ a.titleAr }}</strong>
+                  <small>{{ a.bodies.join('، ') }}</small>
+                </span>
+                <span class="approach-chevron" [class.open]="openApproach === a.id">
+                  <lucide-icon [img]="ChevronDownIcon" size="18"></lucide-icon>
+                </span>
+              </button>
+              <div class="approach-panel" [id]="'approach-panel-' + a.id" *ngIf="openApproach === a.id">
+                <p>{{ a.summaryAr }}</p>
+                <p class="approach-formula"><span>المعادلة:</span> {{ a.formulaAr }}</p>
+                <p class="muted approach-faisal-note" *ngIf="a.id === 'dividends-only'">{{ faisal.summaryAr }}</p>
+              </div>
+            </div>
+          </div>
+        </mz-details-section>
+
+        <mz-details-section eyebrow="الخلاصة" title="باختصار" appReveal>
+          <div class="mz-details-two summary-grid">
+            <div class="mz-card summary-card">
+              <div class="summary-card-head">
+                <span class="summary-icon"><lucide-icon [img]="TrendingUpIcon" size="18"></lucide-icon></span>
+                <h3>التوزيعات + الربح الرأسمالي</h3>
+              </div>
+              <p>يُطبَّق التطهير على التوزيعات وعلى أي ربح يتحقق من بيع الأسهم.</p>
+              <div class="chip-row">
+                <mz-badge tone="default" [pill]="true">أيوفي (AAOIFI)</mz-badge>
+                <mz-badge tone="default" [pill]="true">إس آند بي (S&amp;P)</mz-badge>
+                <mz-badge tone="default" [pill]="true">بورصة حلال</mz-badge>
+                <mz-badge tone="default" [pill]="true">بنك فيصل الإسلامي</mz-badge>
+              </div>
+            </div>
+            <div class="mz-card summary-card">
+              <div class="summary-card-head">
+                <span class="summary-icon"><lucide-icon [img]="InfoIcon" size="18"></lucide-icon></span>
+                <h3>التوزيعات فقط</h3>
+              </div>
+              <p>يُطبَّق التطهير على التوزيعات وحدها دون أرباح البيع.</p>
+              <div class="chip-row">
+                <mz-badge tone="default" [pill]="true">مصفّى</mz-badge>
+              </div>
+            </div>
+          </div>
+        </mz-details-section>
+
+        <mz-details-section eyebrow="احسب بنفسك" title="حاسبة التطهير" appReveal>
+          <div class="calc-grid">
+            <label class="calc-field">
+              <span>التوزيعات المستلمة (جنيه)</span>
+              <input class="mz-input pur-num-input" type="number" min="0" step="any" placeholder="1200"
+                     [(ngModel)]="dividends" aria-label="التوزيعات المستلمة بالجنيه" />
+            </label>
+            <label class="calc-field">
+              <span>الربح الرأسمالي عند البيع (جنيه)</span>
+              <input class="mz-input pur-num-input" type="number" min="0" step="any" placeholder="300"
+                     [(ngModel)]="capitalGain" aria-label="الربح الرأسمالي بالجنيه" />
+            </label>
+            <label class="calc-field">
+              <span>نسبة التطهير (%)</span>
+              <input class="mz-input pur-num-input" type="number" min="0" step="any" placeholder="2"
+                     [(ngModel)]="ratioPct" aria-label="نسبة التطهير بالمئة" />
+            </label>
+          </div>
+          <fieldset class="calc-approaches">
+            <legend>طريقة الحساب</legend>
+            <div class="calc-radios-grid">
+              <label class="mz-card calc-radio" *ngFor="let a of calculatorOptions" [class.active]="calcApproach === a.id">
+                <input type="radio" name="calcApproach" [value]="a.id" [(ngModel)]="calcApproach" />
+                <span><strong>{{ a.titleAr }}</strong> <small class="muted">{{ a.formulaAr }}</small></span>
+              </label>
+            </div>
+          </fieldset>
+          <div class="calc-actions">
+            <mz-button variant="default" (clicked)="resetCalculator()">تصفير الحقول</mz-button>
+          </div>
+          <div class="calc-result" [class.has-result]="calcResult !== null" aria-live="polite">
+            <ng-container *ngIf="calcResult !== null; else calcHint">
+              <span>مبلغ التطهير المستحق</span>
+              <strong>{{ calcResult | number:'1.0-2' }} جنيه</strong>
+              <small class="muted">{{ calcBreakdown }}</small>
+            </ng-container>
+            <ng-template #calcHint>
+              <span class="muted">{{ calcTouched ? 'أدخل نسبة تطهير صحيحة (صفر أو أكثر) لعرض النتيجة.' : 'أدخل الأرقام أعلاه لعرض مبلغ التطهير.' }}</span>
+            </ng-template>
+          </div>
+        </mz-details-section>
+
+        <p class="mz-source-note page-footnote">الأمثلة والأرقام هنا للتوضيح فقط. هذا المحتوى تعليمي وليس فتوى، واستشر جهة شرعية موثوقة قبل العمل به.</p>
+      </div>
+    </div>
+  

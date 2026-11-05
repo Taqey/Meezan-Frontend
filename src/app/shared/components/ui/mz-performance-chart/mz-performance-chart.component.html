@@ -1,0 +1,10 @@
+
+    <div class="mz-perf-tabs"><mz-chip *ngFor="let p of periods" [active]="p.id === active" (selected)="periodChange.emit(p.id)">{{ p.label }}</mz-chip></div>
+    <ng-container *ngIf="path; else empty">
+      <svg viewBox="0 0 600 180" preserveAspectRatio="none" role="img" [attr.aria-label]="ariaLabel" style="width:100%;height:220px">
+        <path [attr.d]="areaPath" fill="rgba(0,105,72,.10)"></path>
+        <path [attr.d]="path" fill="none" stroke="#006948" stroke-width="2.5" vector-effect="non-scaling-stroke"></path>
+      </svg>
+    </ng-container>
+    <ng-template #empty><p class="mz-authority-note">{{ emptyText }}</p></ng-template>
+  

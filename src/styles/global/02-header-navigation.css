@@ -1,0 +1,112 @@
+/* Header & Navigation */
+.site-header {
+  background: rgba(247, 248, 246, 0.92);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(14px);
+}
+
+.nav-shell, .footer-shell, main > * {
+  max-width: 1180px;
+  margin: auto;
+}
+
+.nav-shell {
+  min-height: 74px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  padding: 0 24px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  direction: ltr;
+}
+
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--primary);
+  color: white;
+}
+
+.brand-mark lucide-icon, .brand-mark svg {
+  width: 21px;
+  height: 21px;
+}
+
+.brand strong {
+  display: block;
+  font-size: 19px;
+  line-height: 18px;
+  direction: rtl;
+}
+
+.brand small {
+  color: var(--primary);
+  letter-spacing: .16em;
+  font-size: 10px;
+  display: block;
+  direction: ltr;
+  text-align: right;
+  font-weight: 700;
+}
+
+.nav-links {
+  display: flex;
+  gap: 28px;
+  color: var(--muted-foreground);
+  font-size: 14px;
+}
+
+.nav-links a {
+  padding: 25px 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.nav-links a.active, .nav-links a:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.header-meta {
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+
+.live-dot, .market-state i {
+  width: 8px;
+  height: 8px;
+  display: inline-block;
+  border-radius: 999px;
+  background: #1eb980;
+  box-shadow: 0 0 0 4px #dff4ea;
+}
+
+.menu-button {
+  display: none;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px;
+  cursor: pointer;
+  color: var(--foreground);
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}

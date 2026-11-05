@@ -1,0 +1,14 @@
+
+    <div class="empty-state">
+      <lucide-icon *ngIf="icon" [img]="icon" size="32"></lucide-icon>
+      <h3>{{ title }}</h3>
+      <p>{{ message }}</p>
+      <a *ngIf="actionLink" [routerLink]="actionLink" routerLinkActive="active" class="btn btn-primary">
+        {{ actionLabel }}
+      </a>
+      <button *ngIf="!actionLink && actionLabel" type="button" class="btn btn-primary" [disabled]="loading" (click)="action.emit()">
+        <mz-spinner *ngIf="loading" [active]="true" [immediate]="true" size="small"></mz-spinner>
+        <span>{{ actionLabel }}</span>
+      </button>
+    </div>
+  

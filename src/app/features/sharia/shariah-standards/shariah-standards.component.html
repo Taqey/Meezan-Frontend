@@ -1,0 +1,92 @@
+
+    <div class="mz mz-page shariah-standards-page">
+      <mz-page-header
+        badge="الشريعة والامتثال · مقارنة كمية"
+        title="المعايير الشرعية"
+        description="حدود الفحص المالي الكمي لأبرز معايير الشريعة المعتمدة، وكيف تُقيَّم نسب كل سهم مقابلها.">
+        <ng-container actions>
+          <mz-badge tone="default" [pill]="true">
+            <lucide-icon [img]="ShieldCheckIcon" [size]="15"></lucide-icon>
+            <span>{{ standards.length }} معايير مؤسسية + فتاوى علماء أفراد</span>
+          </mz-badge>
+        </ng-container>
+      </mz-page-header>
+
+      <div class="mz-stack">
+        <mz-details-section eyebrow="جدول المقارنة" title="حدود المعايير الشرعية الخمسة" appReveal>
+          <div class="mz-table-scroll">
+            <table class="mz-std-table standards-table" aria-label="جدول مقارنة المعايير الشرعية">
+              <thead>
+                <tr>
+                  <th scope="col">المعيار <small>Standard</small></th>
+                  <th scope="col" *ngFor="let key of criterionOrder">
+                    {{ criterionLabels[key].ar }} <small>{{ criterionLabels[key].en }}</small>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let s of standards; let i = index" [style.--item-index]="i">
+                  <td>
+                    <strong class="std-name">{{ s.nameAr }}</strong>
+                    <span class="std-en">{{ s.nameEn }}</span>
+                    <span class="std-sub">{{ s.subtitleAr }}</span>
+                  </td>
+                  <td [attr.data-label]="criterionLabels['prohibitedRevenue'].ar"><span class="mz-std-pill"><bdi dir="ltr">≤ {{ s.prohibitedRevenueMax }}%</bdi></span></td>
+                  <td [attr.data-label]="criterionLabels['debt'].ar"><span class="mz-std-pill"><bdi dir="ltr">≤ {{ s.debtMax }}%</bdi></span></td>
+                  <td [attr.data-label]="criterionLabels['prohibitedInvestments'].ar"><span class="mz-std-pill"><bdi dir="ltr">≤ {{ s.prohibitedInvestmentsMax }}%</bdi></span></td>
+                  <td [attr.data-label]="criterionLabels['cash'].ar"><span class="mz-std-pill"><bdi dir="ltr">≤ {{ s.cashMax }}%</bdi></span></td>
+                </tr>
+                <tr class="scholars-row">
+                  <td>
+                    <strong class="std-name">فتاوى علماء أفراد</strong>
+                    <span class="std-en">Individual scholars</span>
+                    <span class="std-sub">اجتهادات فردية — غير معتمدة لدى معظم المؤسسات</span>
+                  </td>
+                  <td [attr.data-label]="criterionLabels['prohibitedRevenue'].ar"><span class="mz-std-dash">—</span></td>
+                  <td [attr.data-label]="criterionLabels['debt'].ar"><span class="mz-std-pill warn"><bdi dir="ltr">≤ {{ scholarsMax }}%</bdi></span></td>
+                  <td [attr.data-label]="criterionLabels['prohibitedInvestments'].ar"><span class="mz-std-dash">—</span></td>
+                  <td [attr.data-label]="criterionLabels['cash'].ar"><span class="mz-std-dash">—</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="scholars-note">
+            فتاوى علماء أفراد تُجيز الاستثمار في الشركات التي تصل مديونيتها إلى {{ scholarsMax }}%،
+            وهي غير معتمدة لدى معظم المؤسسات المالية الإسلامية.
+          </p>
+        </mz-details-section>
+
+        <mz-details-section eyebrow="دليل القراءة" title="شرح المعايير" appReveal>
+          <div class="mz-infogrid explainer-grid">
+            <div class="mz-card mz-infocard explainer-cell">
+              <strong class="mz-infocard-title">{{ criterionLabels['prohibitedRevenue'].ar }}</strong>
+              <span class="mz-infocard-label">{{ criterionLabels['prohibitedRevenue'].en }}</span>
+              <p class="mz-infocard-desc">الإيرادات المحرمة ÷ إجمالي الإيرادات</p>
+            </div>
+            <div class="mz-card mz-infocard explainer-cell">
+              <strong class="mz-infocard-title">{{ criterionLabels['debt'].ar }}</strong>
+              <span class="mz-infocard-label">{{ criterionLabels['debt'].en }}</span>
+              <p class="mz-infocard-desc">الديون الربوية ÷ إجمالي الأصول أو القيمة السوقية</p>
+            </div>
+            <div class="mz-card mz-infocard explainer-cell">
+              <strong class="mz-infocard-title">{{ criterionLabels['prohibitedInvestments'].ar }}</strong>
+              <span class="mz-infocard-label">{{ criterionLabels['prohibitedInvestments'].en }}</span>
+              <p class="mz-infocard-desc">الاستثمارات المحرمة ÷ إجمالي الأصول</p>
+            </div>
+            <div class="mz-card mz-infocard explainer-cell">
+              <strong class="mz-infocard-title">{{ criterionLabels['cash'].ar }}</strong>
+              <span class="mz-infocard-label">{{ criterionLabels['cash'].en }}</span>
+              <p class="mz-infocard-desc">النقد والأصول السائلة ÷ إجمالي الأصول</p>
+            </div>
+          </div>
+
+          <p class="mz-source-note explainer-note">
+            هذه فحوص كمية فقط. يظل الفحص النوعي لنشاط الشركة مطبَّقاً
+            (الخمور، القمار، البنوك التقليدية، وغيرها من الأنشطة المحرمة)،
+            ويُنصح باستشارة جهة شرعية مؤهلة قبل اتخاذ أي قرار استثماري.
+          </p>
+        </mz-details-section>
+      </div>
+    </div>
+  

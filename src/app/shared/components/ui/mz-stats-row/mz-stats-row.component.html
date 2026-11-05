@@ -1,0 +1,10 @@
+
+    <section class="mz-stats" [class.cols-3]="(stats.length || count) === 3" *ngIf="!loading; else sk">
+      <mz-stat-card *ngFor="let s of stats; trackBy: trackStat" [stat]="s"></mz-stat-card>
+    </section>
+    <ng-template #sk>
+      <section class="mz-stats" [class.cols-3]="(stats.length || count) === 3">
+        <app-loading-skeletons variant="stat" [count]="stats.length || count"></app-loading-skeletons>
+      </section>
+    </ng-template>
+  

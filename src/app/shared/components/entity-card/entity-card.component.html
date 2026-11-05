@@ -1,0 +1,41 @@
+
+    <a class="entity-card"
+       [routerLink]="link"
+       [class.featured]="featured"
+       [style.--accent]="accent"
+       [style.--tint]="tint"
+       [style.--ink]="ink"
+       [style.--item-index]="itemIndex">
+      <div class="entity-card-top">
+        <span class="entity-icon-box">
+          <img *ngIf="logoUrl && !logoFailed"
+               class="entity-logo"
+               [src]="logoUrl"
+               [alt]="title"
+               loading="lazy"
+               decoding="async"
+               (error)="logoFailed = true">
+          <lucide-icon *ngIf="!logoUrl || logoFailed" [img]="icon" size="20"></lucide-icon>
+        </span>
+        <div class="entity-card-top-badges">
+          <span *ngIf="ribbon" class="entity-ribbon" [attr.title]="ribbonTitle ?? null">{{ ribbon }}</span>
+          <span class="entity-pill" [attr.title]="pill">{{ pill || '—' }}</span>
+        </div>
+      </div>
+
+      <h2 [attr.title]="title">{{ title || '—' }}</h2>
+      <p class="entity-en" [attr.title]="subtitle">{{ subtitle || '—' }}</p>
+
+      <div class="entity-stats" [class.compact-stats]="!autoPadStats" *ngIf="normalizedStats.length">
+        <div class="entity-stat" *ngFor="let st of normalizedStats">
+          <span>{{ st.label }}</span>
+          <strong [ngClass]="st.value == null ? 'muted' : st.tone">{{ st.value ?? '—' }}</strong>
+        </div>
+      </div>
+
+      <div class="entity-foot" *ngIf="footerText">
+        <span [attr.title]="footerText">{{ footerText }}</span>
+        <lucide-icon [img]="ChevronLeftIcon" size="15"></lucide-icon>
+      </div>
+    </a>
+  

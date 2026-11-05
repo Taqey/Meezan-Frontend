@@ -1,0 +1,6 @@
+
+    <div class="mz-metric">
+      <span class="mz-metric-label">{{ label }}</span>
+      <span class="mz-metric-value" [ngClass]="value == null || value === '' ? 'muted' : tone" [class.mz-ltr]="ltr">{{ value == null || value === '' ? '—' : value }}</span>
+    </div>
+  

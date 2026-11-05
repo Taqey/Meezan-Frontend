@@ -1,0 +1,20 @@
+
+    <mz-details-section [eyebrow]="eyebrow" [title]="title" style="display:block;height:100%">
+      <span action class="mz-badge neutral" *ngIf="pivotLabel">{{ pivotLabel }}</span>
+      <p class="mz-authority-note" *ngIf="note">{{ note }}</p>
+      <ng-container *ngIf="points.length; else empty">
+        <div class="mz-sr-bar">
+          <div class="mz-sr-marker" *ngIf="markerPos != null" [style.right.%]="markerPos">
+            <span class="mz-sr-marker-tag">{{ markerLabel }}</span>
+            <div class="mz-sr-marker-stem"></div>
+          </div>
+          <div *ngFor="let p of points" class="mz-sr-pt" [ngClass]="p.kind" [style.right.%]="p.pos">
+            <i></i>
+            <b>{{ p.label }}</b>
+            <span class="mz-ltr">{{ p.value }}</span>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #empty><p class="mz-authority-note">{{ emptyText }}</p></ng-template>
+    </mz-details-section>
+  

@@ -1,0 +1,13 @@
+
+    <div class="mz-fdrop">
+      <button type="button" class="mz-fdrop-trigger" (click)="open = !open" [attr.aria-expanded]="open" [attr.aria-label]="ariaLabel || label">
+        <span>{{ triggerLabel }}</span><lucide-icon [img]="ChevronIcon" [size]="14"></lucide-icon>
+      </button>
+      <div class="mz-fdrop-panel" *ngIf="open">
+        <label class="mz-fdrop-item" *ngFor="let o of options">
+          <input [type]="multi ? 'checkbox' : 'radio'" [checked]="isSelected(o.value)" (change)="toggle(o.value)" />
+          <span>{{ o.label }}</span>
+        </label>
+      </div>
+    </div>
+  

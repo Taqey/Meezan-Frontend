@@ -1,0 +1,23 @@
+
+    <div class="mz-card mz-filters">
+      <div class="mz-filters-search">
+        <mz-search-input [value]="config.searchValue" [placeholder]="config.searchPlaceholder" (valueChange)="searchChange.emit($event)"></mz-search-input>
+      </div>
+      <div class="mz-filters-controls">
+        <ng-container *ngFor="let c of config.controls">
+          <ng-container *ngIf="!c.hidden">
+            <mz-filter-dropdown *ngIf="c.kind === 'multi'" [label]="c.label" [allLabel]="c.allLabel" [options]="c.options" [selected]="c.selected"
+                                (selectedChange)="controlChange.emit({ id: c.id, values: $event })"></mz-filter-dropdown>
+            <mz-select *ngIf="c.kind === 'select'" [options]="c.options" [value]="c.value" [ariaLabel]="c.label"
+                       (valueChange)="controlChange.emit({ id: c.id, values: [$any($event)] })"></mz-select>
+          </ng-container>
+        </ng-container>
+        <mz-select *ngIf="config.sort as s" [options]="s.options" [value]="s.value" [ariaLabel]="s.label"
+                   (valueChange)="sortChange.emit($any($event))"></mz-select>
+        <button *ngIf="config.advanced as a" type="button" class="mz-btn soft mz-advanced-btn" [attr.aria-expanded]="a.open" (click)="advancedClick.emit()">
+          <lucide-icon [img]="TuneIcon" [size]="16" style="color:var(--mz-primary)"></lucide-icon>
+          <span>{{ a.label }}</span><span class="mz-badge pill" *ngIf="a.count">{{ a.count }}</span>
+        </button>
+      </div>
+    </div>
+  

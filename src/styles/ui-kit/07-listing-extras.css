@@ -1,0 +1,87 @@
+/* ---------- listing extras ---------- */
+.mz-active-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.mz-x { border: 0; background: none; cursor: pointer; font-size: 14px; line-height: 1; color: inherit; padding: 0 2px; }
+/* Advanced filter grid system */
+.mz-adv-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  align-items: stretch;
+}
+
+@media (min-width: 768px) {
+  .mz-adv-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .mz-adv-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Stacked controls column (pairs of dropdowns/inputs sharing full row height) */
+.mz-adv-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 100%;
+  box-sizing: border-box;
+}
+
+.mz-adv-col > .mz-adv-item {
+  flex: 1 1 auto;
+  padding: 10px;
+  gap: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+.mz-adv-col > .mz-adv-item .mz-slicer-head {
+  font-size: 12px;
+  line-height: 16px;
+  margin: 0;
+}
+
+.mz-adv-col .mz-select-trigger {
+  min-height: 36px;
+  height: 36px;
+  padding: 6px 10px;
+  font-size: 12.5px;
+  line-height: 18px;
+  box-sizing: border-box;
+}
+
+.mz-slicer,
+.mz-adv-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid rgba(188,202,192,.3);
+  border-radius: 12px;
+  background: var(--mz-surface-low);
+  font-size: 12px;
+  box-sizing: border-box;
+}
+
+.mz-adv-grid > .mz-slicer {
+  height: 100%;
+}
+
+.mz-slicer-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  color: var(--mz-on-surface-variant);
+  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.mz-slicer-inputs { display: flex; align-items: center; gap: 8px; }
+.mz-slicer input[type=range] { accent-color: var(--mz-primary); width: 100%; }

@@ -1,0 +1,36 @@
+/* Meezan shared UI kit — tokens from 01_design-system/DESIGN.md + stocks reference.
+   Typography: Cairo font family across all weights (400–900), matching svce_code.html reference. */
+.mz {
+  --mz-bg: #faf8ff;
+  --mz-surface: #ffffff;
+  --mz-surface-low: #f2f3ff;
+  --mz-surface-container: #eaedff;
+  --mz-primary: #006948;
+  --mz-on-primary: #ffffff;
+  --mz-secondary: #006c4e;
+  --mz-secondary-fixed: #97f5cc;
+  --mz-primary-fixed: #85f8c4;
+  --mz-on-surface: #131b2e;
+  --mz-on-surface-variant: #3d4a42;
+  --mz-outline: #6d7a72;
+  --mz-outline-variant: #bccac0;
+  --mz-error: #ba1a1a;
+  --mz-error-container: #ffdad6;
+  --mz-on-error-container: #93000a;
+  --mz-warn: #b47b20;
+  --mz-warn-soft: #fff4d9;
+  --mz-radius: 12px;
+  --mz-dur-fast: 140ms;
+  --mz-dur-base: 200ms;
+  --mz-dur-slow: 300ms;
+  --mz-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --mz-stagger-step: 40ms;
+  --mz-stagger-max: 400ms;
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--mz-on-surface);
+}
+.mz *, .mz *::before, .mz *::after { box-sizing: border-box; }
+.mz-stack { display: flex; flex-direction: column; gap: 16px; }
+.mz-ltr { direction: ltr; unicode-bidi: embed; }

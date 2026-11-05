@@ -1,0 +1,45 @@
+
+    <mz-back-link *ngIf="config.backLink" [label]="config.backLink.label" [to]="config.backLink.to"></mz-back-link>
+    <ng-content select="[backLink]"></ng-content>
+
+    <mz-page-header [badge]="config.header.badge" [count]="config.header.count || ''" [title]="config.header.title" [description]="config.header.description">
+      <ng-container actions><ng-content select="[actions]"></ng-content></ng-container>
+    </mz-page-header>
+
+    <mz-stats-row [stats]="config.stats || []" [loading]="!!config.statsLoading" [count]="config.statsCount || 4"></mz-stats-row>
+
+    <section class="mz-filters-section">
+      <mz-quick-filter-tabs [tabs]="config.tabs || []" [active]="config.activeTab || ''" (onChange)="tabChange.emit($event)"></mz-quick-filter-tabs>
+      <mz-filters-bar *ngIf="config.filters" [config]="config.filters" (searchChange)="searchChange.emit($event)"
+                      (controlChange)="controlChange.emit($event)" (sortChange)="sortChange.emit($event)" (advancedClick)="advancedClick.emit()"></mz-filters-bar>
+      <div class="mz-card mz-advanced-panel" *ngIf="config.filters?.advanced?.open"><ng-content select="[advanced]"></ng-content></div>
+    </section>
+
+    <mz-results-info [text]="config.results?.text || ''" [note]="config.results?.note" [legend]="config.results?.legend"><ng-content select="[resultsExtra]"></ng-content></mz-results-info>
+
+    <div class="mz-cards-area-wrap">
+      <!-- Initial load (no cards yet): show exact placeholders AND smooth spinner -->
+      <ng-container *ngIf="config.loading && !config.error && !config.cards.length">
+        <app-loading-skeletons variant="card" [count]="config.skeletonCount || 20" [cardType]="config.cardType || 'stock'"></app-loading-skeletons>
+        <mz-spinner [active]="true" size="large" [overlay]="true" [showLabel]="true" label="جارٍ التحميل..."></mz-spinner>
+      </ng-container>
+
+      <!-- Error state -->
+      <app-empty-state *ngIf="config.error" [title]="config.error.title" [message]="config.error.message" actionLabel="إعادة المحاولة" [loading]="!!config.loading" (action)="retry.emit()"></app-empty-state>
+
+      <!-- Loaded OR refreshing with existing cards dimmed -->
+      <ng-container *ngIf="!config.error && (!config.loading || config.cards.length > 0)">
+        <div class="mz-cards-content" [class.is-dimmed]="!!config.loading && config.cards.length > 0">
+          <ng-content select="[view]"></ng-content>
+          <ng-container *ngIf="!customView">
+            <mz-cards-grid *ngIf="config.cards.length" [cards]="config.cards"></mz-cards-grid>
+            <app-empty-state *ngIf="!config.cards.length && !config.loading" [title]="config.empty.title" [message]="config.empty.message"></app-empty-state>
+          </ng-container>
+        </div>
+        <mz-spinner [active]="!!config.loading && config.cards.length > 0" size="large" [overlay]="true" [showLabel]="true" label="جارٍ تحديث النتائج..."></mz-spinner>
+      </ng-container>
+    </div>
+
+    <mz-pagination *ngIf="!customView && (config.totalPages || 1) > 1" [page]="config.page || 1" [totalPages]="config.totalPages || 1" (pageChange)="pageChange.emit($event)"></mz-pagination>
+    <ng-content select="[footer]"></ng-content>
+  

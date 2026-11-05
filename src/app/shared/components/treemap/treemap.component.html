@@ -1,0 +1,77 @@
+
+    <div class="treemap-wrapper">
+      <div class="heat-legend no-print">
+        <span class="legend-item"><i class="heat-dot up-strong"></i> +3% فأكثر</span>
+        <span class="legend-item"><i class="heat-dot up"></i> أداء إيجابي</span>
+        <span class="legend-item"><i class="heat-dot neutral"></i> 0.00%</span>
+        <span class="legend-item"><i class="heat-dot down"></i> أداء سلبي</span>
+        <span class="legend-item"><i class="heat-dot down-strong"></i> -3% فأقل</span>
+        <span class="legend-item"><i class="heat-dot flat"></i> بدون بيانات</span>
+        <span *ngIf="sizeNote" class="muted ms-auto legend-sizenote">{{ sizeNote }}</span>
+      </div>
+
+      <div #container class="treemap-container" [style.height.px]="computedHeight">
+        <div
+          *ngFor="let tile of tiles; trackBy: trackTile"
+          class="treemap-tile"
+          [style.left.px]="tile.rect.x"
+          [style.top.px]="tile.rect.y"
+          [style.width.px]="tile.rect.w"
+          [style.height.px]="tile.rect.h"
+          [style.background-color]="tile.color"
+          [style.color]="tile.ink"
+          [attr.title]="tile.item.tooltip"
+          (click)="onTileClick($event, tile.item)"
+        >
+          <div class="tile-content" [style.font-size.px]="tile.fontSize">
+            <span class="tile-code" *ngIf="tile.hasName">{{ tile.item.label }}</span>
+            <span *ngIf="tile.hasChange && tile.item.changePct !== null && tile.item.changePct !== undefined" class="tile-change" dir="ltr">
+              {{ formatSignedPct(tile.item.changePct) }}
+            </span>
+            <span *ngIf="tile.hasSubLabel && tile.item.subLabel" class="tile-sub">
+              {{ tile.item.subLabel }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Small-screen Tap Popover for very small tiles -->
+        <div
+          *ngIf="popoverItem"
+          class="treemap-popover"
+          [style.left.px]="popoverX"
+          [style.top.px]="popoverY"
+          (click)="$event.stopPropagation()"
+        >
+          <div class="popover-header">
+            <strong>{{ popoverItem.label }}</strong>
+            <button type="button" class="popover-close" (click)="closePopover($event)">×</button>
+          </div>
+          <div class="popover-body">
+            <div *ngIf="popoverItem.changePct !== null && popoverItem.changePct !== undefined" class="popover-row">
+              <span>التغير:</span>
+              <span dir="ltr" [class.popover-up]="popoverItem.changePct > 0" [class.popover-down]="popoverItem.changePct < 0">
+                {{ formatSignedPct(popoverItem.changePct) }}
+              </span>
+            </div>
+            <div *ngIf="popoverItem.price !== null && popoverItem.price !== undefined" class="popover-row">
+              <span>السعر:</span>
+              <span dir="ltr">{{ popoverItem.price | number:'1.2-2' }} ج.م</span>
+            </div>
+            <div *ngIf="popoverItem.subLabel && popoverItem.price == null" class="popover-row">
+              <span>{{ popoverItem.subLabel }}</span>
+            </div>
+          </div>
+          <a class="popover-link" (click)="navigateTo(popoverItem.link)">عرض التفاصيل ←</a>
+        </div>
+
+        <div *ngIf="tiles.length === 0" class="treemap-empty">
+          <span>لا توجد بيانات كافية لعرض الخريطة الحرارية</span>
+        </div>
+      </div>
+
+      <div *ngIf="unweightedCount > 0" class="treemap-unweighted-note">
+        <span class="note-bullet">ℹ</span>
+        <span>{{ unweightedCount }} {{ unweightedLabel }}</span>
+      </div>
+    </div>
+  

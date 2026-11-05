@@ -1,0 +1,23 @@
+/* Cards area dimming during search/filter/tab/sort/page changes */
+.mz-cards-area-wrap {
+  position: relative;
+  min-height: 120px;
+}
+
+.mz-cards-content {
+  transition: opacity 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mz-cards-content.is-dimmed {
+  opacity: 0.5;
+  pointer-events: none;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mz-spinner-ring {
+    animation: none !important;
+    border-color: var(--mz-primary, #006948);
+    opacity: 0.85;
+  }
+}

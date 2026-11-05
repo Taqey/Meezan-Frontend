@@ -1,0 +1,9 @@
+
+    <span class="comparison-badge" [ngClass]="badgeClass">
+      <lucide-icon *ngIf="isCheap" [img]="TrendingUpIcon" size="13"></lucide-icon>
+      <lucide-icon *ngIf="isExpensive" [img]="TrendingDownIcon" size="13"></lucide-icon>
+      <lucide-icon *ngIf="isUnavailable" [img]="MinusIcon" size="13"></lucide-icon>
+      <span *ngIf="isFair" class="neutral-line"></span>
+      {{ label }}
+    </span>
+  

@@ -1,0 +1,157 @@
+/* Stock & Index Grids */
+.leader-grid, .stock-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.stock-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 19px;
+  transition: transform var(--dur-med) var(--ease-out), box-shadow var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out);
+  cursor: pointer;
+}
+
+.stock-card:hover {
+  transform: translateY(-3px);
+  border-color: #aed4c3;
+  box-shadow: 0 12px 30px rgba(31, 78, 58, .08);
+}
+
+.stock-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 38px;
+}
+
+.ticker {
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 17px;
+  direction: ltr;
+  text-align: right;
+  min-width: 0;
+  flex: 1;
+}
+
+.ticker .ticker-symbol {
+  display: block;
+  line-height: 1.2;
+}
+
+.ticker .ticker-en,
+.ticker span {
+  display: block;
+  color: var(--muted-foreground);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: .04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.ticker.large {
+  font-size: 28px;
+}
+
+.stock-top-side {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.change {
+  font-weight: 600;
+  font-size: 13px;
+  direction: ltr;
+  white-space: nowrap;
+}
+
+.positive {
+  color: var(--good) !important;
+}
+
+.negative {
+  color: var(--bad) !important;
+}
+
+.stock-name {
+  margin: 10px 0 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  height: 2.8em;
+  line-height: 1.4em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stock-price {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+  height: 36px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.stock-price strong {
+  font-size: 26px;
+  letter-spacing: -.05em;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.stock-price span {
+  color: var(--muted-foreground);
+  font-size: 11px;
+}
+
+.stock-price em {
+  margin-right: auto;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.stock-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 0 10px;
+  min-height: 48px;
+  box-sizing: border-box;
+}
+
+.mini-ratio {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted-foreground);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.mini-ratio lucide-icon, .mini-ratio svg {
+  width: 14px;
+  height: 14px;
+  color: var(--primary);
+}

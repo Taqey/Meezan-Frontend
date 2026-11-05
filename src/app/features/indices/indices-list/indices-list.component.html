@@ -1,0 +1,39 @@
+
+    <mz-listing-page
+      [config]="config"
+      [customView]="view !== 'grid'"
+      (tabChange)="setChip($event)"
+      (searchChange)="onSearchInput($event)"
+      (controlChange)="onControlChange($event)"
+      (sortChange)="onSortChangeSelect($event)"
+      (advancedClick)="advancedOpen = !advancedOpen; rebuild()"
+      (retry)="load(true)">
+      <ng-container actions>
+        <app-view-switcher [view]="view" (viewChange)="setView($event)"></app-view-switcher>
+        <mz-button [icon]="PrintIcon" [loading]="printing" (clicked)="printReport()">تقرير PDF</mz-button>
+      </ng-container>
+      <ng-container view>
+        <app-entity-table
+          *ngIf="indices.length && view === 'table' && !statsLoading"
+          [columns]="tableColumns" [rows]="tableRows" [sortKey]="tableSortKey" [sortDir]="tableSortDir"
+          (sortChange)="setTableSort($event)" ariaLabel="جدول المؤشرات الرسمية">
+        </app-entity-table>
+        <app-treemap
+          *ngIf="indices.length && view === 'heatmap' && !statsLoading"
+          [items]="treemapItems"
+          sizeNote="حجم كل مربع يمثل إجمالي القيمة السوقية لأسهم المؤشر">
+        </app-treemap>
+      </ng-container>
+      <div advanced class="mz-adv-grid">
+        <label class="mz-slicer">
+          <span class="mz-slicer-head"><span>الحد الأدنى لعدد الأسهم المكونة</span></span>
+          <mz-select
+            [options]="minConstituentsOptions"
+            [(ngModel)]="minConstituents"
+            (valueChange)="minConstituents = $event; refreshDerived()"
+            ariaLabel="الحد الأدنى لعدد الأسهم">
+          </mz-select>
+        </label>
+      </div>
+    </mz-listing-page>
+  

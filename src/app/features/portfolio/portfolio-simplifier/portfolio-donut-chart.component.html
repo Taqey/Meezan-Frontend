@@ -1,0 +1,6 @@
+
+    <svg class="donut-chart" viewBox="0 0 100 100" role="img" [attr.aria-label]="ariaLabel">
+      <path *ngFor="let slice of slices" [attr.d]="slice.path" [attr.fill]="slice.color" />
+      <circle cx="50" cy="50" r="25" fill="#ffffff" />
+    </svg>
+  

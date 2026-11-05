@@ -1,0 +1,8 @@
+
+    <a class="mz-card mz-infocard" [class.hoverable]="!!link" [routerLink]="link || null">
+      <span class="mz-infocard-label">{{ label }}</span>
+      <h3 class="mz-infocard-title">{{ title }}</h3>
+      <p class="mz-infocard-desc" *ngIf="description">{{ description }}</p>
+      <span class="mz-infocard-foot" *ngIf="footerLabel">{{ footerLabel }}<lucide-icon [img]="LinkIcon" [size]="14"></lucide-icon></span>
+    </a>
+  

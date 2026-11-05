@@ -1,0 +1,85 @@
+/* Feature Section */
+.feature-section {
+  display: grid;
+  grid-template-columns: 1fr .8fr;
+  gap: 90px;
+  padding-top: 80px;
+  padding-bottom: 100px;
+}
+
+.feature-copy h2 {
+  font-size: 34px;
+  max-width: 450px;
+  line-height: 1.35;
+  margin: 12px 0;
+  color: var(--ink);
+}
+
+.feature-copy p {
+  color: var(--muted-foreground);
+  max-width: 480px;
+  line-height: 1.85;
+  font-size: 15px;
+}
+
+.opinion-preview {
+  background: var(--cream);
+  border: 1px solid #ebe7d9;
+  border-radius: 18px;
+  padding: 24px;
+  align-self: center;
+}
+
+.opinion-head {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e9e2d2;
+  font-size: 13px;
+}
+
+.opinion-head strong, .ratio-big strong {
+  color: var(--primary);
+  font-size: 24px;
+}
+
+.opinion-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 15px;
+  font-size: 13px;
+}
+
+.status-badge {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 4px 0;
+  font-weight: 700;
+}
+
+.status-badge.status-good {
+  color: var(--good);
+  background: transparent !important;
+}
+
+.status-badge.status-bad {
+  color: var(--bad);
+  background: transparent !important;
+}
+
+.status-badge.status-warn {
+  color: var(--warn);
+  background: transparent !important;
+}
+
+.status-badge.status-neutral {
+  color: var(--muted-foreground);
+  background: transparent !important;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}

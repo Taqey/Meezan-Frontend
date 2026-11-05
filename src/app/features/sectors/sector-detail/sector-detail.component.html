@@ -1,0 +1,92 @@
+
+    <mz-listing-page
+      [config]="config"
+      [customView]="view !== 'grid'"
+      (tabChange)="onTabChange($event)"
+      (searchChange)="onSearchInput($event)"
+      (controlChange)="onControlChange($event)"
+      (sortChange)="onSortSelect($event)"
+      (advancedClick)="advancedOpen = !advancedOpen; rebuild()"
+      (pageChange)="setPage($event)"
+      (retry)="retry()">
+
+      <ng-container actions>
+        <app-view-switcher [view]="view" (viewChange)="setView($event)"></app-view-switcher>
+      </ng-container>
+
+      <ng-container view>
+        <app-treemap
+          *ngIf="view === 'heatmap' && !kpisLoading"
+          [items]="treemapItems"
+          [unweightedCount]="unweightedCount"
+          unweightedLabel="سهم بدون وزن نسبي غير معروضة في الخريطة"
+          sizeNote="حجم كل مربع يمثل الوزن النسبي للسهم في القطاع">
+        </app-treemap>
+      </ng-container>
+
+      <div resultsExtra class="mz-active-filters">
+        <span class="mz-badge pill neutral" *ngFor="let code of indexCodes">المؤشر: {{ code }} <button type="button" class="mz-x" (click)="removeIndex(code)" aria-label="إزالة">×</button></span>
+        <span class="mz-badge pill neutral" *ngFor="let st of shariahStatuses">الحكم: {{ getShariahLabel(st) }} <button type="button" class="mz-x" (click)="removeShariah(st)" aria-label="إزالة">×</button></span>
+        <span class="mz-badge pill neutral" *ngIf="nonComplianceType">سبب عدم التوافق: {{ nonComplianceType === 'activity' ? 'النشاط' : 'النسب المالية' }} <button type="button" class="mz-x" (click)="clearFilter('nonComplianceType')" aria-label="إزالة">×</button></span>
+        <span class="mz-badge pill neutral" *ngIf="priceComparison">التقييم: {{ getPriceComparisonLabel(priceComparison) }} <button type="button" class="mz-x" (click)="clearFilter('priceComparison')" aria-label="إزالة">×</button></span>
+        <span class="mz-badge pill neutral" *ngIf="minCompliantSources">الجهات: ≥ {{ minCompliantSources }} <button type="button" class="mz-x" (click)="clearFilter('minCompliantSources')" aria-label="إزالة">×</button></span>
+        <span class="mz-badge pill neutral" *ngIf="minPe !== null || maxPe !== null">مكرر الربحية: {{ minPe ?? 0 }} - {{ maxPe ?? '∞' }} <button type="button" class="mz-x" (click)="clearPeFilter()" aria-label="إزالة">×</button></span>
+        <span class="mz-badge pill neutral" *ngIf="minPb !== null || maxPb !== null">مضاعف الدفترية: {{ minPb ?? 0 }} - {{ maxPb ?? '∞' }} <button type="button" class="mz-x" (click)="clearPbFilter()" aria-label="إزالة">×</button></span>
+      </div>
+
+      <div advanced class="mz-adv-grid">
+        <!-- Right Column: Stacked authorities/compliance dropdown + results per page -->
+        <div class="mz-adv-col">
+          <div class="mz-adv-item" *ngIf="shariahStatuses.includes('NonCompliant')">
+            <span class="mz-slicer-head"><span>سبب عدم التوافق</span></span>
+            <mz-select size="compact"
+              [options]="nonComplianceOptions"
+              [(ngModel)]="nonComplianceType"
+              (valueChange)="nonComplianceType = $event; onFilterChange()"
+              ariaLabel="سبب عدم التوافق">
+            </mz-select>
+          </div>
+          <div class="mz-adv-item">
+            <span class="mz-slicer-head"><span>الحد الأدنى للمصادر المتوافقة</span></span>
+            <mz-select size="compact"
+              [options]="minCompliantOptions"
+              [(ngModel)]="minCompliantSources"
+              (valueChange)="minCompliantSources = $event; onFilterChange()"
+              ariaLabel="الحد الأدنى للمصادر المتوافقة">
+            </mz-select>
+          </div>
+          <div class="mz-adv-item">
+            <span class="mz-slicer-head"><span>النتائج لكل صفحة</span></span>
+            <mz-select size="compact"
+              [options]="pageSizeOptions"
+              [(ngModel)]="pageSize"
+              (valueChange)="pageSize = $event; onPageSizeChange()"
+              ariaLabel="عدد الأسهم في الصفحة">
+            </mz-select>
+          </div>
+        </div>
+
+        <!-- Middle Column: P/E range card -->
+        <div class="mz-slicer">
+          <div class="mz-slicer-head"><span>مكرر الربحية (P/E)</span><span>{{ minPe !== null ? minPe : 0 }} - {{ maxPe !== null ? maxPe : 100 }}</span></div>
+          <div class="mz-slicer-inputs">
+            <input class="mz-select" type="number" placeholder="من" [ngModel]="minPe" (ngModelChange)="onPeMinChange($event)" min="0" max="100" aria-label="الحد الأدنى لمكرر الربحية" />
+            <span>—</span>
+            <input class="mz-select" type="number" placeholder="إلى" [ngModel]="maxPe" (ngModelChange)="onPeMaxChange($event)" min="0" max="100" aria-label="الحد الأقصى لمكرر الربحية" />
+          </div>
+          <input type="range" min="0" max="100" [ngModel]="maxPe !== null ? maxPe : 100" (ngModelChange)="onPeMaxChange($event)" aria-label="شريط أقصى مكرر ربحية" />
+        </div>
+
+        <!-- Left Column: P/B range card -->
+        <div class="mz-slicer">
+          <div class="mz-slicer-head"><span>مضاعف القيمة الدفترية (P/B)</span><span>{{ minPb !== null ? minPb : 0 }} - {{ maxPb !== null ? maxPb : 20 }}</span></div>
+          <div class="mz-slicer-inputs">
+            <input class="mz-select" type="number" step="0.5" placeholder="من" [ngModel]="minPb" (ngModelChange)="onPbMinChange($event)" min="0" max="20" aria-label="الحد الأدنى لمضاعف القيمة الدفترية" />
+            <span>—</span>
+            <input class="mz-select" type="number" step="0.5" placeholder="إلى" [ngModel]="maxPb" (ngModelChange)="onPbMaxChange($event)" min="0" max="20" aria-label="الحد الأقصى لمضاعف القيمة الدفترية" />
+          </div>
+          <input type="range" min="0" max="20" step="0.5" [ngModel]="maxPb !== null ? maxPb : 20" (ngModelChange)="onPbMaxChange($event)" aria-label="شريط أقصى مضاعف قيمة دفترية" />
+        </div>
+      </div>
+    </mz-listing-page>
+  

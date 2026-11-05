@@ -1,0 +1,93 @@
+
+:root {
+  /* Motion tokens: unified durations and easing curve across the whole site */
+  --mz-dur-fast: 140ms;
+  --mz-dur-base: 200ms;
+  --mz-dur-slow: 300ms;
+  --mz-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --mz-stagger-step: 40ms;
+  --mz-stagger-max: 400ms;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 140ms;
+  --dur-med: 200ms;
+  --dur-slow: 300ms;
+  --stagger-step: 40ms;
+  --reveal-y: 8px;
+  color-scheme: light;
+  --background: #f7f8f6;
+  --foreground: #17231f;
+  --card: #fff;
+  --card-foreground: #17231f;
+  --primary: #087f5b;
+  --primary-foreground: #fff;
+  --secondary: #e7f3ef;
+  --secondary-foreground: #087f5b;
+  --muted: #eef2ef;
+  --muted-foreground: #708078;
+  --border: #e2e9e5;
+  --input: #fff;
+  --ring: #0b8f67;
+  --ink: #17231f;
+  --cream: #fbfaf5;
+  --good: #087f5b;
+  --good-soft: #e4f4ed;
+  --bad: #c8443d;
+  --bad-soft: #f9e9e7;
+  --warn: #b47b20;
+  --warn-soft: #fff4d9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Backstop: page itself never scrolls horizontally (sticky/fixed unaffected by clip). */
+html, body {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+svg {
+  max-width: 100%;
+}
+
+html {
+  direction: rtl;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Cairo', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2 {
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+h3, h4 {
+  font-weight: 800;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button, input, select, textarea {
+  font: inherit;
+}

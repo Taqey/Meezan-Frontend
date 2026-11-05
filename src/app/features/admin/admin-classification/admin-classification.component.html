@@ -1,10 +1,10 @@
 <div class="admin-card">
-  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+  <div class="aclass-inl-1">
     <div>
-      <h2 style="margin:0;">شجرة التصنيف</h2>
-      <p class="muted" style="margin:4px 0 0;">تسلسل هرمي قابل للتحرير بالكامل (حتى 6 مستويات). التعيين اليدوي يغلب التلقائي دائماً.</p>
+      <h2 class="aclass-inl-2">شجرة التصنيف</h2>
+      <p class="muted aclass-inl-3" >تسلسل هرمي قابل للتحرير بالكامل (حتى 6 مستويات). التعيين اليدوي يغلب التلقائي دائماً.</p>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <div class="aclass-inl-4">
       <button type="button" class="btn btn-outline btn-sm" (click)="tree.refreshAll()">
         <lucide-icon [img]="RefreshIcon" size="13"></lucide-icon> تحديث
       </button>
@@ -20,11 +20,11 @@
     </div>
   </div>
 
-  <div style="display:flex;gap:8px;margin:14px 0;flex-wrap:wrap;">
+  <div class="aclass-inl-5">
     <button type="button" class="btn" [class.btn-primary]="view==='tree'" [class.btn-outline]="view!=='tree'" (click)="onSelectView('tree')">الشجرة</button>
     <button type="button" class="btn" [class.btn-primary]="view==='review'" [class.btn-outline]="view!=='review'" (click)="onSelectView('review')">
       تحتاج مراجعة
-      <span *ngIf="review.reviewBadge>0" style="background:var(--bad);color:#fff;border-radius:999px;padding:0 8px;font-size:11px;margin-inline-start:4px;">{{ review.reviewBadge }}</span>
+      <span *ngIf="review.reviewBadge>0" __INL_CLS__="aclass-inl-6">{{ review.reviewBadge }}</span>
     </button>
     <button type="button" class="btn" [class.btn-primary]="view==='log'" [class.btn-outline]="view!=='log'" (click)="onSelectView('log')">سجل التغييرات</button>
   </div>

@@ -48,7 +48,7 @@
                   <button class="mz-btn primary" type="button" id="pfBtnStocks">
                     <span id="t-pfUpS">اختر ملفات الأسهم</span>
                   </button>
-                  <input type="file" id="pfFileStocks" accept=".csv,.xlsx,.xls" style="display:none" multiple>
+                  <input type="file" id="pfFileStocks" accept=".csv,.xlsx,.xls" class="port-inl-1" multiple>
                 </div>
 
                 <div class="dropzone" id="pfDropIndex">
@@ -59,7 +59,7 @@
                   <button class="mz-btn" type="button" id="pfBtnIndex">
                     <span id="t-pfUpI">اختر ملف المؤشر</span>
                   </button>
-                  <input type="file" id="pfFileIndex" accept=".csv,.xlsx,.xls" style="display:none">
+                  <input type="file" id="pfFileIndex" accept=".csv,.xlsx,.xls" class="port-inl-1">
                 </div>
               </div>
 
@@ -87,7 +87,7 @@
             <!-- Step 2: Results -->
             <div id="pf-step2" hidden>
               <div class="results-header-box">
-                <p class="sent" id="pfSumLine" style="margin:0"></p>
+                <p class="sent port-inl-2" id="pfSumLine" ></p>
               </div>
 
               <div class="twocol">
@@ -98,7 +98,7 @@
                   </div>
                   <div id="pfSimHeadline" class="sent"></div>
                   <div class="tablewrap" id="pfSimWrap" hidden>
-                    <table id="pfTable" style="min-width:0">
+                    <table id="pfTable" class="port-inl-3">
                       <thead>
                         <tr>
                           <th id="t-pfThS">السهم</th>
@@ -120,7 +120,7 @@
                   </div>
                   <div id="pfCcmHeadline" class="sent"></div>
                   <div class="tablewrap" id="pfCcmWrap" hidden>
-                    <table id="pfCcmTable" style="min-width:0">
+                    <table id="pfCcmTable" class="port-inl-3">
                       <thead>
                         <tr>
                           <th>السهم</th>
@@ -140,7 +140,7 @@
               <div class="merged-section">
                 <h3 class="sub">مقارنة الأوزان بين النموذجين</h3>
                 <div class="tablewrap" id="pfMergeWrap" hidden>
-                  <table id="pfMergeTable" style="min-width:0">
+                  <table id="pfMergeTable" class="port-inl-3">
                     <thead>
                       <tr>
                         <th>السهم</th>
@@ -153,7 +153,7 @@
                 </div>
               </div>
 
-              <h2 id="pfHead" style="margin:0;display:none"></h2>
+              <h2 id="pfHead" class="port-inl-4"></h2>
 
               <details class="coll" id="pfRejBox">
                 <summary id="t-pfNotSel">الأسهم المستبعدة من المحفظة</summary>
@@ -212,7 +212,7 @@
               <button class="mz-btn" type="button" id="secBtnIndex">
                 <span id="t-secUpI">اختر ملف المؤشر</span>
               </button>
-              <input type="file" id="secFileIndex" accept=".csv,.xlsx,.xls" style="display:none">
+              <input type="file" id="secFileIndex" accept=".csv,.xlsx,.xls" class="port-inl-1">
             </div>
             <div class="pfchips" id="secIdxChip"></div>
             <div class="hint" id="t-secIdxOpt">ملف المؤشر اختياري (مطلوب لحساب نموذج مؤشر السوق SIM)</div>

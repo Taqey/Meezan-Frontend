@@ -6,11 +6,11 @@
           <span class="mz-ltr" *ngIf="code">{{ code }}</span>
           <span class="mz-ltr" *ngIf="secondaryName">{{ secondaryName }}</span>
         </div>
-        <div class="mz-dheader-titlerow" style="display:flex;align-items:center;gap:14px;">
-          <div *ngIf="logoUrl && !logoFailed" style="width:56px;height:56px;flex-shrink:0;border-radius:12px;border:1px solid rgba(188,202,192,.35);background:#fff;display:flex;align-items:center;justify-content:center;padding:4px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
-            <img [src]="logoUrl" [alt]="title" style="width:100%;height:100%;object-fit:contain;border-radius:8px;" (error)="logoFailed = true" />
+        <div class="mz-dheader-titlerow dhead-inl-1" >
+          <div *ngIf="logoUrl && !logoFailed" class="dhead-inl-2">
+            <img [src]="logoUrl" [alt]="title" class="dhead-inl-3" (error)="logoFailed = true" />
           </div>
-          <h1 style="margin:0;">{{ title }}</h1>
+          <h1 class="dhead-inl-4">{{ title }}</h1>
           <ng-content select="[titleBadge]"></ng-content>
         </div>
         <div class="mz-dheader-tags" *ngIf="tags?.length">

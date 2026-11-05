@@ -13,11 +13,11 @@
         <span class="mz-badge pill neutral" *ngIf="activeNodeName">التصنيف: {{ activeNodeName }} <button type="button" class="mz-x" (click)="removeNodeFilter()" aria-label="حذف فلتر التصنيف">×</button></span>
         <span class="mz-badge pill neutral" *ngIf="filter.riskLevel">المخاطر: {{ filter.riskLevel === 'low' ? 'منخفضة' : filter.riskLevel === 'medium' ? 'متوسطة' : 'عالية' }} <button type="button" class="mz-x" (click)="removeRiskFilter()" aria-label="حذف فلتر المخاطر">×</button></span>
         <span class="mz-badge pill neutral" *ngIf="filter.isIslamic !== undefined">الحكم: {{ filter.isIslamic ? 'متوافق شرعاً' : 'غير متوافق' }} <button type="button" class="mz-x" (click)="removeShariaFilter()" aria-label="حذف فلتر التوافق الشرعي">×</button></span>
-        <button type="button" class="mz-btn" style="padding:2px 8px;font-size:11px" (click)="resetFilters()">مسح الفلاتر</button>
+        <button type="button" class="mz-btn fmgr-inl-1"  (click)="resetFilters()">مسح الفلاتر</button>
       </div>
 
       <div advanced class="mz-adv-grid">
-        <div style="grid-column: 1 / -1">
+        <div class="fmgr-inl-2">
           <app-classification-cascade
             [tree]="classTree"
             [path]="classPath"
@@ -55,8 +55,8 @@
         </div>
       </div>
 
-      <div footer class="mz-source-note" style="margin-top:24px">
-        المصدر: <a href="https://snduk.com" target="_blank" rel="noopener noreferrer" style="color:var(--mz-primary);text-decoration:underline">SNDUK</a> |
+      <div footer class="mz-source-note fmgr-inl-3" >
+        المصدر: <a href="https://snduk.com" target="_blank" rel="noopener noreferrer" class="fmgr-inl-4">SNDUK</a> |
         آخر تحديث: {{ lastSyncedAt ? (lastSyncedAt | date:'yyyy-MM-dd HH:mm') : '—' }} |
         <span>إخلاء المسؤولية: البيانات للأغراض المعلوماتية فقط ولا تُعد نصيحة استثمارية.</span>
       </div>

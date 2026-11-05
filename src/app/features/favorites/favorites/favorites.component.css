@@ -1,5 +1,4 @@
-
-    .fav-clear-confirm {
+.fav-clear-confirm {
       display: inline-flex;
       align-items: center;
       gap: 8px;
@@ -29,4 +28,5 @@
       margin-top: -20px;
       margin-bottom: 32px;
     }
-  
+
+.fav-inl-1 { width: 12px; display: inline-block; }

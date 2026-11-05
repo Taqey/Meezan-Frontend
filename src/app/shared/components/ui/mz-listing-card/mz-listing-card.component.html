@@ -4,10 +4,10 @@
         <!-- Fund card header: single row (Logo -> Name -> Star -> Vertical Badges column) -->
         <div class="mz-lcard-fund-head" *ngIf="card.isFundCard">
           <div class="mz-lcard-fund-logo">
-            <div *ngIf="card.logoUrl && !logoFailed" class="mz-lcard-logo-wrap" style="width:48px;height:48px;flex-shrink:0;border-radius:10px;border:1px solid rgba(188,202,192,.35);background:#fff;display:flex;align-items:center;justify-content:center;padding:3px;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
-              <img [src]="card.logoUrl" [alt]="card.title" style="width:100%;height:100%;object-fit:contain;border-radius:6px;" loading="lazy" (error)="logoFailed = true" />
+            <div *ngIf="card.logoUrl && !logoFailed" class="mz-lcard-logo-wrap lcard-inl-1" >
+              <img [src]="card.logoUrl" [alt]="card.title" class="lcard-inl-2" loading="lazy" (error)="logoFailed = true" />
             </div>
-            <span *ngIf="(!card.logoUrl || logoFailed) && card.icon" class="mz-stat-icon" style="width:48px;height:48px;"><lucide-icon [img]="card.icon" [size]="22"></lucide-icon></span>
+            <span *ngIf="(!card.logoUrl || logoFailed) && card.icon" class="mz-stat-icon lcard-inl-3" ><lucide-icon [img]="card.icon" [size]="22"></lucide-icon></span>
             <div *ngIf="(!card.logoUrl || logoFailed) && !card.icon" class="mz-lcard-logo-placeholder"></div>
           </div>
           <div class="mz-lcard-fund-name-wrap">
@@ -25,10 +25,10 @@
         <!-- Default (non-fund) header -->
         <div class="mz-lcard-head" *ngIf="!card.isFundCard">
           <div class="mz-lcard-id">
-            <div *ngIf="card.logoUrl && !logoFailed" class="mz-lcard-logo-wrap" style="width:48px;height:48px;flex-shrink:0;border-radius:10px;border:1px solid rgba(188,202,192,.35);background:#fff;display:flex;align-items:center;justify-content:center;padding:3px;box-shadow:0 1px 2px rgba(0,0,0,0.03);">
-              <img [src]="card.logoUrl" [alt]="card.title" style="width:100%;height:100%;object-fit:contain;border-radius:6px;" loading="lazy" (error)="logoFailed = true" />
+            <div *ngIf="card.logoUrl && !logoFailed" class="mz-lcard-logo-wrap lcard-inl-1" >
+              <img [src]="card.logoUrl" [alt]="card.title" class="lcard-inl-2" loading="lazy" (error)="logoFailed = true" />
             </div>
-            <span *ngIf="(!card.logoUrl || logoFailed) && card.icon" class="mz-stat-icon" style="width:48px;height:48px;"><lucide-icon [img]="card.icon" [size]="22"></lucide-icon></span>
+            <span *ngIf="(!card.logoUrl || logoFailed) && card.icon" class="mz-stat-icon lcard-inl-3" ><lucide-icon [img]="card.icon" [size]="22"></lucide-icon></span>
             <div class="mz-lcard-text">
               <span class="mz-lcard-sub" *ngIf="card.subtitle">{{ card.subtitle }}</span>
               <h3 class="mz-lcard-title" [attr.title]="card.title">{{ card.title }}</h3>
@@ -36,7 +36,7 @@
             </div>
           </div>
           <div class="mz-lcard-badges" *ngIf="card.badges?.length">
-            <mz-badge *ngFor="let b of card.badges" [tone]="b.tone || 'default'"><span class="mz-ltr" style="white-space:nowrap">{{ b.label }}</span></mz-badge>
+            <mz-badge *ngFor="let b of card.badges" [tone]="b.tone || 'default'"><span class="mz-ltr lcard-inl-4" >{{ b.label }}</span></mz-badge>
           </div>
         </div>
         <div class="mz-lcard-main" *ngIf="card.mainValue != null">
@@ -50,7 +50,7 @@
       <div class="mz-lcard-bottom">
         <div class="mz-lcard-ribbon-wrap" *ngIf="!card.metrics?.length">
           <div class="mz-lcard-ribbon" *ngIf="card.ribbon as r" [ngClass]="r.tone || 'neutral'">
-            <span>{{ r.text }}</span><span *ngIf="r.aside" style="font-size:10px;opacity:.8">{{ r.aside }}</span>
+            <span>{{ r.text }}</span><span *ngIf="r.aside" class="lcard-inl-5">{{ r.aside }}</span>
           </div>
           <div class="mz-lcard-ribbon empty" *ngIf="!card.ribbon">
             <span>&nbsp;</span>
@@ -81,7 +81,7 @@
               <span *ngIf="isStr(f)">{{ f }}</span>
               <span *ngIf="!isStr(f)" [attr.title]="f.title || f.label">{{ f.label }}</span>
             </ng-container>
-            <span *ngIf="card.linkLabel" style="color:var(--mz-primary);display:inline-flex;align-items:center;gap:2px">{{ card.linkLabel }}<lucide-icon [img]="LinkIcon" [size]="14"></lucide-icon></span>
+            <span *ngIf="card.linkLabel" class="lcard-inl-6">{{ card.linkLabel }}<lucide-icon [img]="LinkIcon" [size]="14"></lucide-icon></span>
           </div>
         </div>
       </div>

@@ -7,7 +7,7 @@
     </div>
   </div>
 
-  <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+  <div class="afunds-inl-1">
     <button type="button" class="btn" data-testid="tab-classification" [class.btn-primary]="section === 'classification'" [class.btn-outline]="section !== 'classification'" (click)="onSelectSection('classification')">التصنيف</button>
     <button type="button" class="btn" [class.btn-primary]="section === 'categories'" [class.btn-outline]="section !== 'categories'" (click)="onSelectSection('categories')">التصنيفات</button>
     <button type="button" class="btn" data-testid="tab-funds" [class.btn-primary]="section === 'funds'" [class.btn-outline]="section !== 'funds'" (click)="onSelectSection('funds')">الصناديق</button>

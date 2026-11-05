@@ -28,7 +28,7 @@
       </mz-details-header-card>
 
       <!-- Detail Grid: Support/Resistance + Fair Value (Only if stock has market data) -->
-      <div class="mz-details-two" *ngIf="marketData.hasMarketData !== false" style="margin: 20px 0;">
+      <div class="mz-details-two detail-section-gap" *ngIf="marketData.hasMarketData !== false">
         <!-- Support & Resistance Ladder -->
         <mz-support-resistance-card
           eyebrow="قراءة فنية"
@@ -62,7 +62,7 @@
       <mz-sharia-authorities-section
         *ngIf="!isActivityNonCompliant"
         appReveal
-        style="margin: 20px 0;"
+        class="detail-section-gap"
         [eyebrow]="isShariahBoardFrozen || marketData.hasShariahBoard ? 'الإشراف الشرعي' : 'تغطية الجهات الشرعية'"
         [title]="isShariahBoardFrozen || marketData.hasShariahBoard ? 'الإشراف الشرعي للسهم' : 'آراء الهيئات الشرعية (7 مصادر مستقلة)'"
         [summaryText]="shariaSummaryText"
@@ -74,7 +74,7 @@
         [shariaRatios]="detailedShariaRatiosList"
         (authorityAction)="onAuthorityAction($event)">
         <!-- Fallback note if ratios unavailable -->
-        <p *ngIf="shouldShowRatiosSection && !hasShariahMetricsData" class="mz-authority-note" style="margin-top:12px">
+        <p *ngIf="shouldShowRatiosSection && !hasShariahMetricsData" class="mz-authority-note authority-note-margin">
           Data currently unavailable — لا توجد حالياً بيانات النسب المالية الشرعية لهذا السهم.
         </p>
       </mz-sharia-authorities-section>
@@ -83,7 +83,7 @@
       <mz-details-section
         *ngIf="isActivityNonCompliant"
         appReveal
-        style="margin: 20px 0;"
+        class="detail-section-gap"
         eyebrow="حُكم النشاط"
         [title]="'غير متوافق مع الشريعة — النشاط: ' + activityClassificationLabel">
         <p class="mz-authority-note">
@@ -173,7 +173,7 @@
             </div>
           </div>
 
-          <p class="upgrade-note" *ngIf="viaScholarsOnly" style="margin-top: 12px;">
+          <p class="upgrade-note authority-note-margin" *ngIf="viaScholarsOnly">
             <lucide-icon [img]="InfoIcon" size="13"></lucide-icon>
             <span>متوافق وفق فتاوى بعض العلماء الأفراد فقط (نسبة القروض {{ loansPct | number:'1.0-2' }}% ≤ 50%)</span>
           </p>
@@ -186,7 +186,7 @@
       <mz-market-indicators-section
         *ngIf="marketData.hasMarketData !== false"
         appReveal
-        style="margin: 20px 0;"
+        class="detail-section-gap"
         eyebrow="بيانات التداول والقوائم"
         title="مؤشرات السوق المالية"
         [items]="marketIndicatorsList">

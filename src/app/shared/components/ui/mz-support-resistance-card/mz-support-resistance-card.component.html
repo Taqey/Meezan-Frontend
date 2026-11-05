@@ -1,5 +1,5 @@
 
-    <mz-details-section [eyebrow]="eyebrow" [title]="title" style="display:block;height:100%">
+    <mz-details-section [eyebrow]="eyebrow" [title]="title" class="srcard-inl-1">
       <span action class="mz-badge neutral" *ngIf="pivotLabel">{{ pivotLabel }}</span>
       <p class="mz-authority-note" *ngIf="note">{{ note }}</p>
       <ng-container *ngIf="points.length; else empty">

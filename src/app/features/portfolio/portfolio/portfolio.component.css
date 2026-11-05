@@ -385,3 +385,8 @@ details.coll summary {
     flex-wrap: wrap;
   }
 }
+
+.port-inl-1 { display:none }
+.port-inl-2 { margin:0 }
+.port-inl-3 { min-width:0 }
+.port-inl-4 { margin:0;display:none }

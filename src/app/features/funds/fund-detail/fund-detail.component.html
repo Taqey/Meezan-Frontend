@@ -26,26 +26,26 @@
         [currency]="fund.currency || 'EGP'"
         [changeText]="fund.dailyChange != null ? ((fund.dailyChange > 0 ? '+' : '') + fund.dailyChange.toFixed(2) + '%') : null"
         [changeTone]="fund.dailyChange != null ? (fund.dailyChange > 0 ? 'positive' : (fund.dailyChange < 0 ? 'negative' : 'muted')) : 'muted'">
-        <span titleBadge *ngIf="fund.isIslamic" class="mz-badge" style="background:#dcfce7;color:#166534;border:1px solid #bbf7d0">
+        <span titleBadge *ngIf="fund.isIslamic" class="mz-badge fdetail-inl-1" >
           <lucide-icon [img]="ShieldCheckIcon" [size]="12"></lucide-icon> متوافق شرعياً
         </span>
       </mz-details-header-card>
 
-      <div style="display: flex; flex-direction: column; gap: 24px; margin-top: 24px;">
+      <div class="fdetail-inl-2">
         <!-- Section 1: Details & Overview -->
         <mz-details-section
           eyebrow="بيانات سريعة"
           title="تفاصيل الصندوق ومعلومات التأسيس">
           <a *ngIf="fund.prospectusUrl" action [href]="fund.prospectusUrl" target="_blank" rel="noopener noreferrer"
-             class="mz-btn" style="background:#f0fdf4;border-color:#bbf7d0;color:#166534;font-size:12px;gap:6px">
+             class="mz-btn fdetail-inl-3" >
             <lucide-icon [img]="FileTextIcon" [size]="15"></lucide-icon> عرض نشرة الإصدار الرسمية (PDF)
           </a>
 
           <mz-info-grid [items]="fundFundamentalsList"></mz-info-grid>
 
-          <div *ngIf="fund.descriptionAr" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(188,202,192,.3);">
-            <h3 class="mz-subtitle" style="margin-top:0">وصف الصندوق</h3>
-            <p class="mz-authority-note" style="white-space: pre-wrap; font-size: 13px; line-height: 1.8;">{{ fund.descriptionAr }}</p>
+          <div *ngIf="fund.descriptionAr" class="fdetail-inl-4">
+            <h3 class="mz-subtitle fdetail-inl-5" >وصف الصندوق</h3>
+            <p class="mz-authority-note fdetail-inl-6" >{{ fund.descriptionAr }}</p>
           </div>
         </mz-details-section>
 
@@ -53,11 +53,11 @@
         <mz-details-section
           eyebrow="الأداء التاريخي"
           title="رسم بياني للأسعار وتطور العائد">
-          <div action class="mz-perf-tabs" style="margin:0; background: #f1f5f9; padding: 4px; border-radius: 12px; gap: 4px;">
-            <button *ngFor="let period of chartPeriods" type="button" class="mz-chip"
+          <div action class="mz-perf-tabs fdetail-inl-7" >
+            <button *ngFor="let period of chartPeriods" type="button" class="mz-chip fdetail-inl-8"
                     [class.active]="selectedPeriod === period.key"
                     (click)="selectPeriod(period.key)"
-                    style="border: none; border-radius: 8px; font-weight: 600; font-size: 12px; padding: 6px 14px; transition: all 0.2s;"
+                    
                     [style.background]="selectedPeriod === period.key ? '#fff' : 'transparent'"
                     [style.color]="selectedPeriod === period.key ? '#059669' : '#64748b'"
                     [style.box-shadow]="selectedPeriod === period.key ? '0 1px 3px rgba(0,0,0,0.08)' : 'none'">
@@ -65,13 +65,13 @@
             </button>
           </div>
 
-          <div *ngIf="chartHasData()" style="width: 100%; background: rgba(248, 250, 252, 0.7); border-radius: 16px; padding: 16px; border: 1px solid #e2e8f0; margin-top: 16px;">
-            <div class="chart-container" style="height: 290px; position: relative;">
+          <div *ngIf="chartHasData()" class="fdetail-inl-9">
+            <div class="chart-container fdetail-inl-10" >
               <canvas #priceChart></canvas>
             </div>
           </div>
 
-          <div *ngIf="!chartHasData()" class="mz-authority-note" style="text-align: center; padding: 40px 0;">
+          <div *ngIf="!chartHasData()" class="mz-authority-note fdetail-inl-11" >
             لا توجد بيانات سعرية تاريخية متاحة لهذا الصندوق.
           </div>
         </mz-details-section>
@@ -82,8 +82,8 @@
           eyebrow="الاستراتيجية والمحفظة"
           title="استراتيجية وهيكل الاستثمار">
           <!-- Strategy & Fund Description Text Block -->
-          <div *ngIf="allocationModel.paragraphs.length > 0" style="display: flex; flex-direction: column; gap: 12px;">
-            <p *ngFor="let p of allocationModel.paragraphs" class="mz-authority-note" style="font-size: 13.5px; line-height: 1.8; color: #334155; margin: 0; text-align: justify;">
+          <div *ngIf="allocationModel.paragraphs.length > 0" __INL_CLS__="fdetail-inl-12">
+            <p *ngFor="let p of allocationModel.paragraphs" class="mz-authority-note fdetail-inl-13" >
               {{ p }}
             </p>
           </div>
@@ -91,7 +91,7 @@
           <!-- Reusable Visual NumberLine & Breakdown Component -->
           <mz-allocation-breakdown
             *ngIf="showAllocationBreakdown"
-            style="margin-top: 20px;"
+            class="fdetail-inl-14"
             [instanceId]="'alloc_' + fund.code"
             [bands]="allocationModel.bands"
             [cards]="allocationModel.cards"
@@ -106,27 +106,27 @@
           *ngIf="displaySimilarFunds && displaySimilarFunds.length > 0"
           eyebrow="صناديق مشابهة"
           title="صناديق في نفس الفئة">
-          <div class="mz-grid cols-4" style="margin-bottom:0; align-items: stretch;">
+          <div class="mz-grid cols-4 fdetail-inl-15" >
             <a *ngFor="let sim of displaySimilarFunds" [routerLink]="['/funds', sim.slug || sim.id]"
                class="mz-card hoverable mz-lcard mz-sim-card">
-              <div class="mz-lcard-head" style="align-items:flex-start;gap:10px;margin-bottom:14px;">
-                <div class="mz-lcard-id" style="align-items:flex-start;gap:10px;min-width:0;flex:1;">
-                  <div *ngIf="simLogoUrl(sim)" style="width:40px;height:40px;flex-shrink:0;border-radius:8px;border:1px solid rgba(188,202,192,.35);padding:2px;background:#fff;display:flex;align-items:center;justify-content:center;">
+              <div class="mz-lcard-head fdetail-inl-16" >
+                <div class="mz-lcard-id fdetail-inl-17" >
+                  <div *ngIf="simLogoUrl(sim)" class="fdetail-inl-18">
                     <img [src]="simLogoUrl(sim)" [alt]="sim.nameAr"
-                         style="width:100%;height:100%;object-fit:contain;border-radius:6px;"
+                         class="fdetail-inl-19"
                          (error)="onSimLogoError($event)">
                   </div>
                   <div class="mz-lcard-text">
                     <h3 class="mz-lcard-title mz-sim-title">{{ sim.displayName || sim.nameAr || '—' }}</h3>
                   </div>
                 </div>
-                <div class="mz-lcard-badges" style="flex-shrink:0;">
+                <div class="mz-lcard-badges fdetail-inl-20" >
                   <span class="mz-badge neutral"><span class="mz-ltr">{{ sim.code || '—' }}</span></span>
                 </div>
               </div>
-              <div class="mz-lcard-foot" style="margin-top:auto;padding-top:12px;flex-wrap:nowrap;">
-                <span style="font-weight:600;color:var(--mz-primary);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ sim.effectiveClassification?.leafNameAr || sim.effectiveClassification?.rootNameAr || sim.typeNameAr || '—' }}</span>
-                <span style="color:var(--mz-primary);display:inline-flex;align-items:center;gap:2px;flex-shrink:0;white-space:nowrap;font-weight:700;">عرض الصندوق ←</span>
+              <div class="mz-lcard-foot fdetail-inl-21" >
+                <span class="fdetail-inl-22">{{ sim.effectiveClassification?.leafNameAr || sim.effectiveClassification?.rootNameAr || sim.typeNameAr || '—' }}</span>
+                <span class="fdetail-inl-23">عرض الصندوق ←</span>
               </div>
             </a>
           </div>
@@ -136,20 +136,20 @@
         <mz-details-section
           eyebrow="التصنيفات والهيكلة"
           title="تصنيفات الصندوق والخصائص القانونية">
-          <div *ngIf="classificationCards.length > 0" class="mz-grid cols-3-details" style="gap: 16px;">
+          <div *ngIf="classificationCards.length > 0" class="mz-grid cols-3-details" __INL_CLS__="fdetail-inl-24">
             <a *ngFor="let c of classificationCards"
                [routerLink]="c.routerLink"
                [queryParams]="c.queryParams"
-               style="padding: 20px; border-radius: 14px; border: 1px solid rgba(226, 232, 240, 0.9); background: #f8fafc; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; text-decoration: none; transition: all 0.2s;"
-               class="mz-tax-card">
-              <div style="display: flex; flex-direction: column; gap: 6px;">
-                <span style="font-size: 11px; color: #64748b; font-weight: 600; display: block;">{{ c.eyebrow }}</span>
-                <h4 style="margin: 0; font-size: 15px; font-weight: 800; color: #0f172a; line-height: 1.4;">{{ c.title }}</h4>
-                <p *ngIf="c.description" style="margin: 0; font-size: 12px; color: #64748b; line-height: 1.6;">{{ c.description }}</p>
+               
+               class="mz-tax-card fdetail-inl-25">
+              <div class="fdetail-inl-26">
+                <span class="fdetail-inl-27">{{ c.eyebrow }}</span>
+                <h4 class="fdetail-inl-28">{{ c.title }}</h4>
+                <p *ngIf="c.description" class="fdetail-inl-29">{{ c.description }}</p>
               </div>
-              <div style="padding-top: 12px; border-top: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 700; color: #059669;">
+              <div class="fdetail-inl-30">
                 <span>{{ c.actionLabel }}</span>
-                <span style="font-size: 14px;">←</span>
+                <span class="fdetail-inl-31">←</span>
               </div>
             </a>
           </div>
@@ -159,10 +159,10 @@
         </mz-details-section>
 
         <!-- Section 5: Attribution / Disclaimer -->
-        <footer class="mz-source-note" style="padding: 16px 0;">
-          المصدر: <a href="https://snduk.com" target="_blank" rel="noopener noreferrer" style="color: var(--mz-primary); font-weight: 600;">SNDUK</a> |
+        <footer class="mz-source-note fdetail-inl-32" >
+          المصدر: <a href="https://snduk.com" target="_blank" rel="noopener noreferrer" class="fdetail-inl-33">SNDUK</a> |
           آخر تحديث: {{ lastSyncedAt ? (lastSyncedAt | date:'yyyy-MM-dd HH:mm') : '—' }} |
-          <span style="color: var(--mz-error);">إخلاء المسؤولية: البيانات للأغراض المعلوماتية فقط ولا تُعد نصيحة استثمارية.</span>
+          <span class="fdetail-inl-34">إخلاء المسؤولية: البيانات للأغراض المعلوماتية فقط ولا تُعد نصيحة استثمارية.</span>
         </footer>
       </div>
     </div>

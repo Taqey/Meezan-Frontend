@@ -1,18 +1,18 @@
 
-    <mz-details-section [eyebrow]="eyebrow" [title]="title" style="display:block;height:100%">
+    <mz-details-section [eyebrow]="eyebrow" [title]="title" class="fvcard-inl-1">
       <span action><ng-content select="[badge]"></ng-content></span>
-      <div *ngIf="unavailable" class="mz-sharia-summary neutral" style="display:block">
-        <strong>{{ unavailableTitle }}</strong><p class="mz-authority-note" style="margin:6px 0 0">{{ unavailableText }}</p>
+      <div *ngIf="unavailable" class="mz-sharia-summary neutral fvcard-inl-2" >
+        <strong>{{ unavailableTitle }}</strong><p class="mz-authority-note fvcard-inl-3" >{{ unavailableText }}</p>
       </div>
       <ng-container *ngIf="!unavailable">
         <div class="mz-fv-hero">
           <strong class="mz-ltr">{{ value }}</strong><span class="mz-authority-meta">{{ currency }}</span>
-          <span class="mz-change" *ngIf="gapText" [ngClass]="gapTone || 'muted'" style="direction:rtl">{{ gapText }}</span>
+          <span class="mz-change fvcard-inl-4" *ngIf="gapText" [ngClass]="gapTone || 'muted'" >{{ gapText }}</span>
         </div>
         <p class="mz-authority-note" *ngIf="formulaNote">{{ formulaNote }}</p>
         <div class="mz-fv-rows" *ngIf="methods.length">
           <div class="mz-fv-row" *ngFor="let m of methods" [style.opacity]="m.outlier ? .6 : 1">
-            <span>{{ m.name }}<em *ngIf="m.outlier" style="font-style:normal;color:var(--mz-warn);margin-inline-start:6px">{{ m.outlierLabel }}</em></span>
+            <span>{{ m.name }}<em *ngIf="m.outlier" class="fvcard-inl-5">{{ m.outlierLabel }}</em></span>
             <strong class="mz-ltr">{{ m.value }}</strong>
           </div>
         </div>

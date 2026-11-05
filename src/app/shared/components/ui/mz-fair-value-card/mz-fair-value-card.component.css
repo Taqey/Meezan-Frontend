@@ -1,0 +1,5 @@
+.fvcard-inl-1 { display:block;height:100% }
+.fvcard-inl-2 { display:block }
+.fvcard-inl-3 { margin:6px 0 0 }
+.fvcard-inl-4 { direction:rtl }
+.fvcard-inl-5 { font-style:normal;color:var(--mz-warn);margin-inline-start:6px }

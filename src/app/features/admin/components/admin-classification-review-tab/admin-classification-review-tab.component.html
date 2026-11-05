@@ -25,13 +25,13 @@
             </div>
           </div>
 
-          <div class="admin-card ac2"  *ngIf="review.review && (review.review.conflictingCount ?? 0) > 0">
+          <div class="admin-card ac2" *ngIf="review.review && review.review.conflictingCount > 0">
             <h3 class="ac3">إشارات متضاربة ({{ review.review.conflictingCount }})</h3>
             <div class="table-scroll-x">
               <table class="admin-table">
                 <thead><tr><th>الكود</th><th>الاسم</th><th>السبب</th><th>المسار</th></tr></thead>
                 <tbody>
-                  <tr *ngFor="let r of review.review?.conflicting; trackBy: review.trackReview">
+                  <tr *ngFor="let r of review.review.conflicting; trackBy: review.trackReview">
                     <td><code>{{ r.code }}</code></td>
                     <td>{{ r.nameAr }}</td>
                     <td class="ac11">{{ r.reason }}</td>
@@ -42,13 +42,13 @@
             </div>
           </div>
 
-          <div class="admin-card" *ngIf="review.review && (review.review.missingChildCount ?? 0) > 0">
+          <div class="admin-card" *ngIf="review.review && review.review.missingChildCount > 0">
             <h3 class="ac3">ينقصها تصنيف فرعي ({{ review.review.missingChildCount }})</h3>
             <div class="table-scroll-x">
               <table class="admin-table">
                 <thead><tr><th>الكود</th><th>الاسم</th><th>السبب</th><th>المسار</th></tr></thead>
                 <tbody>
-                  <tr *ngFor="let r of review.review?.missingChild; trackBy: review.trackReview">
+                  <tr *ngFor="let r of review.review.missingChild; trackBy: review.trackReview">
                     <td><code>{{ r.code }}</code></td>
                     <td>{{ r.nameAr }}</td>
                     <td class="ac13">{{ r.reason }}</td>

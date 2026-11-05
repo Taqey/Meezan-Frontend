@@ -810,6 +810,16 @@ export class StockDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  get priceChangeText(): string | null {
+    const sr = this.supportResistance;
+    if (!sr || sr.changePct == null) return null;
+    return (sr.changePct > 0 ? '+' : '') + sr.changePct.toFixed(2) + '%';
+  }
+
+  get priceChangeTone(): 'positive' | 'negative' {
+    return (this.supportResistance?.changePct ?? 0) >= 0 ? 'positive' : 'negative';
+  }
+
   get supportResistanceOutOfRangeNote(): string | null {
     const price = this.currentStockPrice;
     if (price === null || !this.supportResistance) return null;

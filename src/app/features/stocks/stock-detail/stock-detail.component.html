@@ -23,8 +23,8 @@
         [priceLabel]="marketData.hasMarketData !== false ? 'سعر الإغلاق الأخير' : 'بيانات التداول والسوق'"
         [price]="marketData.hasMarketData !== false ? (marketData.closingPrice != null ? (marketData.closingPrice | number:'1.2-2') : '—') : 'غير متداولة'"
         [currency]="marketData.hasMarketData !== false ? currencyLabel : ''"
-        [changeText]="supportResistance?.changePct != null ? ((supportResistance?.changePct ?? 0) > 0 ? '+' : '') + (supportResistance?.changePct | number:'1.2-2') + '%' : null"
-        [changeTone]="(supportResistance?.changePct ?? 0) >= 0 ? 'positive' : 'negative'">
+        [changeText]="priceChangeText"
+        [changeTone]="priceChangeTone">
       </mz-details-header-card>
 
       <!-- Detail Grid: Support/Resistance + Fair Value (Only if stock has market data) -->

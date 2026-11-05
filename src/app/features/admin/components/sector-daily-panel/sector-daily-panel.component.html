@@ -30,8 +30,8 @@
             <div>
               <div class="ac11">إعدادات الحساب:</div>
               <div class="ac12">
-                <div>طريقة الوزن الحالية: <strong>{{ sectorDaily.sectorDailyStatus?.weightingMethod === 'displayedWeight' ? 'الأوزان المعروضة' : 'القيمة السوقية (marketCap)' }}</strong></div>
-                <div>سعر صرف USD/EGP: <strong>{{ sectorDaily.sectorDailyStatus?.usdEgpRate || 55.35 }}</strong></div>
+                <div>طريقة الوزن الحالية: <strong>متوسط مرجّح بالقيمة السوقية (ثاندر)</strong></div>
+                <div>سعر صرف USD/EGP: <strong>{{ sectorDaily.sectorDailyStatus?.usdEgpRate || 47.50 }}</strong></div>
                 <div>آخر جلسة محسوبة: <strong>{{ sectorDaily.sectorDailyStatus?.latestTradingDate || '—' }}</strong></div>
                 <div>وقت آخر احتساب: <strong>{{ sectorDaily.sectorDailyStatus?.lastComputedAt | date:'yyyy-MM-dd HH:mm:ss' }}</strong></div>
               </div>

@@ -7,6 +7,7 @@ import { StatusBadgeComponent } from '../status-badge/status-badge.component';
 import { FavoriteToggleComponent } from '../favorite-toggle/favorite-toggle.component';
 import { PriceFlashDirective } from '../../directives/price-flash.directive';
 import { indexShortNameFor } from '../../models/market-icons';
+import { formatCurrencyLabel } from '../../utils/currency-utils';
 import {
   getNonComplianceReasons,
   normalizeStatusValue
@@ -47,7 +48,7 @@ export class StockCardComponent {
   readonly ShieldCheckIcon = ShieldCheck;
 
   get currencyLabel(): string {
-    return this.currency && this.currency.includes('دولار') ? '$' : 'ج.م';
+    return formatCurrencyLabel(this.currency);
   }
 
   get indexLabels(): string[] {

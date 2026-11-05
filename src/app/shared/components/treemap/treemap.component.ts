@@ -12,6 +12,8 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
+import { formatCurrencyLabel } from '../../utils/currency-utils';
+
 export interface TreemapItem {
   id: string | number;
   label: string; // Ticker or Short Code
@@ -19,6 +21,7 @@ export interface TreemapItem {
   value: number; // Area weight / market cap (must be > 0)
   changePct: number | null | undefined;
   price?: number | null;
+  currency?: string | null;
   pointsChange?: number | null;
   weightPct?: number | null;
   shariahStatus?: string | null;
@@ -147,6 +150,10 @@ export class TreemapComponent implements AfterViewInit, OnChanges, OnDestroy {
   formatSignedPct(v: number): string {
     const num = Number(v);
     return `${num > 0 ? '+' : ''}${num.toFixed(2)}%`;
+  }
+
+  get popoverCurrency(): string {
+    return formatCurrencyLabel(this.popoverItem?.currency);
   }
 
   computeLayout(): void {

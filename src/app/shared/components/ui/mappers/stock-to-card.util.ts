@@ -2,6 +2,7 @@ import { type MzListingCardData } from '../models/mz-listing-card-data.model';
 import { type StockListItemDto, type ConstituentItemDto } from '../../../models/api.models';
 import { indexShortNameFor, indexFullNameFor, sectorAccentFor } from '../../../models/market-icons';
 import { getNonComplianceReasons, normalizeStatusValue } from '../../../models/shariah-standards';
+import { formatCurrencyLabel } from '../../../utils/currency-utils';
 import { signedPct } from './signed-pct.util';
 import { pctTone } from './pct-tone.util';
 import { fmtNumber } from './fmt-number.util';
@@ -69,7 +70,7 @@ export function stockToCard(s: StockListItemDto | ConstituentItemDto, options?: 
     favoriteSymbol: s.ticker,
     badges: change ? [{ label: change, tone: pctTone(s.changePct) === 'negative' ? 'danger' : 'default' }] : [{ label: '—', tone: 'neutral' }],
     mainValue: fmtNumber(s.closingPrice) ?? '—',
-    mainUnit: s.currency && s.currency.includes('دولار') ? '$' : 'ج.م',
+    mainUnit: formatCurrencyLabel(s.currency),
     ribbon: comparisonRibbon(s.priceComparison, s.fairValueDiffPct, s.closingPrice, s.fairValue),
     tags: [{ label: tag.label, tone: tag.tone, note: reasons.length ? reasons.join(' · ') : null }],
     sectorBadge,

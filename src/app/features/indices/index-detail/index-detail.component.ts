@@ -18,6 +18,7 @@ import { type MzOption } from '../../../shared/components/ui/models/mz-option.mo
 
 import { ViewSwitcherComponent, type EntityView } from '../../../shared/components/view-switcher/view-switcher.component';
 import { TreemapComponent, type TreemapItem } from '../../../shared/components/treemap/treemap.component';
+import { formatCurrencyLabel } from '../../../shared/utils/currency-utils';
 
 @Component({
   selector: 'app-index-detail',
@@ -658,7 +659,8 @@ export class IndexDetailComponent implements OnInit, OnDestroy {
 
     return validList.map(s => {
       const weight = hasAnyRealWeight ? Number(s.weight) : 1;
-      const priceText = s.closingPrice != null ? `${Number(s.closingPrice).toFixed(2)} ج.م` : '';
+      const curr = formatCurrencyLabel(s.currency);
+      const priceText = s.closingPrice != null ? `${Number(s.closingPrice).toFixed(2)} ${curr}` : '';
       const shariahLabel = s.shariahStatus ? this.getShariahLabel(s.shariahStatus) : '—';
       const changeText = s.changePct != null ? `${s.changePct > 0 ? '+' : ''}${Number(s.changePct).toFixed(2)}%` : '—';
       const weightDisplay = s.weight != null && Number(s.weight) > 0 ? `${Number(s.weight).toFixed(2)}%` : 'متساوي';
@@ -670,6 +672,7 @@ export class IndexDetailComponent implements OnInit, OnDestroy {
         value: weight,
         changePct: s.changePct,
         price: s.closingPrice,
+        currency: s.currency,
         weightPct: s.weight,
         shariahStatus: s.shariahStatus,
         link: ['/stocks', s.ticker],

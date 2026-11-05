@@ -55,7 +55,7 @@
             </div>
             <div *ngIf="popoverItem.price !== null && popoverItem.price !== undefined" class="popover-row">
               <span>السعر:</span>
-              <span dir="ltr">{{ popoverItem.price | number:'1.2-2' }} ج.م</span>
+              <span dir="ltr">{{ popoverItem.price | number:'1.2-2' }} {{ popoverCurrency }}</span>
             </div>
             <div *ngIf="popoverItem.subLabel && popoverItem.price == null" class="popover-row">
               <span>{{ popoverItem.subLabel }}</span>

@@ -1,196 +1,166 @@
+<div *ngIf="loading" class="mz-cards-area-wrap">
+  <app-loading-skeletons variant="details"></app-loading-skeletons>
+  <mz-spinner [active]="true" size="large" [overlay]="true" [showLabel]="true"
+    label="جارٍ تحميل بيانات السهم..."></mz-spinner>
+</div>
 
-    <div *ngIf="loading" class="mz-cards-area-wrap">
-      <app-loading-skeletons variant="details"></app-loading-skeletons>
-      <mz-spinner [active]="true" size="large" [overlay]="true" [showLabel]="true" label="جارٍ تحميل بيانات السهم..."></mz-spinner>
-    </div>
+<div *ngIf="!loading && !marketData" class="empty-state">
+  <h3>لم يتم العثور على بيانات لهذا السهم</h3>
+  <a routerLink="/stocks" class="text-link">العودة إلى قائمة الأسهم</a>
+</div>
 
-    <div *ngIf="!loading && !marketData" class="empty-state">
-      <h3>لم يتم العثور على بيانات لهذا السهم</h3>
-      <a routerLink="/stocks" class="text-link">العودة إلى قائمة الأسهم</a>
-    </div>
+<div *ngIf="!loading && marketData">
+  <!-- Back Link -->
+  <mz-back-link [to]="'/stocks'" label="العودة إلى الأسهم"></mz-back-link>
 
-    <div *ngIf="!loading && marketData">
-      <!-- Back Link -->
-      <mz-back-link [to]="'/stocks'" label="العودة إلى الأسهم"></mz-back-link>
+  <!-- Detail Hero Header Card -->
+  <mz-details-header-card [title]="marketData.nameAr || marketData.ticker" [code]="marketData.ticker"
+    [secondaryName]="marketData.nameEn" [favoriteSymbol]="marketData.ticker" [tags]="headerTags"
+    [priceLabel]="marketData.hasMarketData !== false ? 'سعر الإغلاق الأخير' : 'بيانات التداول والسوق'"
+    [price]="marketData.hasMarketData !== false ? (marketData.closingPrice != null ? (marketData.closingPrice | number:'1.2-2') : '—') : 'غير متداولة'"
+    [currency]="marketData.hasMarketData !== false ? currencyLabel : ''" [changeText]="priceChangeText"
+    [changeTone]="priceChangeTone">
+  </mz-details-header-card>
 
-      <!-- Detail Hero Header Card -->
-      <mz-details-header-card
-        [title]="marketData.nameAr || marketData.ticker"
-        [code]="marketData.ticker"
-        [secondaryName]="marketData.nameEn"
-        [favoriteSymbol]="marketData.ticker"
-        [tags]="headerTags"
-        [priceLabel]="marketData.hasMarketData !== false ? 'سعر الإغلاق الأخير' : 'بيانات التداول والسوق'"
-        [price]="marketData.hasMarketData !== false ? (marketData.closingPrice != null ? (marketData.closingPrice | number:'1.2-2') : '—') : 'غير متداولة'"
-        [currency]="marketData.hasMarketData !== false ? currencyLabel : ''"
-        [changeText]="priceChangeText"
-        [changeTone]="priceChangeTone">
-      </mz-details-header-card>
+  <!-- Detail Grid: Support/Resistance + Fair Value (Only if stock has market data) -->
+  <div class="mz-details-two detail-section-gap" *ngIf="marketData.hasMarketData !== false">
+    <!-- Support & Resistance Ladder -->
+    <mz-support-resistance-card eyebrow="قراءة فنية" title="الدعم والمقاومة والارتكاز"
+      [pivotLabel]="supportResistance ? 'الارتكاز: ' + (supportResistance.pivot != null ? (supportResistance.pivot | number:'1.2-2') : '—') + ' ' + currencyLabel : null"
+      [note]="supportResistanceOutOfRangeNote || 'تحسب نقاط الارتكاز الفنية يومياً بناءً على أعلى وأدنى سعر وسعر الإغلاق لجلسة التداول السابقة.'"
+      [points]="srPoints" [markerPos]="supportResistanceMarkerPosition"
+      [markerLabel]="'السعر ' + (currentStockPrice != null ? (currentStockPrice | number:'1.2-2') : '')"
+      emptyText="بيانات الدعم والمقاومة غير متوفرة حالياً لهذا السهم.">
+    </mz-support-resistance-card>
 
-      <!-- Detail Grid: Support/Resistance + Fair Value (Only if stock has market data) -->
-      <div class="mz-details-two detail-section-gap" *ngIf="marketData.hasMarketData !== false">
-        <!-- Support & Resistance Ladder -->
-        <mz-support-resistance-card
-          eyebrow="قراءة فنية"
-          title="الدعم والمقاومة والارتكاز"
-          [pivotLabel]="supportResistance ? 'الارتكاز: ' + (supportResistance.pivot != null ? (supportResistance.pivot | number:'1.2-2') : '—') + ' ' + currencyLabel : null"
-          [note]="supportResistanceOutOfRangeNote || 'تحسب نقاط الارتكاز الفنية يومياً بناءً على أعلى وأدنى سعر وسعر الإغلاق لجلسة التداول السابقة.'"
-          [points]="srPoints"
-          [markerPos]="supportResistanceMarkerPosition"
-          [markerLabel]="'السعر ' + (currentStockPrice != null ? (currentStockPrice | number:'1.2-2') : '')"
-          emptyText="بيانات الدعم والمقاومة غير متوفرة حالياً لهذا السهم.">
-        </mz-support-resistance-card>
+    <!-- Fair Value Card (Graham formula only) -->
+    <mz-fair-value-card eyebrow="نموذج جراهام (Graham Formula)" title="القيمة العادلة"
+      [unavailable]="isFairValueUnavailable" unavailableTitle="بيانات غير كافية لحساب القيمة العادلة (نموذج جراهام)"
+      unavailableText="لا توجد حالياً بيانات كافية لنموذج جراهام (ربحية EPS، قيمة دفترية BookValue، أو سعر السهم الحالي غير متاح). لن تُعرض قيمة عادلة رقمية أو نسبة ثقة حتى توفّر هذه البيانات."
+      [value]="(marketData.fairValue | number:'1.2-2') || '—'" [currency]="currencyLabel" [gapText]="fairValueGapText"
+      [gapTone]="fairValueSignal === 'cheap' ? 'positive' : (fairValueSignal === 'expensive' ? 'negative' : 'muted')"
+      [formulaNote]="'نموذج جراهام: √(22.5 × EPS × BookValue) · مستوى الثقة: ' + getConfidenceLabel(marketData.valuationConfidence)"
+      [methods]="fairValueMethodsList">
+      <app-comparison-badge badge [comparison]="fairValueComparison"></app-comparison-badge>
+    </mz-fair-value-card>
+  </div>
 
-        <!-- Fair Value Card (Graham formula only) -->
-        <mz-fair-value-card
-          eyebrow="نموذج جراهام (Graham Formula)"
-          title="القيمة العادلة"
-          [unavailable]="isFairValueUnavailable"
-          unavailableTitle="بيانات غير كافية لحساب القيمة العادلة (نموذج جراهام)"
-          unavailableText="لا توجد حالياً بيانات كافية لنموذج جراهام (ربحية EPS، قيمة دفترية BookValue، أو سعر السهم الحالي غير متاح). لن تُعرض قيمة عادلة رقمية أو نسبة ثقة حتى توفّر هذه البيانات."
-          [value]="(marketData.fairValue | number:'1.2-2') || '—'"
-          [currency]="currencyLabel"
-          [gapText]="fairValueGapText"
-          [gapTone]="fairValueSignal === 'cheap' ? 'positive' : (fairValueSignal === 'expensive' ? 'negative' : 'muted')"
-          [formulaNote]="'نموذج جراهام: √(22.5 × EPS × BookValue) · مستوى الثقة: ' + getConfidenceLabel(marketData.valuationConfidence)"
-          [methods]="fairValueMethodsList">
-          <app-comparison-badge badge [comparison]="fairValueComparison"></app-comparison-badge>
-        </mz-fair-value-card>
+  <!-- Shariah Opinions Grid: Multi-source evaluators -->
+  <mz-sharia-authorities-section *ngIf="!isActivityNonCompliant" appReveal class="detail-section-gap"
+    [eyebrow]="isShariahBoardFrozen || marketData.hasShariahBoard ? 'الإشراف الشرعي' : 'تغطية الجهات الشرعية'"
+    [title]="isShariahBoardFrozen || marketData.hasShariahBoard ? 'الإشراف الشرعي للسهم' : 'آراء الهيئات الشرعية (7 مصادر مستقلة)'"
+    [summaryText]="shariaSummaryText" [summaryNote]="shariaSummaryNote" [summaryTone]="shariaSummaryTone"
+    [authorities]="shariaAuthoritiesList"
+    [ratiosTitle]="shouldShowRatiosSection ? 'المعايير والنسب المالية الشرعية التفصيلية' : ''"
+    [ratiosMeta]="shariaRatiosMetaText" [shariaRatios]="detailedShariaRatiosList"
+    (authorityAction)="onAuthorityAction($event)">
+    <!-- Fallback note if ratios unavailable -->
+    <p *ngIf="shouldShowRatiosSection && !hasShariahMetricsData" class="mz-authority-note authority-note-margin">
+      Data currently unavailable — لا توجد حالياً بيانات النسب المالية الشرعية لهذا السهم.
+    </p>
+  </mz-sharia-authorities-section>
+
+  <!-- Activity hard gate -->
+  <mz-details-section *ngIf="isActivityNonCompliant" appReveal class="detail-section-gap" eyebrow="حُكم النشاط"
+    [title]="'غير متوافق مع الشريعة — النشاط: ' + activityClassificationLabel">
+    <p class="mz-authority-note">
+      Non-compliant due to the nature of its core business; financial screens are not applied.
+    </p>
+    <p class="mz-authority-note">
+      يستبعد السهم بوابة النشاط ذاتها، ولذلك لا تُعرض النسب المالية الشرعية ولا آراء الهيئات الشرعية.
+    </p>
+  </mz-details-section>
+
+  <!-- Quantitative standards dialog (Bourse Halal card 'عرض التفاصيل') -->
+  <div class="standards-dialog-backdrop" *ngIf="showStandardsDialog" [class.closing]="dialogClosing"
+    (click)="onStandardsBackdropClick($event)">
+    <div class="standards-dialog" role="dialog" aria-modal="true" aria-labelledby="std-dialog-title" tabindex="-1"
+      (keydown)="onStandardsDialogKeydown($event)">
+      <div class="standards-dialog-head">
+        <div>
+          <span class="eyebrow">الفحص الكمي الشرعي</span>
+          <h2 id="std-dialog-title">تفاصيل المطابقة للمعايير الشرعية</h2>
+        </div>
+        <button type="button" class="standards-dialog-close" (click)="closeStandardsDialog()" aria-label="إغلاق">
+          <lucide-icon [img]="XIcon" size="18"></lucide-icon>
+        </button>
       </div>
 
-      <!-- Shariah Opinions Grid: Multi-source evaluators -->
-      <mz-sharia-authorities-section
-        *ngIf="!isActivityNonCompliant"
-        appReveal
-        class="detail-section-gap"
-        [eyebrow]="isShariahBoardFrozen || marketData.hasShariahBoard ? 'الإشراف الشرعي' : 'تغطية الجهات الشرعية'"
-        [title]="isShariahBoardFrozen || marketData.hasShariahBoard ? 'الإشراف الشرعي للسهم' : 'آراء الهيئات الشرعية (7 مصادر مستقلة)'"
-        [summaryText]="shariaSummaryText"
-        [summaryNote]="shariaSummaryNote"
-        [summaryTone]="shariaSummaryTone"
-        [authorities]="shariaAuthoritiesList"
-        [ratiosTitle]="shouldShowRatiosSection ? 'المعايير والنسب المالية الشرعية التفصيلية' : ''"
-        [ratiosMeta]="shariaRatiosMetaText"
-        [shariaRatios]="detailedShariaRatiosList"
-        (authorityAction)="onAuthorityAction($event)">
-        <!-- Fallback note if ratios unavailable -->
-        <p *ngIf="shouldShowRatiosSection && !hasShariahMetricsData" class="mz-authority-note authority-note-margin">
-          Data currently unavailable — لا توجد حالياً بيانات النسب المالية الشرعية لهذا السهم.
-        </p>
-      </mz-sharia-authorities-section>
+      <p class="standards-summary" [class.pass]="dialogTotalPassed > 0" [class.fail]="dialogTotalPassed === 0">
+        اجتاز {{ dialogTotalPassed }} من {{ dialogTotalCount }} معايير
+      </p>
 
-      <!-- Activity hard gate -->
-      <mz-details-section
-        *ngIf="isActivityNonCompliant"
-        appReveal
-        class="detail-section-gap"
-        eyebrow="حُكم النشاط"
-        [title]="'غير متوافق مع الشريعة — النشاط: ' + activityClassificationLabel">
-        <p class="mz-authority-note">
-          Non-compliant due to the nature of its core business; financial screens are not applied.
-        </p>
-        <p class="mz-authority-note">
-          يستبعد السهم بوابة النشاط ذاتها، ولذلك لا تُعرض النسب المالية الشرعية ولا آراء الهيئات الشرعية.
-        </p>
-      </mz-details-section>
-
-      <!-- Quantitative standards dialog (Bourse Halal card 'عرض التفاصيل') -->
-      <div class="standards-dialog-backdrop" *ngIf="showStandardsDialog" [class.closing]="dialogClosing" (click)="onStandardsBackdropClick($event)">
-        <div class="standards-dialog" role="dialog" aria-modal="true" aria-labelledby="std-dialog-title"
-             tabindex="-1" (keydown)="onStandardsDialogKeydown($event)">
-          <div class="standards-dialog-head">
-            <div>
-              <span class="eyebrow">الفحص الكمي الشرعي</span>
-              <h2 id="std-dialog-title">تفاصيل المطابقة للمعايير الشرعية</h2>
-            </div>
-            <button type="button" class="standards-dialog-close" (click)="closeStandardsDialog()" aria-label="إغلاق">
-              <lucide-icon [img]="XIcon" size="18"></lucide-icon>
-            </button>
+      <div class="std-block" *ngFor="let ev of dialogMainCriteria; trackBy: trackByCriterionName">
+        <div class="std-block-head">
+          <span class="std-verdict" [class.pass]="ev.passed" [class.fail]="!ev.passed">
+            <lucide-icon [img]="ev.passed ? CheckIcon : XIcon" size="14"></lucide-icon>
+          </span>
+          <div class="std-block-title">
+            <strong>{{ ev.nameAr }}</strong>
+            <span class="std-en">{{ ev.nameEn }}</span>
           </div>
-
-          <p class="standards-summary" [class.pass]="dialogTotalPassed > 0" [class.fail]="dialogTotalPassed === 0">
-            اجتاز {{ dialogTotalPassed }} من {{ dialogTotalCount }} معايير
-          </p>
-
-          <div class="std-block" *ngFor="let ev of dialogMainCriteria; trackBy: trackByCriterionName">
-            <div class="std-block-head">
-              <span class="std-verdict" [class.pass]="ev.passed" [class.fail]="!ev.passed">
-                <lucide-icon [img]="ev.passed ? CheckIcon : XIcon" size="14"></lucide-icon>
-              </span>
-              <div class="std-block-title">
-                <strong>{{ ev.nameAr }}</strong>
-                <span class="std-en">{{ ev.nameEn }}</span>
-              </div>
-            </div>
-            <div class="criterion-row" *ngFor="let r of ev.ratios; trackBy: trackByRatioKey">
-              <span class="criterion-name">{{ getCriterionLabelAr(r.key) }}</span>
-              <span class="criterion-values">
-                <ng-container *ngIf="r.hasData; else noCriterionData">
-                  {{ r.value | number:'1.0-2' }}% / ≤ {{ r.max }}%
-                </ng-container>
-                <ng-template #noCriterionData>—</ng-template>
-              </span>
-              <span class="criterion-mark"
-                    [class.pass]="r.hasData && r.passed"
-                    [class.fail]="r.hasData && !r.passed"
-                    [class.nodata]="!r.hasData">
-                <lucide-icon *ngIf="r.hasData && r.passed" [img]="CheckIcon" size="14"></lucide-icon>
-                <lucide-icon *ngIf="r.hasData && !r.passed" [img]="XIcon" size="14"></lucide-icon>
-                <lucide-icon *ngIf="!r.hasData" [img]="MinusIcon" size="14"></lucide-icon>
-              </span>
-            </div>
-          </div>
-
-          <!-- Individual scholars row: debt ≤ 50% with — for the other ratios; pass follows the combined rule. -->
-          <div class="std-block scholars-block" *ngIf="dialogScholarsCriterion">
-            <div class="std-block-head">
-              <span class="std-verdict" [class.pass]="dialogScholarsCriterion.passed" [class.fail]="!dialogScholarsCriterion.passed" [class.nodata]="!dialogScholarsCriterion.hasData">
-                <lucide-icon *ngIf="dialogScholarsCriterion.passed" [img]="CheckIcon" size="14"></lucide-icon>
-                <lucide-icon *ngIf="!dialogScholarsCriterion.passed && dialogScholarsCriterion.hasData" [img]="XIcon" size="14"></lucide-icon>
-                <lucide-icon *ngIf="!dialogScholarsCriterion.hasData" [img]="MinusIcon" size="14"></lucide-icon>
-              </span>
-              <div class="std-block-title">
-                <strong>{{ scholarsStandardNameAr }}</strong>
-                <span class="std-en">{{ scholarsStandardNameEn }}</span>
-              </div>
-            </div>
-            <div class="criterion-row" *ngFor="let r of dialogScholarsCriterion.ratios; trackBy: trackByRatioKey">
-              <span class="criterion-name">{{ getCriterionLabelAr(r.key) }}</span>
-              <span class="criterion-values">
-                <ng-container *ngIf="r.hasData; else noScholarsData">
-                  {{ r.value | number:'1.0-2' }}% / ≤ {{ r.max }}%
-                </ng-container>
-                <ng-template #noScholarsData>—</ng-template>
-              </span>
-              <span class="criterion-mark"
-                    [class.pass]="r.hasData && r.passed"
-                    [class.fail]="r.hasData && !r.passed"
-                    [class.nodata]="!r.hasData">
-                <lucide-icon *ngIf="r.hasData && r.passed" [img]="CheckIcon" size="14"></lucide-icon>
-                <lucide-icon *ngIf="r.hasData && !r.passed" [img]="XIcon" size="14"></lucide-icon>
-                <lucide-icon *ngIf="!r.hasData" [img]="MinusIcon" size="14"></lucide-icon>
-              </span>
-            </div>
-          </div>
-
-          <p class="upgrade-note authority-note-margin" *ngIf="viaScholarsOnly">
-            <lucide-icon [img]="InfoIcon" size="13"></lucide-icon>
-            <span>متوافق وفق فتاوى بعض العلماء الأفراد فقط (نسبة القروض {{ loansPct | number:'1.0-2' }}% ≤ 50%)</span>
-          </p>
-
-          <p class="muted standards-dialog-foot">الفحص كمي فقط، ولا يزال الفحص النوعي لنشاط الشركة مطلوبًا</p>
+        </div>
+        <div class="criterion-row" *ngFor="let r of ev.ratios; trackBy: trackByRatioKey">
+          <span class="criterion-name">{{ getCriterionLabelAr(r.key) }}</span>
+          <span class="criterion-values">
+            <ng-container *ngIf="r.hasData; else noCriterionData">
+              {{ r.value | number:'1.0-2' }}% / ≤ {{ r.max }}%
+            </ng-container>
+            <ng-template #noCriterionData>—</ng-template>
+          </span>
+          <span class="criterion-mark" [class.pass]="r.hasData && r.passed" [class.fail]="r.hasData && !r.passed"
+            [class.nodata]="!r.hasData">
+            <lucide-icon *ngIf="r.hasData && r.passed" [img]="CheckIcon" size="14"></lucide-icon>
+            <lucide-icon *ngIf="r.hasData && !r.passed" [img]="XIcon" size="14"></lucide-icon>
+            <lucide-icon *ngIf="!r.hasData" [img]="MinusIcon" size="14"></lucide-icon>
+          </span>
         </div>
       </div>
 
-      <!-- Market Data Fundamentals -->
-      <mz-market-indicators-section
-        *ngIf="marketData.hasMarketData !== false"
-        appReveal
-        class="detail-section-gap"
-        eyebrow="بيانات التداول والقوائم"
-        title="مؤشرات السوق المالية"
-        [items]="marketIndicatorsList">
-        <span action class="mz-authority-meta">{{ getSourceText(marketData.sourceLastUpdateText) }}</span>
-      </mz-market-indicators-section>
+      <!-- Individual scholars row: debt ≤ 50% with — for the other ratios; pass follows the combined rule. -->
+      <div class="std-block scholars-block" *ngIf="dialogScholarsCriterion">
+        <div class="std-block-head">
+          <span class="std-verdict" [class.pass]="dialogScholarsCriterion.passed"
+            [class.fail]="!dialogScholarsCriterion.passed" [class.nodata]="!dialogScholarsCriterion.hasData">
+            <lucide-icon *ngIf="dialogScholarsCriterion.passed" [img]="CheckIcon" size="14"></lucide-icon>
+            <lucide-icon *ngIf="!dialogScholarsCriterion.passed && dialogScholarsCriterion.hasData" [img]="XIcon"
+              size="14"></lucide-icon>
+            <lucide-icon *ngIf="!dialogScholarsCriterion.hasData" [img]="MinusIcon" size="14"></lucide-icon>
+          </span>
+          <div class="std-block-title">
+            <strong>{{ scholarsStandardNameAr }}</strong>
+            <span class="std-en">{{ scholarsStandardNameEn }}</span>
+          </div>
+        </div>
+        <div class="criterion-row" *ngFor="let r of dialogScholarsCriterion.ratios; trackBy: trackByRatioKey">
+          <span class="criterion-name">{{ getCriterionLabelAr(r.key) }}</span>
+          <span class="criterion-values">
+            <ng-container *ngIf="r.hasData; else noScholarsData">
+              {{ r.value | number:'1.0-2' }}% / ≤ {{ r.max }}%
+            </ng-container>
+            <ng-template #noScholarsData>—</ng-template>
+          </span>
+          <span class="criterion-mark" [class.pass]="r.hasData && r.passed" [class.fail]="r.hasData && !r.passed"
+            [class.nodata]="!r.hasData">
+            <lucide-icon *ngIf="r.hasData && r.passed" [img]="CheckIcon" size="14"></lucide-icon>
+            <lucide-icon *ngIf="r.hasData && !r.passed" [img]="XIcon" size="14"></lucide-icon>
+            <lucide-icon *ngIf="!r.hasData" [img]="MinusIcon" size="14"></lucide-icon>
+          </span>
+        </div>
+      </div>
+
+      <p class="upgrade-note authority-note-margin" *ngIf="viaScholarsOnly">
+        <lucide-icon [img]="InfoIcon" size="13"></lucide-icon>
+        <span>متوافق وفق فتاوى بعض العلماء الأفراد فقط (نسبة القروض {{ loansPct | number:'1.0-2' }}% ≤ 50%)</span>
+      </p>
+
+      <p class="muted standards-dialog-foot">الفحص كمي فقط، ولا يزال الفحص النوعي لنشاط الشركة مطلوبًا</p>
     </div>
-  
+  </div>
+
+  <!-- Market Data Fundamentals -->
+  <mz-market-indicators-section *ngIf="marketData.hasMarketData !== false" appReveal class="detail-section-gap"
+    eyebrow="بيانات التداول والقوائم" title="مؤشرات السوق المالية" [items]="marketIndicatorsList">
+    <span action class="mz-authority-meta">{{ getSourceText(marketData.sourceLastUpdateText) }}</span>
+  </mz-market-indicators-section>
+</div>

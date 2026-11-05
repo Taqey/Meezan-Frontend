@@ -1,0 +1,61 @@
+        <div *ngIf="review.reviewLoading" class="muted ac1" >جارٍ تحميل قوائم المراجعة...</div>
+        <div *ngIf="!review.reviewLoading">
+          <div class="admin-card ac2" >
+            <h3 class="ac3">صناديق أسهم غير محددة ({{ review.review?.unclassifiedCount ?? 0 }})</h3>
+            <p class="muted ac4" >القائمة الأساسية: صناديق الأسهم التي لم تطابق أي قاعدة. النقل من هنا تعيين يدوي يبقى بعد المزامنة.</p>
+            <div class="table-scroll-x">
+              <table class="admin-table">
+                <thead><tr><th><input type="checkbox" [checked]="review.allReviewChecked('u')" (change)="review.toggleAllReview('u', $any($event).target.checked)" /></th><th>الكود</th><th>الاسم</th><th>المدير</th><th>السبب</th><th>تعيين سريع</th></tr></thead>
+                <tbody>
+                  <tr *ngFor="let r of review.review?.unclassifiedEquity; trackBy: review.trackReview">
+                    <td><input type="checkbox" [checked]="review.checkedReview.has(r.fundId)" (change)="review.toggleReviewCheck(r.fundId, $any($event).target.checked)" /></td>
+                    <td><code>{{ r.code }}</code></td>
+                    <td>{{ r.nameAr }}<div *ngIf="r.investmentStrategy" class="ac5">{{ r.investmentStrategy }}</div></td>
+                    <td class="ac6">{{ r.assetManagerName || '—' }}</td>
+                    <td class="ac7">{{ r.reason }}</td>
+                    <td class="ac8"><app-classification-cascade [tree]="tree.publicTree" [path]="emptyPath" (pathChange)="funds.assignFromCascade(r.fundId, $event)"></app-classification-cascade></td>
+                  </tr>
+                  <tr *ngIf="!(review.review?.unclassifiedEquity?.length)"><td colspan="6" class="muted ac9" >لا توجد صناديق غير محددة.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="ac10">
+              <button type="button" class="btn btn-primary btn-sm" [disabled]="!review.checkedReview.size" (click)="funds.bulkMoveOpen=true">نقل المحدد إلى...</button>
+              <span class="muted ac6" >{{ review.checkedReview.size }} محدد</span>
+            </div>
+          </div>
+
+          <div class="admin-card ac2"  *ngIf="review.review && (review.review.conflictingCount ?? 0) > 0">
+            <h3 class="ac3">إشارات متضاربة ({{ review.review.conflictingCount }})</h3>
+            <div class="table-scroll-x">
+              <table class="admin-table">
+                <thead><tr><th>الكود</th><th>الاسم</th><th>السبب</th><th>المسار</th></tr></thead>
+                <tbody>
+                  <tr *ngFor="let r of review.review?.conflicting; trackBy: review.trackReview">
+                    <td><code>{{ r.code }}</code></td>
+                    <td>{{ r.nameAr }}</td>
+                    <td class="ac11">{{ r.reason }}</td>
+                    <td class="ac12">{{ r.path }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="admin-card" *ngIf="review.review && (review.review.missingChildCount ?? 0) > 0">
+            <h3 class="ac3">ينقصها تصنيف فرعي ({{ review.review.missingChildCount }})</h3>
+            <div class="table-scroll-x">
+              <table class="admin-table">
+                <thead><tr><th>الكود</th><th>الاسم</th><th>السبب</th><th>المسار</th></tr></thead>
+                <tbody>
+                  <tr *ngFor="let r of review.review?.missingChild; trackBy: review.trackReview">
+                    <td><code>{{ r.code }}</code></td>
+                    <td>{{ r.nameAr }}</td>
+                    <td class="ac13">{{ r.reason }}</td>
+                    <td class="ac12">{{ r.path }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>

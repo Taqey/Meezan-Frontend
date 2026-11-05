@@ -1,0 +1,69 @@
+        <div *ngIf="tree.treeLoading" class="muted ac1" >جارٍ تحميل الشجرة...</div>
+        <div class="table-scroll-x" *ngIf="!tree.treeLoading">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>العقدة</th>
+                <th>المعرّف</th>
+                <th>مباشر / إجمالي</th>
+                <th>الحالة</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let n of tree.flatTree; trackBy: tree.trackNode" [style.opacity]="n.isDeleted ? 0.65 : 1">
+                <td>
+                  <div [style.paddingInlineStart]="(n.level * 22) + 'px'" class="ac2">
+                    <button *ngIf="tree.hasChildren(n.id)" type="button" class="btn btn-outline btn-sm ac3" (click)="tree.toggleExpand(n.id)" >
+                      {{ tree.expanded.has(n.id) ? '−' : '+' }}
+                    </button>
+                    <span *ngIf="!tree.hasChildren(n.id)" class="ac4"></span>
+                    <span>
+                      <strong>{{ n.nameAr }}</strong><br />
+                      <small class="muted">{{ n.nameEn }}</small>
+                      <small *ngIf="n.requiresChildSelection" class="ac5"> • يتطلب فرعياً</small>
+                      <small *ngIf="n.autoRuleJson" class="ac6"> • قاعدة</small>
+                    </span>
+                  </div>
+                </td>
+                <td><code class="ac7">{{ n.slug }}</code></td>
+                <td><strong>{{ n.directCount }}</strong> <span class="muted">/ {{ n.totalCount }}</span></td>
+                <td>
+                  <span *ngIf="n.isDeleted" class="ac8">محذوف</span>
+                  <span *ngIf="!n.isDeleted && n.isVisible" class="ac9">ظاهر</span>
+                  <span *ngIf="!n.isDeleted && !n.isVisible" class="ac10">مخفي</span>
+                </td>
+                <td>
+                  <div class="ac11">
+                    <button type="button" class="btn btn-outline btn-sm" *ngIf="!n.isDeleted" (click)="funds.openFunds(n)">الصناديق</button>
+                    <button type="button" class="btn btn-outline btn-sm" *ngIf="!n.isDeleted" (click)="tree.openEditor(null, n.id)">+ فرعي</button>
+                    <button type="button" class="btn btn-outline btn-sm" (click)="tree.openEditor(n)">
+                      <lucide-icon [img]="EditIcon" size="13"></lucide-icon>
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm" *ngIf="!n.isDeleted" (click)="tree.openMove(n)">نقل</button>
+                    <button type="button" class="btn btn-outline btn-sm" *ngIf="!n.isDeleted" (click)="tree.openMerge(n)">دمج</button>
+                    <button type="button" class="btn btn-outline btn-sm ac12" *ngIf="!n.isDeleted"  (click)="tree.openDelete(n)">حذف</button>
+                    <button type="button" class="btn btn-outline btn-sm" *ngIf="n.isDeleted" (click)="tree.restoreNode(n)">
+                      <lucide-icon [img]="UndoIcon" size="13"></lucide-icon> استعادة
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="!tree.flatTree.length"><td colspan="5" class="muted ac13" >لا توجد عقد. شغّل التهيئة والترحيل أولاً.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="ac14">
+          <button type="button" class="btn btn-outline btn-sm" data-testid="new-node" (click)="tree.openEditor(null, null)">
+            <lucide-icon [img]="PlusIcon" size="13"></lucide-icon> عقدة جذرية جديدة
+          </button>
+          <button type="button" class="btn btn-outline btn-sm" (click)="tree.runSeedMigrate()" [disabled]="tree.seedBusy">
+            {{ tree.seedBusy ? 'جارٍ...' : 'تهيئة وترحيل (آمن، لا يكرر)' }}
+          </button>
+        </div>
+        <div *ngIf="tree.lastReport" class="admin-card ac15" >
+          <h3>تقرير آخر ترحيل</h3>
+          <p class="muted">غيّر {{ tree.lastReport.changed?.length ?? 0 }} صندوقاً • غير محدد: {{ tree.lastReport.unclassifiedEquity?.length ?? 0 }} • فضة: {{ tree.lastReport.commoditiesRenamed ?? 0 }}</p>
+        </div>
+

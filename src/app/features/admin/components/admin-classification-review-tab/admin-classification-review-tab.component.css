@@ -1,0 +1,13 @@
+.ac1.ac1 { padding:16px 0; }
+.ac2.ac2 { margin-bottom:12px; }
+.ac3.ac3 { margin:0 0 6px; }
+.ac4.ac4 { margin:0 0 10px; }
+.ac5.ac5 { font-size:11px;color:var(--muted-foreground);max-width:320px; }
+.ac6.ac6 { font-size:12px; }
+.ac7.ac7 { font-size:11px;color:var(--muted-foreground);max-width:260px; }
+.ac8.ac8 { min-width:220px; }
+.ac9.ac9 { text-align:center; }
+.ac10.ac10 { margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center; }
+.ac11.ac11 { font-size:11px;color:var(--bad);max-width:280px; }
+.ac12.ac12 { font-size:11px; }
+.ac13.ac13 { font-size:11px;color:var(--muted-foreground); }

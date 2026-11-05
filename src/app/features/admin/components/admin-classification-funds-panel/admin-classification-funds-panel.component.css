@@ -1,0 +1,16 @@
+.ac1.ac1 { margin-top:20px;padding-top:16px;border-top:1px solid var(--border); }
+.ac2.ac2 { display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px; }
+.ac3.ac3 { margin:0; }
+.ac4.ac4 { display:flex;gap:8px;margin:10px 0;flex-wrap:wrap;align-items:center; }
+.ac5.ac5 { flex:1;min-width:180px; }
+.ac6.ac6 { max-width:150px; }
+.ac7.ac7 { font-size:11px;padding:2px 8px;border-radius:999px; }
+.ac8.ac8 { font-size:11px;color:var(--muted-foreground);max-width:240px; }
+.ac9.ac9 { min-width:200px; }
+.ac10.ac10 { text-align:center; }
+.ac11.ac11 { display:flex;justify-content:center;gap:8px;margin-top:10px; }
+.ac12.ac12 { align-self:center;font-size:12px; }
+.ac13.ac13 { margin:18px 0 8px; }
+.ac14.ac14 { display:flex;gap:8px;flex-wrap:wrap;align-items:center; }
+.ac15.ac15 { flex:1;min-width:200px; }
+.ac16.ac16 { font-size:11px;color:var(--muted-foreground); }

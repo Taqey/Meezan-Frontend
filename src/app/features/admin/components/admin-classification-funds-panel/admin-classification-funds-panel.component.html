@@ -1,0 +1,75 @@
+        <!-- Node funds panel -->
+        <div *ngIf="funds.fundsFor" class="ac1">
+          <div class="ac2">
+            <h3 class="ac3">صناديق: {{ funds.fundsFor.nameAr }} ({{ funds.fundsTotal }})</h3>
+            <button type="button" class="btn btn-outline btn-sm" (click)="funds.closeFunds()">
+              <lucide-icon [img]="XIcon" size="13"></lucide-icon> إغلاق
+            </button>
+          </div>
+          <div class="ac4">
+            <input type="text" [(ngModel)]="funds.fundsSearch" (ngModelChange)="funds.loadNodeFunds(1)" placeholder="بحث بالاسم أو الكود..." class="admin-form input ac5"  />
+            <select [(ngModel)]="funds.fundsSource" (ngModelChange)="funds.loadNodeFunds(1)" class="admin-form input ac6" >
+              <option value="">الكل</option>
+              <option value="Manual">يدوي</option>
+              <option value="Auto">تلقائي</option>
+              <option value="SNDUK">SNDUK</option>
+            </select>
+            <button type="button" class="btn btn-outline btn-sm" [disabled]="!funds.checkedFunds.size" (click)="funds.bulkMoveOpen=true">
+              نقل المحدد ({{ funds.checkedFunds.size }})
+            </button>
+            <button type="button" class="btn btn-outline btn-sm" [disabled]="!funds.checkedFunds.size" (click)="funds.bulkReset()">إرجاع المحدد للتلقائي</button>
+          </div>
+          <div class="table-scroll-x">
+            <table class="admin-table">
+              <thead><tr><th></th><th>الكود</th><th>الاسم</th><th>المصدر</th><th>السبب</th><th>تعيين</th><th></th></tr></thead>
+              <tbody>
+                <tr *ngFor="let m of funds.fundsItems; trackBy: funds.trackFund">
+                  <td><input type="checkbox" [checked]="funds.checkedFunds.has(m.id)" (change)="funds.toggleFundCheck(m.id, $any($event).target.checked)" /></td>
+                  <td><code>{{ m.code }}</code></td>
+                  <td>{{ m.nameAr }}</td>
+                  <td>
+                    <span class="ac7"
+                          [style.background]="m.source==='Manual' ? '#fef3c7' : m.source==='Auto' ? '#e0e7ff' : '#f0fdf4'"
+                          [style.color]="m.source==='Manual' ? '#92400e' : m.source==='Auto' ? '#3730a3' : '#166534'">
+                      {{ funds.sourceAr(m.source) }}
+                    </span>
+                  </td>
+                  <td class="ac8">{{ m.reason || '—' }}</td>
+                  <td class="ac9">
+                    <app-classification-cascade [tree]="tree.publicTree" [path]="emptyPath" (pathChange)="funds.assignFromCascade(m.id, $event)"></app-classification-cascade>
+                  </td>
+                  <td>
+                    <button type="button" class="btn btn-outline btn-sm" *ngIf="m.isManual" (click)="funds.resetFund(m.id)">إرجاع للتلقائي</button>
+                  </td>
+                </tr>
+                <tr *ngIf="!funds.fundsItems.length"><td colspan="7" class="muted ac10" >لا توجد صناديق مطابقة.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="ac11" *ngIf="funds.fundsTotalPages>1">
+            <button type="button" class="btn btn-outline btn-sm" (click)="funds.loadNodeFunds(funds.fundsPage-1)" [disabled]="funds.fundsPage<=1">السابق</button>
+            <span class="muted ac12" >صفحة {{ funds.fundsPage }} من {{ funds.fundsTotalPages }}</span>
+            <button type="button" class="btn btn-outline btn-sm" (click)="funds.loadNodeFunds(funds.fundsPage+1)" [disabled]="funds.fundsPage>=funds.fundsTotalPages">التالي</button>
+          </div>
+
+          <h4 class="ac13">إضافة صناديق لهذا التصنيف</h4>
+          <div class="ac14">
+            <input type="text" [(ngModel)]="funds.addSearch" (ngModelChange)="funds.searchFundsToAdd()" placeholder="ابحث بالاسم أو الكود..." class="admin-form input ac15"  />
+            <button type="button" class="btn btn-primary btn-sm" [disabled]="!funds.checkedAdd.size" (click)="funds.bulkAdd()">
+              <lucide-icon [img]="PlusIcon" size="13"></lucide-icon> إضافة المحدد ({{ funds.checkedAdd.size }})
+            </button>
+          </div>
+          <div class="table-scroll-x" *ngIf="funds.addResults.length">
+            <table class="admin-table">
+              <thead><tr><th></th><th>الكود</th><th>الاسم</th><th>التصنيف الحالي</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let f of funds.addResults; trackBy: funds.trackFund">
+                  <td><input type="checkbox" [checked]="funds.checkedAdd.has(f.id)" (change)="funds.toggleAddCheck(f.id, $any($event).target.checked)" /></td>
+                  <td><code>{{ f.code }}</code></td>
+                  <td>{{ f.nameAr }}</td>
+                  <td class="ac16">{{ f.classificationPathAr || '—' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>

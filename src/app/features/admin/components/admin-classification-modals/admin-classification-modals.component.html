@@ -1,0 +1,150 @@
+      <div *ngIf="tree.editorOpen" class="ac1">
+        <div class="ac2">
+          <div class="ac3">
+            <h3 class="ac4">{{ tree.editingNode ? 'تعديل العقدة' : (tree.editorParent ? 'تصنيف فرعي جديد' : 'عقدة جذرية جديدة') }}</h3>
+            <button type="button" class="btn btn-outline btn-sm" (click)="tree.editorOpen=false"><lucide-icon [img]="XIcon" size="16"></lucide-icon></button>
+          </div>
+          <div class="ac5">
+            <div class="ac6">
+              <div>
+                <label class="ac7">الاسم بالعربية *</label>
+                <input type="text" [(ngModel)]="tree.editorForm.nameAr" data-testid="editor-name-ar" class="admin-form input ac8"  />
+              </div>
+              <div>
+                <label class="ac7">الاسم بالإنجليزية *</label>
+                <input type="text" [(ngModel)]="tree.editorForm.nameEn" data-testid="editor-name-en" class="admin-form input ac8"  />
+              </div>
+            </div>
+            <div>
+              <label class="ac7">المعرّف (Slug)</label>
+              <input type="text" [(ngModel)]="tree.editorForm.slug" data-testid="editor-slug" class="admin-form input ac8"  dir="ltr" placeholder="يُقترح من الاسم الإنجليزي" />
+            </div>
+            <div class="ac9">
+              <div>
+                <label class="ac7">الأيقونة</label>
+                <input type="text" [(ngModel)]="tree.editorForm.icon" class="admin-form input ac8"  />
+              </div>
+              <div>
+                <label class="ac7">اللون</label>
+                <input type="text" [(ngModel)]="tree.editorForm.color" class="admin-form input ac8"  dir="ltr" />
+              </div>
+              <div>
+                <label class="ac7">الترتيب</label>
+                <input type="number" [(ngModel)]="tree.editorForm.displayOrder" class="admin-form input ac8"  min="0" />
+              </div>
+            </div>
+            <div class="ac6">
+              <div>
+                <label class="ac7">تسمية الأبناء (AR)</label>
+                <input type="text" [(ngModel)]="tree.editorForm.childrenLabelAr" class="admin-form input ac8"  />
+              </div>
+              <div>
+                <label class="ac7">تسمية الأبناء (EN)</label>
+                <input type="text" [(ngModel)]="tree.editorForm.childrenLabelEn" class="admin-form input ac8"  />
+              </div>
+            </div>
+            <label class="ac10">
+              <input type="checkbox" [(ngModel)]="tree.editorForm.isVisible" class="ac11" />
+              مرئي في الفلاتر العامة
+            </label>
+            <label class="ac10">
+              <input type="checkbox" [(ngModel)]="tree.editorForm.requiresChildSelection" class="ac11" />
+              يتطلب اختيار تصنيف فرعي
+            </label>
+            <div>
+              <label class="ac7">الكلمات المفتاحية للقاعدة التلقائية (افصل بفاصلة — فارغة تعني يدوي فقط)</label>
+              <input type="text" [(ngModel)]="tree.editorKeywords" class="admin-form input ac8"  dir="ltr" />
+            </div>
+            <label class="ac10">
+              <input type="checkbox" [(ngModel)]="tree.editorForm.autoClassificationEnabled" class="ac11" />
+              تفعيل القاعدة التلقائية لهذه العقدة
+            </label>
+            <div *ngIf="!tree.editingNode && tree.editorParentHasFunds" class="ac12">
+              الأب يحوي {{ tree.editorParentFundCount }} صندوقاً.
+              <select [(ngModel)]="tree.editorFundDisposition" class="ac13">
+                <option value="keep">إبقاء الصناديق على الأب</option>
+                <option value="moveAll">نقل الكل إلى الفرعي الجديد</option>
+              </select>
+            </div>
+            <div class="ac14">
+              <button type="button" class="btn btn-outline" (click)="tree.editorOpen=false">إلغاء</button>
+              <button type="button" class="btn btn-primary" data-testid="editor-save" (click)="tree.saveNode()" [disabled]="tree.nodeBusy">
+                <lucide-icon [img]="SaveIcon" size="14"></lucide-icon> {{ tree.nodeBusy ? 'جارٍ الحفظ...' : 'حفظ' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Move dialog -->
+      <div *ngIf="tree.moveNode" class="ac1">
+        <div class="ac15">
+          <h3 class="ac16">نقل "{{ tree.moveNode.nameAr }}"</h3>
+          <label class="ac7">الأب الجديد (فارغ = الجذر)</label>
+          <select [(ngModel)]="tree.moveParentId" class="admin-form input ac8" >
+            <option [ngValue]="null">— الجذر —</option>
+            <option *ngFor="let n of tree.moveTargets; trackBy: tree.trackNode" [ngValue]="n.id">{{ tree.indentLabel(n) }}</option>
+          </select>
+          <div class="ac17">
+            <button type="button" class="btn btn-outline" (click)="tree.moveNode=null">إلغاء</button>
+            <button type="button" class="btn btn-primary" (click)="tree.confirmMove()">نقل</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Merge dialog -->
+      <div *ngIf="tree.mergeSource" class="ac1">
+        <div class="ac15">
+          <h3 class="ac16">دمج "{{ tree.mergeSource.nameAr }}"</h3>
+          <label class="ac7">العقدة الهدف</label>
+          <select [(ngModel)]="tree.mergeTargetId" class="admin-form input ac8" >
+            <option [ngValue]="0">— اختر —</option>
+            <option *ngFor="let n of tree.flatTree; trackBy: tree.trackNode" [ngValue]="n.id" [disabled]="n.id===tree.mergeSource.id">{{ tree.indentLabel(n) }}</option>
+          </select>
+          <div class="ac17">
+            <button type="button" class="btn btn-outline" (click)="tree.mergeSource=null">إلغاء</button>
+            <button type="button" class="btn btn-primary" (click)="tree.confirmMerge()" [disabled]="!tree.mergeTargetId">دمج</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Delete dialog -->
+      <div *ngIf="tree.deletePreview" class="ac1">
+        <div class="ac18">
+          <h3 class="ac16">حذف "{{ tree.deletePreview.node.nameAr }}"</h3>
+          <p class="muted ac19" >صناديق مباشرة/تابعة: {{ tree.deletePreview.directFunds }}/{{ tree.deletePreview.descendantFunds }} • عقد بنت: {{ tree.deletePreview.childNodes }}</p>
+          <label class="ac7">مصير الصناديق</label>
+          <select [(ngModel)]="tree.deleteFundsChoice" class="admin-form input ac20" >
+            <option [ngValue]="'auto'">إرجاع للتلقائي</option>
+            <option *ngFor="let n of tree.flatTree; trackBy: tree.trackNode" [ngValue]="'node:' + n.id" [disabled]="n.id===tree.deletePreview.node.id">نقل إلى: {{ n.nameAr }}</option>
+          </select>
+          <div class="ac14">
+            <button type="button" class="btn btn-outline" (click)="tree.deletePreview=null">إلغاء</button>
+            <button type="button" class="btn btn-primary ac21" data-testid="delete-confirm"  (click)="tree.confirmDelete()">حذف نهائي</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bulk move dialog -->
+      <div *ngIf="funds.bulkMoveOpen" class="ac1">
+        <div class="ac18">
+          <h3 class="ac16">نقل {{ funds.bulkMoveCount }} صندوق إلى...</h3>
+          <app-classification-cascade [tree]="tree.publicTree" [path]="emptyPath" (pathChange)="funds.bulkMovePath=$event"></app-classification-cascade>
+          <div class="ac17">
+            <button type="button" class="btn btn-outline" (click)="funds.bulkMoveOpen=false">إلغاء</button>
+            <button type="button" class="btn btn-primary" (click)="funds.confirmBulkMove()" [disabled]="!funds.bulkMovePath.length">نقل</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generic confirm -->
+      <div *ngIf="tree.confirmBox" class="ac22">
+        <div class="ac23">
+          <h3 class="ac16">{{ tree.confirmBox.title }}</h3>
+          <p class="muted ac24" >{{ tree.confirmBox.body }}</p>
+          <div class="ac14">
+            <button type="button" class="btn btn-outline" (click)="tree.confirmBox=null">إلغاء</button>
+            <button type="button" class="btn btn-primary ac21"  (click)="tree.runConfirm()">{{ tree.confirmBox.confirmLabel }}</button>
+          </div>
+        </div>
+      </div>

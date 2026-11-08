@@ -14,3 +14,4 @@ export function formatCurrencyLabel(rawCurrency?: string | null): string {
   }
   return 'ج.م';
 }
+

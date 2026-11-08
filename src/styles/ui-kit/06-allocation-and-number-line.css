@@ -308,4 +308,4 @@
 }
 .mz-source-note { font-size: 12px; color: var(--mz-outline); text-align: center; padding: 8px 0; }
 .mz-details-two { display: grid; grid-template-columns: 1fr; gap: 16px; }
-@media (min-width: 1024px) { .mz-details-two { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 768px) { .mz-details-two { grid-template-columns: repeat(2, 1fr); } }
